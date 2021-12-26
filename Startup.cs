@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using BlazorRepoEstoque.Data;
 using MudBlazor.Services;
 using System;
 using System.Collections.Generic;
@@ -29,8 +28,7 @@ namespace BlazorRepoEstoque
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddServerSideBlazor();            
             services.AddMudServices();
             services.AddScoped<HttpClient>();
            

@@ -104,93 +104,41 @@
 
 @code {
     private bool progress = false;
+
     private MemoryStream stream2;
-    private ReposicaoEstoque repo;
-    private List<ReposicaoEstoque> listRepo;
-    private List<ReposicaoEstoque> filterList = new();   
+    private List<ReposicaoEstoque> filterList;
     MudDateRangePicker _picker;
     public double diasDeEstoque = 0;
     DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-5).Date, DateTime.Now.Date);
-    private bool alert = false;
+    private List<ReposicaoEstoque> listRepo = new();
 
+    private bool alert = false;
     private bool ConsumoZero { get; set; } = false;
     private bool ReposicaoZero { get; set; } = false;
-
     private bool ReposicaoMenorIgualZero { get; set; } = false;
     private int fatorReposicao = 1;
 
-    protected override void OnInitialized() => listRepo = new();
+    protected override void OnInitialized() => filterList = new();
 
     private void Progress()
     {
         progress = !progress;
     }
 
-
     public async Task GetFile(InputFileChangeEventArgs e) //get excel file
     {
-        Progress();
-
+        ImportExcelService excelService = new();
         //https://docs.microsoft.com/en-us/aspnet/core/blazor/file-uploads?view=aspnetcore-5.0&pivots=webassembly
         //prepare filestream from uploaded file
         var stream1 = e.File.OpenReadStream();
         stream2 = new MemoryStream();
         await stream1.CopyToAsync(stream2);
         stream1.Close();
-        //await using FileStream stream = new(path, FileMode.Create);
-        //await e.File.OpenReadStream().CopyToAsync(stream);
-        await ReadExcel();
+
+        filterList =  await excelService.ReadExcel(stream2);
+        listRepo = ReordenarID(filterList);
     }
 
-    private async Task<List<ReposicaoEstoque>> ReadExcel()
-    {
-        List<string> rowList = new List<string>();
-        ISheet sheet;
-        //using (var stream = new FileStream("Test.xlsx", FileMode.Open))
-        using (stream2)
-        {
-            stream2.Position = 0;
-            NPOI.XSSF.UserModel.XSSFWorkbook xssWorkbook = new XSSFWorkbook(stream2);
-            sheet = xssWorkbook.GetSheetAt(0);
-            IRow headerRow = sheet.GetRow(0);
-            int cellCount = headerRow.LastCellNum;
-           
-
-            for (int i = (sheet.FirstRowNum + 4); i <= sheet.LastRowNum; i++) //+3
-            {
-                repo = new();
-                IRow row = sheet.GetRow(i);
-                if (row == null) continue;
-                if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
-                for (int j = row.FirstCellNum; j < cellCount; j++)
-                {
-                    if (row.GetCell(j) != null)
-                    {
-                        if (!string.IsNullOrEmpty(row.GetCell(j).ToString()) && !string.IsNullOrWhiteSpace(row.GetCell(j).ToString()))
-                        {
-                            if (j == 0) repo.CodigoMV = row.GetCell(j).ToString();
-                            if (j == 1) repo.Medicamento = row.GetCell(j).ToString();
-                            if (j == 2) repo.Unidade = row.GetCell(j).ToString();
-                            if (j == 3) repo.UltimoMovimento = DateTime.Parse(row.GetCell(j).ToString());
-                            if (j == 4) repo.ConsumoTotal = float.Parse(row.GetCell(j).ToString());
-                            if (j == 6) repo.EstoqueAtual = float.Parse(row.GetCell(j).ToString());
-                            if (j == 7) repo.DiasDeEstoque = int.Parse(row.GetCell(j).ToString());
-                        }
-                    }
-                }
-                listRepo.Add(repo);
-            }
-        }
-        Progress();
-        for (int i = 0; i < listRepo.Count; i++)
-        {
-            listRepo[i].Id = i;
-        }
-
-        filterList = listRepo.ToList();
-
-       return listRepo;
-    }
 
     private void AplicarFiltrosEConfiguracoes()
     {
@@ -199,9 +147,9 @@
         filterList = listRepo.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
         filterList = filterList.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
         CalcularReposicao(filterList);
-        filterList = ReordenarID(filterList);
         if (ConsumoZero) { filterList = filterList.Where(x => x.ConsumoTotal > 0.0f).ToList(); };
         if (ReposicaoZero) { filterList = filterList.Where(x => x.Reposicao >= 0).ToList(); };
+        filterList = ReordenarID(filterList);
         if (filterList.Count() == 0)
         {
             alert = true;

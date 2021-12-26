@@ -72,7 +72,7 @@
 
     private List<ReposicaoEstoque> Elements = new List<ReposicaoEstoque>();
 
-   
+
     private int[] pagesize = { 10, 15, 30, 100, 1000 };
 
 
@@ -117,6 +117,16 @@
     {
         ReposicaoEstoque item = Elements.FirstOrDefault(x => x.Id == id);
         Elements.Remove(item);
+        Elements = ReordenarID(Elements);
         StateHasChanged();
+    }
+
+    private List<ReposicaoEstoque> ReordenarID(List<ReposicaoEstoque> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            list[i].Id = i;
+        }
+        return list;
     }
 }
