@@ -1,0 +1,122 @@
+﻿
+@inject HttpClient httpClient
+@inject IJSRuntime js
+
+
+<MudTable Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" FixedFooter="true" FixedHeader="true"
+          Virtualize="true" Filter="new Func<ReposicaoEstoque, bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1" RowsPerPage="@RowsPerPage">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Medicamentos</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Código</MudTh>
+        <MudTh>Medicamento</MudTh>
+        <MudTh>Unidade</MudTh>
+        <MudTh>Último Movimento</MudTh>
+        <MudTh>Consumo Total</MudTh>
+        <MudTh>Estoque Atual</MudTh>
+        <MudTh>Dias de Estoque</MudTh>
+        <MudTh>Reposição</MudTh>
+        <MudTh>Excluir</MudTh>
+
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Codigo">@context.CodigoMV</MudTd>
+        <MudTd Style="max-width: 400px; overflow: hidden; height:none" DataLabel="Medicamento">@context.Medicamento</MudTd>
+        <MudTd DataLabel="Unidade">@context.Unidade</MudTd>
+        <MudTd DataLabel="UltimoMovimento">@context.UltimoMovimento.ToShortDateString()</MudTd>
+        <MudTd DataLabel="ConsumoTotal" Style="text-align: center">@context.ConsumoTotal</MudTd>
+        <MudTd DataLabel="EstoqueAtual" Style="text-align: center">@context.EstoqueAtual</MudTd>
+        <MudTd DataLabel="DiasDeEstoque" Style="text-align: center">@context.DiasDeEstoque</MudTd>
+        <MudTd DataLabel="Reposicao">
+            <input id="@context.Id" @bind-value="@context.Reposicao"
+                   @onkeypress="(KeyboardEventArgs e) => { Enter(e, context.Id); }"
+                   style="width: 80px; text-align:center; color:blue; font-weight:bold; border: none;"
+                   onclick="document.getElementById(@context.Id).select()" />
+        </MudTd>
+        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Medium" Class="ma-2" Color="Color.Error" OnClick="()=> ExcluirItem(context.Id)" /></MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager RowsPerPageString="Linhas por página" PageSizeOptions="@pagesize" />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+    <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    <MudSwitch @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
+    <MudSwitch @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
+    <MudSpacer />
+    <div style="min-width:200px;">
+        <MudText Inline="true" Class="align-self-center">Selected1: @selectedItem1?.Medicamento</MudText>
+    </div>
+</div>
+@code {
+
+    [Parameter]
+    public List<ReposicaoEstoque> repoList { get; set; } = new();
+    [Parameter]
+    public int RowsPerPage { get; set; }
+
+    private bool dense = true;
+    private bool hover = true;
+    private bool striped = true;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private string searchString2 = "";
+    private ReposicaoEstoque selectedItem1 = null;
+    private HashSet<ReposicaoEstoque> selectedItems = new HashSet<ReposicaoEstoque>();
+
+
+    private List<ReposicaoEstoque> Elements = new List<ReposicaoEstoque>();
+
+   
+    private int[] pagesize = { 10, 15, 30, 100, 1000 };
+
+
+
+    protected override Task OnParametersSetAsync()
+    {
+        Elements = repoList;
+        return base.OnParametersSetAsync();
+    }
+
+
+
+
+    protected override void OnInitialized()
+    {
+        Elements = repoList;
+    }
+
+    private bool FilterFunc1(ReposicaoEstoque element) => FilterFunc(element, searchString1);
+    private bool FilterFunc2(ReposicaoEstoque element) => FilterFunc(element, searchString2);
+
+    private bool FilterFunc(ReposicaoEstoque element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Medicamento.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.CodigoMV.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private void Enter(KeyboardEventArgs e, int id)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter" || e.Code == "Tab")
+        {
+            js.InvokeVoidAsync("focusById", id + 1);
+        }
+    }
+
+    private void ExcluirItem(int id)
+    {
+        ReposicaoEstoque item = Elements.FirstOrDefault(x => x.Id == id);
+        Elements.Remove(item);
+        StateHasChanged();
+    }
+}
