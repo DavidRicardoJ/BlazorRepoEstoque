@@ -5,12 +5,42 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
     <PackageReference Include="MudBlazor" Version="5.1.5" />
     <PackageReference Include="NPOI" Version="2.5.5" />
+    <PackageReference Include="System.CodeDom" Version="6.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
+    <Compile Update="Data\DataSets\DataSetReposicaoEstoque.cs">
+      <DependentUpon>DataSetReposicaoEstoque.xsd</DependentUpon>
+    </Compile>
+    <Compile Update="Data\DataSets\DataSetReposicaoEstoque.Designer.cs">
+      <DependentUpon>DataSetReposicaoEstoque.xsd</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\report\ReportReposicaoEstoque.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Data\DataSets\DataSetReposicaoEstoque.xsc">
+      <DependentUpon>DataSetReposicaoEstoque.xsd</DependentUpon>
+    </None>
+    <None Update="Data\DataSets\DataSetReposicaoEstoque.xsd">
+      <SubType>Designer</SubType>
+      <LastGenOutput>DataSetReposicaoEstoque.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+    </None>
+    <None Update="Data\DataSets\DataSetReposicaoEstoque.xss">
+      <DependentUpon>DataSetReposicaoEstoque.xsd</DependentUpon>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DataSetReposicaoEstoque" targetNamespace="http://tempuri.org/DataSetReposicaoEstoque.xsd" xmlns:mstns="http://tempuri.org/DataSetReposicaoEstoque.xsd" xmlns="http://tempuri.org/DataSetReposicaoEstoque.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DataSetReposicaoEstoque" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DataSetReposicaoEstoque" msprop:Generator_UserDSName="DataSetReposicaoEstoque">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="DataTableEstoque" msprop:Generator_TableClassName="DataTableEstoqueDataTable" msprop:Generator_TableVarName="tableDataTableEstoque" msprop:Generator_TablePropName="DataTableEstoque" msprop:Generator_RowDeletingName="DataTableEstoqueRowDeleting" msprop:Generator_RowChangingName="DataTableEstoqueRowChanging" msprop:Generator_RowEvHandlerName="DataTableEstoqueRowChangeEventHandler" msprop:Generator_RowDeletedName="DataTableEstoqueRowDeleted" msprop:Generator_UserTableName="DataTableEstoque" msprop:Generator_RowChangedName="DataTableEstoqueRowChanged" msprop:Generator_RowEvArgName="DataTableEstoqueRowChangeEvent" msprop:Generator_RowClassName="DataTableEstoqueRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CodigoMV" msprop:Generator_ColumnVarNameInTable="columnCodigoMV" msprop:Generator_ColumnPropNameInRow="CodigoMV" msprop:Generator_ColumnPropNameInTable="CodigoMVColumn" msprop:Generator_UserColumnName="CodigoMV" type="xs:string" minOccurs="0" />
+              <xs:element name="Medicamento" msprop:Generator_ColumnVarNameInTable="columnMedicamento" msprop:Generator_ColumnPropNameInRow="Medicamento" msprop:Generator_ColumnPropNameInTable="MedicamentoColumn" msprop:Generator_UserColumnName="Medicamento" type="xs:string" minOccurs="0" />
+              <xs:element name="Unidade" msprop:Generator_ColumnVarNameInTable="columnUnidade" msprop:Generator_ColumnPropNameInRow="Unidade" msprop:Generator_ColumnPropNameInTable="UnidadeColumn" msprop:Generator_UserColumnName="Unidade" type="xs:string" minOccurs="0" />
+              <xs:element name="Reposicao" msprop:Generator_ColumnVarNameInTable="columnReposicao" msprop:Generator_ColumnPropNameInRow="Reposicao" msprop:Generator_ColumnPropNameInTable="ReposicaoColumn" msprop:Generator_UserColumnName="Reposicao" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -2,6 +2,7 @@
 @using NPOI.SS.UserModel
 @using NPOI.XSSF.UserModel
 @using System.IO
+@inject HttpClient httpClient;
 
 
 <title value="Index"></title>
@@ -26,7 +27,17 @@
                 Buscar Arquivo Excel
             </MudButton>
         </MudPaper>
-
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Elevation="3" Style="margin-top: 5px;">
+                <MudButton HtmlTag="btn"
+                           OnClick="GeraRelatorio"
+                           Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Custom.FileFormats.FilePdf">
+                    Relatório
+                </MudButton>
+            </MudPaper>
+        </MudItem>
     </MudItem>
     <MudItem xs="6">
 
@@ -81,11 +92,20 @@
     </MudItem>
 </MudGrid>
 
-<hr />
+@if (GerarRelatorio)
+{
+    <SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@filterList"></SelectUnits>
+}
+
 
 @if (alert)
 {
     <MudAlert Severity="Severity.Info" Elevation="10">A lista está vazia.</MudAlert>
+}
+
+@if (erroImport)
+{
+    <MudAlert Severity="Severity.Error" Elevation="10">OCORREU UM ERRO NA IMPORTAÇÃO DO ARQUIVO EXCEL.</MudAlert>
 }
 
 @if (progress)
@@ -93,7 +113,7 @@
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 
 }
-@if (filterList.Count() > 0)
+@if (filterList !=null && filterList.Count() > 0)
 {
     <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
         <MudPaper>
@@ -101,6 +121,7 @@
         </MudPaper>
     </MudPaper>
 }
+
 
 @code {
     private bool progress = false;
@@ -117,6 +138,11 @@
     private bool ReposicaoZero { get; set; } = false;
     private bool ReposicaoMenorIgualZero { get; set; } = false;
     private int fatorReposicao = 1;
+    private bool filterItens = false; // itens já foram filtrados?
+    private bool erroImport = false;
+
+    private bool GerarRelatorio;
+    IEnumerable<string> Unidades;
 
     protected override void OnInitialized() => filterList = new();
 
@@ -135,7 +161,13 @@
         await stream1.CopyToAsync(stream2);
         stream1.Close();
 
-        filterList =  await excelService.ReadExcel(stream2);
+        filterList = await excelService.ReadExcel(stream2);
+        if (filterList == null)
+        {
+            erroImport = true;
+            return;
+        }
+        erroImport = false;
         listRepo = ReordenarID(filterList);
     }
 
@@ -143,7 +175,6 @@
     private void AplicarFiltrosEConfiguracoes()
     {
         if (!filterList.Any() && !listRepo.Any()) return;
-
         filterList = listRepo.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
         filterList = filterList.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
         CalcularReposicao(filterList);
@@ -153,10 +184,12 @@
         if (filterList.Count() == 0)
         {
             alert = true;
+            filterItens = false;
         }
         else
         {
             alert = false;
+            filterItens = true;
         }
         StateHasChanged();
     }
@@ -176,6 +209,20 @@
         {
             item.Reposicao = ((int)item.ConsumoTotal * fatorReposicao - (int)item.EstoqueAtual);
         }
+    }
+
+    private void GeraRelatorio()
+    {
+        if (filterList.Count == 0 || filterItens == false) return;
+
+        Unidades = filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+
+        GerarRelatorio = true;
+    }
+
+    private void CancelaRelatorio(bool cancela)
+    {
+        GerarRelatorio = cancela;
     }
 
 }

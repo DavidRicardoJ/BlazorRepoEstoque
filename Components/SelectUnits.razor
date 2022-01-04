@@ -1,0 +1,103 @@
+﻿@inject IJSRuntime js
+@inject NavigationManager nav
+
+
+<MudPaper Elevation="7" Style="display: flex; flex-direction: column; position: relative; top: -200px !important; /*z-index:10000;*/
+justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="300px">
+
+    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedValues">
+        <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
+            @foreach (var unidade in Unidades)
+            {
+                <MudTreeViewItem Value="@(unidade)" />
+            }
+        </MudTreeViewItem>
+    </MudTreeView>
+   
+    <MudItem xs="12" Style="margin-top: 30px; width: 20rem;">
+        <MudSelect T="string" Label="Farmácia de Destino" Variant="Variant.Text" OffsetY="true" Margin="Margin.Dense"
+                   Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@farmacia" FullWidth="true" >
+            <MudSelectItem Value="@("FARMÁCIA DA EMERGÊNCIA")" />
+            <MudSelectItem Value="@("FARMÁCIA DO 3° ANDAR")" />
+            <MudSelectItem Value="@("FARMÁCIA DO 6° ANDAR")" />
+            <MudSelectItem Value="@("FARMÁCIA DO 7° ANDAR")" />
+            <MudSelectItem Value="@("FARMÁCIA DO 7° ANDAR BLOCO C")" />
+            <MudSelectItem Value="@("FARMÁCIA DO HCM SUBSOLO")" />
+            <MudSelectItem Value="@("FARMÁCIA DO CENTRO CIRÚRGICO")" />
+            <MudSelectItem Value="@("FARMÁCIA DO C.O.")" />
+        </MudSelect>
+    </MudItem>
+
+
+    <MudButton HtmlTag="btn"
+               Style="margin: 25px"
+               Variant="Variant.Filled"
+               Color="Color.Tertiary"
+               StartIcon="@Icons.Custom.FileFormats.FilePdf"
+               OnClick="GerarListaReposicao">
+        Gerar Relatório
+    </MudButton>
+    <MudButton HtmlTag="btn"
+               OnClick="() => Cancelar.InvokeAsync(false)"
+               Style="margin-bottom: 25px"
+               Variant="Variant.Filled"
+               Color="Color.Dark"
+               StartIcon="@Icons.Custom.FileFormats.FilePdf">
+        Cancelar
+    </MudButton>
+    @if (alert)
+    {
+        <MudPaper Elevation="15" Class="d-flex justify-center">
+            <MudAlert Severity="Severity.Warning" Elevation="10">Selecione ao menos uma unidade.</MudAlert>
+        </MudPaper>
+    }
+</MudPaper>
+
+
+
+<a id="btnGenerate" href="@nav.BaseUri.Remove(nav.BaseUri.Length -1, 1)/report/printreport" target="_blank" style="display:none">Report</a>
+
+
+@code {
+    [Parameter]
+    public IEnumerable<string> Unidades { get; set; }
+
+    [Parameter]
+    public List<ReposicaoEstoque> ListReposicao { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> Cancelar { get; set; }
+
+    HashSet<string> SelectedValues { get; set; }
+    private bool alert = false;
+
+    private string farmacia;
+
+
+    private void GerarListaReposicao()
+    {
+        if (SelectedValues.Any())
+        {
+            alert = false;
+            List<ReposicaoEstoque> list = new();
+            foreach (var item in SelectedValues)
+            {
+                var medicamento = ListReposicao.Where(m => m.Unidade == item).ToList();
+                if (medicamento != null)
+                {
+                    list.AddRange(medicamento);
+                }
+            }
+            ReportDataReposicao.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), farmacia);
+            js.InvokeVoidAsync("ClickElement", "btnGenerate");
+            Cancelar.InvokeAsync(true);
+
+        }
+        else
+        {
+            alert = true;
+        }
+    }
+}
+
+
