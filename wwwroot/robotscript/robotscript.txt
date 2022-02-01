@@ -65,7 +65,7 @@
         ["xpath=//div[@id='context_login']/section[2]/input[2]", "xpath:idRelative"],
         ["xpath=//section[2]/input[2]", "xpath:position"]
       ],
-      "value": "jrd157915"
+      "value": "null"
     }, {
       "id": "8852d0ae-15f1-4538-ac3c-18a8e2cf2bfa",
       "comment": "",
