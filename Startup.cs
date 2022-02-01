@@ -31,6 +31,7 @@ namespace BlazorRepoEstoque
             services.AddServerSideBlazor();            
             services.AddMudServices();
             services.AddScoped<HttpClient>();
+            
            
         }
 

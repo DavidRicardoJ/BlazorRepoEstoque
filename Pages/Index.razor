@@ -1,8 +1,9 @@
 ﻿@page "/"
-@using NPOI.SS.UserModel
-@using NPOI.XSSF.UserModel
 @using System.IO
 @inject HttpClient httpClient;
+@inject NavigationManager nav;
+@inject IJSRuntime js
+@inject IDialogService Dialog
 
 
 <title value="Index"></title>
@@ -35,6 +36,13 @@
                            Color="Color.Secondary"
                            StartIcon="@Icons.Custom.FileFormats.FilePdf">
                     Relatório
+                </MudButton>
+                <MudButton HtmlTag="btn" Style="margin-left: 25px;"
+                           OnClick="@((e) => OpenDialog(disableBackdropClick))"
+                           Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Filled.Speed">
+                    Criar Script de Automação
                 </MudButton>
             </MudPaper>
         </MudItem>
@@ -92,6 +100,8 @@
     </MudItem>
 </MudGrid>
 
+<a href="@nav.BaseUri.Remove(nav.BaseUri.Length -1, 1)/Robot/GetScriptRobot" target="_blank"></a>
+
 @if (GerarRelatorio)
 {
     <SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@filterList"></SelectUnits>
@@ -113,7 +123,7 @@
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 
 }
-@if (filterList !=null && filterList.Count() > 0)
+@if (filterList != null && filterList.Count() > 0)
 {
     <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
         <MudPaper>
@@ -129,17 +139,19 @@
     private MemoryStream stream2;
     private List<ReposicaoEstoque> filterList;
     MudDateRangePicker _picker;
-    public double diasDeEstoque = 0;
-    DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-5).Date, DateTime.Now.Date);
+    public double diasDeEstoque = 5;
+    DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
     private List<ReposicaoEstoque> listRepo = new();
 
+
     private bool alert = false;
-    private bool ConsumoZero { get; set; } = false;
-    private bool ReposicaoZero { get; set; } = false;
+    private bool ConsumoZero { get; set; } = true;
+    private bool ReposicaoZero { get; set; } = true;
     private bool ReposicaoMenorIgualZero { get; set; } = false;
     private int fatorReposicao = 1;
     private bool filterItens = false; // itens já foram filtrados?
     private bool erroImport = false;
+    DialogOptions disableBackdropClick = new DialogOptions() { DisableBackdropClick = true };
 
     private bool GerarRelatorio;
     IEnumerable<string> Unidades;
@@ -190,7 +202,10 @@
         {
             alert = false;
             filterItens = true;
+            ClosePanel();
         }
+
+
         StateHasChanged();
     }
 
@@ -215,7 +230,7 @@
     {
         if (filterList.Count == 0 || filterItens == false) return;
 
-        Unidades = filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+        Unidades = GetUnidades();
 
         GerarRelatorio = true;
     }
@@ -225,4 +240,21 @@
         GerarRelatorio = cancela;
     }
 
+    private void ClosePanel()
+    {
+        js.InvokeVoidAsync("ClickElementByClass", "mud-expand-panel-header");
+    }
+
+    private void OpenDialog(DialogOptions options)
+    {
+        if (filterList.Count == 0 || filterItens == false) return;
+        ReportDataReposicao.InputUnidades(GetUnidades());
+        ReportDataReposicao.SetListReposicao(filterList, null);
+        Dialog.Show<Dialog>("Criar Script de Automação", options);
+    }
+
+    private IEnumerable<string> GetUnidades()
+    {
+        return filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+    }
 }

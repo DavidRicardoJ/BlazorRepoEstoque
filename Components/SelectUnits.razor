@@ -2,6 +2,7 @@
 @inject NavigationManager nav
 
 
+
 <MudPaper Elevation="7" Style="display: flex; flex-direction: column; position: relative; top: -200px !important; /*z-index:10000;*/
 justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="300px">
 
@@ -13,10 +14,10 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
             }
         </MudTreeViewItem>
     </MudTreeView>
-   
+
     <MudItem xs="12" Style="margin-top: 30px; width: 20rem;">
         <MudSelect T="string" Label="Farmácia de Destino" Variant="Variant.Text" OffsetY="true" Margin="Margin.Dense"
-                   Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@farmacia" FullWidth="true" >
+                   Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@farmacia" FullWidth="true">
             <MudSelectItem Value="@("FARMÁCIA DA EMERGÊNCIA")" />
             <MudSelectItem Value="@("FARMÁCIA DO 3° ANDAR")" />
             <MudSelectItem Value="@("FARMÁCIA DO 6° ANDAR")" />
@@ -29,17 +30,19 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
     </MudItem>
 
 
-    <MudButton HtmlTag="btn"
-               Style="margin: 25px"
+    <MudButton HtmlTag="btnRelatorio"
+               Style="margin-top: 25px"
                Variant="Variant.Filled"
                Color="Color.Tertiary"
                StartIcon="@Icons.Custom.FileFormats.FilePdf"
                OnClick="GerarListaReposicao">
         Gerar Relatório
     </MudButton>
-    <MudButton HtmlTag="btn"
+
+
+    <MudButton HtmlTag="btnCancelar"
                OnClick="() => Cancelar.InvokeAsync(false)"
-               Style="margin-bottom: 25px"
+               Style="margin-bottom: 25px; margin-top: 25px;"
                Variant="Variant.Filled"
                Color="Color.Dark"
                StartIcon="@Icons.Custom.FileFormats.FilePdf">
@@ -55,7 +58,7 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
 
 
 
-<a id="btnGenerate" href="@nav.BaseUri.Remove(nav.BaseUri.Length -1, 1)/report/printreport" target="_blank" style="display:none">Report</a>
+<a id="btnGenerate" href="@nav.BaseUri.Remove(nav.BaseUri.Length - 1, 1)/report/printreport" target="_blank" style="display:none">Report</a>
 
 
 @code {
@@ -70,6 +73,8 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
 
     HashSet<string> SelectedValues { get; set; }
     private bool alert = false;
+
+
 
     private string farmacia;
 

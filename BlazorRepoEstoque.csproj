@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.Reporting" Version="2.1.0" />
+    <PackageReference Include="DataAnnotationsExtensions" Version="5.0.1.27" />
     <PackageReference Include="MudBlazor" Version="5.1.5" />
     <PackageReference Include="NPOI" Version="2.5.5" />
     <PackageReference Include="System.CodeDom" Version="6.0.0" />

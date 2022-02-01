@@ -23,7 +23,7 @@ namespace BlazorRepoEstoque.Services
                 List<string> rowList = new List<string>();
                 ISheet sheet;
                 //using (var stream = new FileStream("Test.xlsx", FileMode.Open))
-                using (stream2)
+               await using (stream2)
                 {
                     stream2.Position = 0;
                     XSSFWorkbook xssWorkbook = new XSSFWorkbook(stream2);
