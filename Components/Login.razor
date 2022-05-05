@@ -1,0 +1,55 @@
+﻿@using System.Text
+@using System.ComponentModel.DataAnnotations
+@using BlazorRepoEstoque.Services.Interfaces
+
+
+<MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5" Style="@color">
+    <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Usuário MV</MudText>
+    <EditForm Model="@model" OnValidSubmit="OnValidGroupSubmit">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardContent Style="width:max-content">
+                <MudItem xs="12" Style="margin-top: 30px; width: 20rem;">
+                    <MudSelect T="string" Label="Farmácia de Destino" Variant="Variant.Text" OffsetY="true" Margin="Margin.Dense"
+                               Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@ReportDataReposicao.Farmacia" FullWidth="true">
+                        <MudSelectItem Value="@("FARMÁCIA DA EMERGÊNCIA")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO 3° ANDAR")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO 6° ANDAR")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO 7° ANDAR")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO 7° ANDAR BLOCO C")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO HCM SUBSOLO")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO CENTRO CIRÚRGICO")" />
+                        <MudSelectItem Value="@("FARMÁCIA DO C.O.")" />
+                    </MudSelect>
+                </MudItem>
+                <MudTextField Label="Usuário MV"
+                              @bind-Value="model.UsuarioMV" For="@(() => model.UsuarioMV)" />
+                <MudTextField Label="Senha" Class="mt-8"
+                              @bind-Value="model.Senha" For="@(() => model.Senha)" InputType="InputType.Password" />
+                <MudTextField Label="Estoque de Origem" Class="mt-8"
+                              @bind-Value="model.EstoqueOrigem" For="@(() => model.EstoqueOrigem)" InputType="InputType.Number" />
+                <MudTextField Label="Estoque de Destino" Class="mt-8"
+                              @bind-Value="model.EstoqueDestino" For="@(() => model.EstoqueDestino)" InputType="InputType.Number" />
+
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Disabled="disable" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">OK</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+
+</MudPaper>
+
+@code {
+
+    LoginUsuarioMV model = new();
+    bool disable = false;
+    string color;
+
+    private void OnValidGroupSubmit()
+    {
+        ReportDataReposicao.InputDadosScript(model);
+        disable = true;
+        color = "background-color: rgba(123, 237, 159,0.3)";
+    }
+}

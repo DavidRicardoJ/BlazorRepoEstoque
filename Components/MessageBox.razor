@@ -1,0 +1,34 @@
+﻿
+
+@code {
+    [Inject] private IDialogService DialogService { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> okButton { get; set; }
+
+    [Parameter]
+    public string Titulo { get; set; }
+
+    [Parameter]
+    public string Aviso { get; set; }
+
+    protected override void OnInitialized()
+    {
+        MessageBoxComponent(Titulo, Aviso);
+    }
+
+
+    private async void MessageBoxComponent(string titulo, string aviso)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            titulo,
+            aviso,
+            yesText: "OK"
+            );
+        if (result == true)
+        {
+            await okButton.InvokeAsync(true);
+        }
+        StateHasChanged();
+    }
+}

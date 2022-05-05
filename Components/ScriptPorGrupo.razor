@@ -1,0 +1,154 @@
+﻿@using System.Text
+@using System.ComponentModel.DataAnnotations
+@using BlazorRepoEstoque.Services.Interfaces
+@inject IJSRuntime js
+@inject IGrupoServices grupoService
+
+
+
+<MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
+    <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Grupo</MudText>
+    @if (alert)
+    {
+            <MudPaper Elevation="15" Class="d-flex align-center">
+                <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
+            </MudPaper>
+    }
+    <MudCard Style="margin-top: 30px;">
+        <MudCardContent Style="width:100%">
+            <MudSelect Style="margin: 10px" T="string" FullWidth="true" Placeholder="Selecione o Grupo" MultiSelection="false" @bind-Value="grupoSelecionado">
+                @foreach (var grupo in NomesGrupos)
+                {
+                        <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
+                }
+            </MudSelect>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton @onclick="GeraScript" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Gerar Script</MudButton>
+        </MudCardActions>
+    </MudCard>
+    @if (messageBox)
+    {
+            <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+    }
+</MudPaper>
+
+
+@code {
+
+
+    private bool alert = false;
+    string fileName = "scriptRobot.side";
+    private string grupoSelecionado { get; set; }
+    private List<Grupo> ListGrupos { get; set; }
+    private List<string>NomesGrupos{ get; set; }
+    private List<ReposicaoEstoque> ListReposicao { get; set; }
+    string message;
+
+    bool messageBox = false;
+    string titulo;
+    string aviso;
+
+
+    protected override async void OnInitialized()
+    {
+        ListReposicao = ReportDataReposicao.GetListReposicao().Select(x => new ReposicaoEstoque
+            {
+                CodigoMV = x.CodigoMV,
+                ConsumoTotal = x.ConsumoTotal,
+                DiasDeEstoque = x.DiasDeEstoque,
+                EstoqueAtual = x.EstoqueAtual,
+                Medicamento = x.Medicamento,
+                Id = x.Id,
+                Reposicao = x.Reposicao,
+                UltimoMovimento = x.UltimoMovimento,
+                Unidade = x.Unidade
+            }).ToList();
+        ListGrupos = await grupoService.GetAllGrupos();
+        NomesGrupos = await CriaListaNomeGrupos();
+    }
+
+
+
+    private void GeraScript()
+    {
+        if (VerificaLogin() is true && VerificaGrupoSelecionado() is true && GerarListaReposicaoGrupo() is true)
+        {
+            CreateRobot robot = new();
+            DownloadFile(fileName, robot.GetScriptRobot());
+            StateHasChanged();
+            MessageSucess();
+        }
+
+    }
+    private void MessageSucess()
+    {
+        messageBox = true;
+        titulo = "Script";
+        aviso = "O Script foi criado com sucesso.";
+    }
+
+    private bool VerificaLogin()
+    {
+        if (ReportDataReposicao.GetDadosScript() == null)
+        {
+            messageBox = true;
+            titulo = "Login";
+            aviso = "Preencha os dados de acesso ao MV";
+            return false;
+        }
+        return true;
+    }
+    private bool VerificaGrupoSelecionado()
+    {
+        if (String.IsNullOrEmpty(grupoSelecionado) || String.IsNullOrWhiteSpace(grupoSelecionado))
+        {
+
+            messageBox = true;
+            titulo = "Grupo";
+            aviso = "Escolha o Grupo de Medicamentos para Gerar o Script.";
+            return false;
+        }
+        return true;
+    }
+
+    private bool GerarListaReposicaoGrupo()
+    {
+        alert = false;
+        List<ReposicaoEstoque> list = new();
+        List<Grupo> codigosMvlist = ListGrupos.Where(x => x.NomeGrupo.Equals(grupoSelecionado.ToUpper())).ToList();
+        foreach (var item in codigosMvlist)
+        {
+            var medicamento = ListReposicao.Where(m => m.CodigoMV == item.CodigoMV.ToString());
+            if (medicamento != null)
+            {
+                list.AddRange(medicamento);
+            }
+        }
+        if (list.Any())
+        {
+            ReportDataReposicao.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), ReportDataReposicao.Farmacia);
+            return true;
+        }
+        else
+        {
+            message = "Não há nenhum item para este grupo.";
+            alert = true;
+            return false;
+        }
+    }
+
+    private async Task<List<string>> CriaListaNomeGrupos() => await grupoService.GetListaNomeGrupos();
+
+    public async void DownloadFile(string fileName, string Content)
+    {
+        await js.InvokeAsync<object>("saveFile", fileName, Content);
+    }
+
+    private void CloseMsgBox()
+    {
+        messageBox = false;
+        StateHasChanged();
+    }
+
+    }

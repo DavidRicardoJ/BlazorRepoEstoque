@@ -1,0 +1,35 @@
+﻿@page "/robot"
+
+
+
+<MudGrid>
+
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            <MudText Class="pa-2" Style="text-align: center;" Typo="Typo.h4">Criar Script de Automação</MudText>
+        </MudPaper>
+    </MudItem>
+
+     <MudItem xs="4">
+        <Login></Login>
+    </MudItem>
+
+    <MudItem xs="4">
+       <ScriptPorUnidade></ScriptPorUnidade>
+    </MudItem>
+
+    <MudItem xs="4">
+        <ScriptPorGrupo></ScriptPorGrupo>
+    </MudItem>
+
+</MudGrid>
+
+
+@code{
+    protected override void OnAfterRender(bool firstRender)
+    {
+        ReportDataReposicao.InputDadosScript(null);
+        ReportDataReposicao.Farmacia = null;
+        base.OnAfterRender(firstRender);
+    }
+}

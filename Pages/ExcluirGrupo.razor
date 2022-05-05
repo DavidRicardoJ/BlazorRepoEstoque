@@ -1,0 +1,103 @@
+﻿@page "/excluirgrupo"
+@using BlazorRepoEstoque.Services.Interfaces
+@inject IGrupoServices grupoService
+
+
+<MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
+    <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center; margin-top: 30px;">Excluir Grupo</MudText>
+
+    <MudCard Style="margin-top: 30px;">
+        <MudCardContent Style="width:100%">
+            <MudSelect Style="margin: 10px" T="string" FullWidth="true" Placeholder="Selecione o Grupo" MultiSelection="false" @bind-Value="grupoSelecionado">
+                @foreach (var grupo in NomesGrupos)
+                {
+                    <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
+                }
+            </MudSelect>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnButtonClicked">Delete</MudButton>            
+        </MudCardActions>
+    </MudCard>
+    @if (messageBox)
+    {
+        <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+    }
+</MudPaper>
+
+@code {
+    [Inject] private IDialogService DialogService { get; set; }
+
+    public List<string> NomesGrupos { get; set; }
+    private string grupoSelecionado { get; set; }
+    bool messageBox = false;
+    string titulo;
+    string aviso;
+
+    protected override void OnInitialized()
+    {
+        AtualizaNomeGrupo();
+    }
+
+    private async void AtualizaNomeGrupo()
+    {
+        NomesGrupos = await CriaListaNomeGrupos();
+    }
+
+
+    private async Task<List<string>> CriaListaNomeGrupos() => await grupoService.GetListaNomeGrupos();
+
+
+    private void CloseMsgBox()
+    {
+        messageBox = false;
+        StateHasChanged();
+    }
+
+    private async void OnButtonClicked()
+    {
+        if (VerificaEscolhaGrupo() is false) return;
+
+        bool? result = await DialogService.ShowMessageBox(
+            "Atenção",
+           $"Confirma a exclusão do grupo - {grupoSelecionado} ?",
+            yesText: "Excuir Grupo", cancelText: "Cancelar");
+
+        if (result != null) DeleteGrupo();
+        StateHasChanged();
+    }
+
+
+    private bool VerificaEscolhaGrupo()
+    {
+        if (grupoSelecionado == null)
+        {
+            messageBox = true;
+            titulo = "Excluir Grupo";
+            aviso = "Escolha o grupo a ser excluido.";
+            return false;
+        }
+        return true;
+    }
+
+    private void DeleteGrupo()
+    {
+        var result = grupoService.DeleteGrupo(grupoSelecionado);
+        if (result.IsCompletedSuccessfully)
+        {
+            messageBox = true;
+            titulo = "Excluir Grupo";
+            aviso = "Grupo excluido com sucesso!";
+
+            AtualizaNomeGrupo();
+            StateHasChanged();
+        }
+        else
+        {
+            messageBox = true;
+            titulo = "Excluir Grupo";
+            aviso = "Falha na operação."; 
+        }
+    }
+
+}

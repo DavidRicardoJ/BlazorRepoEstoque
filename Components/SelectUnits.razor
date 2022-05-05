@@ -2,6 +2,8 @@
 @inject NavigationManager nav
 
 
+<MudContainer>
+
 
 <MudPaper Elevation="7" Style="display: flex; flex-direction: column; position: relative; top: -200px !important; /*z-index:10000;*/
 justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="300px">
@@ -55,7 +57,7 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
         </MudPaper>
     }
 </MudPaper>
-
+</MudContainer>
 
 
 <a id="btnGenerate" href="@nav.BaseUri.Remove(nav.BaseUri.Length - 1, 1)/report/printreport" target="_blank" style="display:none">Report</a>

@@ -1,0 +1,186 @@
+﻿@using System.Text
+@using System.ComponentModel.DataAnnotations
+@using BlazorRepoEstoque.Services.Interfaces
+@inject IJSRuntime js
+@inject IGrupoServices grupoService
+
+<MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
+    <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Unidades</MudText>
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            @if (alert)
+            {
+                <MudPaper Elevation="15" Class="d-flex align-center">
+                    <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
+                </MudPaper>
+            }
+            <MudCard>
+                <MudCardContent Style="width:100%">
+                    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedValuesUnidades">
+                        <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
+                            @foreach (var unidade in Unidades)
+                            {
+                                <MudTreeViewItem Value="@(unidade)" />
+                            }
+                        </MudTreeViewItem>
+                    </MudTreeView>
+
+                    <MudSelect Style="margin-top: 10px;" T="string" Label="Não incluir estes grupos:" MultiSelection="true" @bind-SelectedValues="SelectedGrupo">
+                        @foreach (var grupo in NomesGrupos)
+                        {
+                            <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
+                        }
+                    </MudSelect>
+                    @if (SelectedGrupo != null)
+                    {
+                        <MudText Style="margin-top: 10px; color: blue;" Typo="Typo.body2" Class="pl-4">@(string.Join(", ", SelectedGrupo.Select(x=>$"\"{x}\"")))</MudText>
+                    }
+
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" @onclick="OnValidSubmit">Gerar Script</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+@if (messageBox)
+{
+    <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+}
+
+@code {
+    HashSet<string> SelectedValuesUnidades { get; set; }
+    HashSet<string> SelectedGrupo { get; set; }
+    private List<string> NomesGrupos { get; set; }
+
+    bool messageBox = false;
+    string titulo;
+    string aviso;
+
+    string fileName = "scriptRobot.side";
+
+    string message;
+    private bool alert = false;
+
+    private List<Grupo> ListGrupos { get; set; }
+    private IEnumerable<string> Unidades { get; set; }
+    private List<ReposicaoEstoque> ListReposicao { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        ListReposicao = ReportDataReposicao.GetListReposicao().Select(x => new ReposicaoEstoque
+            {
+                CodigoMV = x.CodigoMV,
+                ConsumoTotal = x.ConsumoTotal,
+                DiasDeEstoque = x.DiasDeEstoque,
+                EstoqueAtual = x.EstoqueAtual,
+                Medicamento = x.Medicamento,
+                Id = x.Id,
+                Reposicao = x.Reposicao,
+                UltimoMovimento = x.UltimoMovimento,
+                Unidade = x.Unidade
+            }).ToList();
+        //ListReposicao = ReportDataReposicao.GetListReposicao();
+        Unidades = ReportDataReposicao.GetUnidades();
+        ListGrupos = await grupoService.GetAllGrupos();
+        NomesGrupos = await CriaListaNomeGrupos();
+    }
+
+
+    private void OnValidSubmit()
+    {
+        if (VerificaLogin() is false) return;
+
+        var result = ExcluiItensdeGrupo(ListReposicao);
+        if (GerarListaReposicaoUnidade(result) is false) return;
+
+        CreateRobot robot = new();
+        DownloadFile(fileName, robot.GetScriptRobot());
+        MessageSucess();
+        StateHasChanged();
+    }
+
+    private void MessageSucess()
+    {
+        messageBox = true;
+        titulo = "Script";
+        aviso = "O Script foi criado com sucesso.";
+    }
+
+    private List<ReposicaoEstoque> ExcluiItensdeGrupo(List<ReposicaoEstoque> list)
+    {
+        if (SelectedGrupo == null || SelectedGrupo.Count <= 0) return list;
+        List<Grupo> grupos = new();
+        foreach (var grupo in SelectedGrupo)
+        {
+            var result = ListGrupos.Where(x => x.NomeGrupo.Equals(grupo)).ToList();
+            if (result != null)
+            {
+                grupos.AddRange(result);
+            }
+        }
+
+        foreach (var item in grupos)
+        {
+            var element = list.FirstOrDefault(x => x.CodigoMV == item.CodigoMV.ToString());
+            if (element != null)
+            {
+                list.Remove(element);
+            }
+        }
+        return list;
+    }
+
+    private bool VerificaLogin()
+    {
+        if (ReportDataReposicao.GetDadosScript() == null)
+        {
+            messageBox = true;
+            titulo = "Login";
+            aviso = "Preencha os dados de acesso ao MV";
+            return false;
+        }
+        return true;
+    }
+
+
+    private bool GerarListaReposicaoUnidade(List<ReposicaoEstoque> reposicaoEstoques)
+    {
+        if (SelectedValuesUnidades.Any())
+        {
+            alert = false;
+            List<ReposicaoEstoque> list = new();
+            foreach (var item in SelectedValuesUnidades)
+            {
+                var medicamento = reposicaoEstoques.Where(m => m.Unidade == item).ToList();
+                if (medicamento != null)
+                {
+                    list.AddRange(medicamento);
+                }
+            }
+            ReportDataReposicao.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), ReportDataReposicao.Farmacia);
+            return true;
+        }
+        else
+        {
+            message = "Selecione ao menos uma unidade.";
+            alert = true;
+            return false;
+        }
+    }
+
+    private async Task<List<string>> CriaListaNomeGrupos() => await grupoService.GetListaNomeGrupos();
+
+    private void CloseMsgBox()
+    {
+        messageBox = false;
+        StateHasChanged();
+    }
+
+    public async void DownloadFile(string fileName, string Content)
+    {
+        await js.InvokeAsync<object>("saveFile", fileName, Content);
+    }
+
+   }

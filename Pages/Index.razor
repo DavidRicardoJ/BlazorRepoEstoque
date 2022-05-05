@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.IO
+@using System.Text
 @inject HttpClient httpClient;
 @inject NavigationManager nav;
 @inject IJSRuntime js
@@ -38,7 +39,7 @@
                     Relatório
                 </MudButton>
                 <MudButton HtmlTag="btn" Style="margin-left: 25px;"
-                           OnClick="@((e) => OpenDialog(disableBackdropClick))"
+                           OnClick="CriarScriptAutomacao"
                            Variant="Variant.Filled"
                            Color="Color.Secondary"
                            StartIcon="@Icons.Filled.Speed">
@@ -50,7 +51,7 @@
     <MudItem xs="6">
 
         <MudExpansionPanels Class="py-5">
-            <MudExpansionPanel Text="Filtros e Configurações" MaxHeight="650">
+            <MudExpansionPanel Text="Aplicar Filtros e Configurações" MaxHeight="650">
                 <MudPaper Class="align-self-start" Elevation="3" Style="margin-bottom: 7px;">
                     <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Configurações da Lista</MudText>
                     <MudCheckBox @bind-Checked="@ConsumoZero" Label="Não considera Consumo Total igual a zero." Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
@@ -106,6 +107,10 @@
 {
     <SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@filterList"></SelectUnits>
 }
+@if (showMessageBox)
+{
+    <MessageBox Titulo="@tituloMsgBox" Aviso="@avisoMsgBox" okButton="CloseMsgBox" />
+}
 
 
 @if (alert)
@@ -125,6 +130,7 @@
 }
 @if (filterList != null && filterList.Count() > 0)
 {
+    erroImport = false;
     <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
         <MudPaper>
             <TabPage repoList="@filterList" RowsPerPage="filterList.Count"></TabPage>
@@ -142,6 +148,10 @@
     public double diasDeEstoque = 5;
     DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
     private List<ReposicaoEstoque> listRepo = new();
+
+    private bool showMessageBox;
+    private string tituloMsgBox;
+    private string avisoMsgBox;
 
 
     private bool alert = false;
@@ -181,6 +191,7 @@
         }
         erroImport = false;
         listRepo = ReordenarID(filterList);
+        listRepo = listRepo.OrderBy(x => x.Medicamento).ToList();
     }
 
 
@@ -204,8 +215,6 @@
             filterItens = true;
             ClosePanel();
         }
-
-
         StateHasChanged();
     }
 
@@ -229,15 +238,15 @@
     private void GeraRelatorio()
     {
         if (filterList.Count == 0 || filterItens == false) return;
+        if (VerificaItemZeradoOuNegativo()) return;
 
         Unidades = GetUnidades();
-
         GerarRelatorio = true;
     }
 
-    private void CancelaRelatorio(bool cancela)
+    private void CancelaRelatorio()
     {
-        GerarRelatorio = cancela;
+        GerarRelatorio = false;
     }
 
     private void ClosePanel()
@@ -245,16 +254,58 @@
         js.InvokeVoidAsync("ClickElementByClass", "mud-expand-panel-header");
     }
 
-    private void OpenDialog(DialogOptions options)
+    private void CriarScriptAutomacao()
     {
         if (filterList.Count == 0 || filterItens == false) return;
+        if (VerificaItemZeradoOuNegativo()) return;
+
         ReportDataReposicao.InputUnidades(GetUnidades());
         ReportDataReposicao.SetListReposicao(filterList, null);
-        Dialog.Show<Dialog>("Criar Script de Automação", options);
+        NavigateToNewTab();
+    }
+
+    private bool VerificaItemZeradoOuNegativo()
+    {
+        var itensZerados = filterList.Where(x => x.Reposicao <= 0).ToList();
+        if (itensZerados.Count > 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Há itens zerados ou negativos na lista de reposição: ");
+            foreach (var item in itensZerados)
+            {
+                sb.AppendLine("Cód." + item.CodigoMV + " " + item.Medicamento);
+            }
+            var aviso = sb.ToString();
+            ShowMsgBox("Aviso", aviso);
+            return true;
+        }
+        else
+        {
+            alert = false;
+            return false;
+        }
     }
 
     private IEnumerable<string> GetUnidades()
     {
         return filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+    }
+
+    public async Task NavigateToNewTab()
+    {
+        string url = "/Robot";
+        await js.InvokeAsync<object>("open", url, "_blank");
+    }
+
+    private void ShowMsgBox(string titulo, string aviso)
+    {
+        this.tituloMsgBox = titulo;
+        this.avisoMsgBox = aviso;
+        showMessageBox = true;
+    }
+
+    private void CloseMsgBox()
+    {
+        showMessageBox = false;
     }
 }

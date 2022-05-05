@@ -19,7 +19,7 @@ namespace BlazorRepoEstoque.Services
         }
 
 
-        private string BodyRobot(List<ReposicaoEstoque> listReposicao, ScriptAutomation scriptAutomationModel)
+        private string BodyRobot(List<ReposicaoEstoque> listReposicao, LoginUsuarioMV scriptAutomationModel)
         {
             if (listReposicao == null || scriptAutomationModel == null) return null;
 

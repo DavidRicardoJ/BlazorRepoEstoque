@@ -10,7 +10,7 @@ namespace BlazorRepoEstoque.Data
     {
         private static List<ReposicaoEstoque> _ListReposicao { get; set; }
         public static string Farmacia { get; set; }
-        private static ScriptAutomation script { get; set; }
+        private static LoginUsuarioMV Login { get; set; }
 
         private static IEnumerable<string> Unidades { get; set; }
 
@@ -26,14 +26,14 @@ namespace BlazorRepoEstoque.Data
             return _ListReposicao;
         }
 
-        public static void InputDadosScript(ScriptAutomation dadosScript)
+        public static void InputDadosScript(LoginUsuarioMV dadosScript)
         {
-            script = dadosScript;
+            Login = dadosScript;
         }
 
-        public static ScriptAutomation GetDadosScript()
+        public static LoginUsuarioMV GetDadosScript()
         {
-            return script;
+            return Login;
         }
 
         public static void InputUnidades(IEnumerable<string> unidades)

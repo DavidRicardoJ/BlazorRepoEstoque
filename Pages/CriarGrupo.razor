@@ -1,0 +1,128 @@
+﻿@page "/criargrupo"
+@using BlazorRepoEstoque.Services.Interfaces
+@inject IJSRuntime js
+@inject IGrupoServices grupoService
+@inject NavigationManager navigation
+
+<MudPaper Class="pa-16 ma-2" Elevation="3">
+    <MudText Align="Align.Center" Typo="Typo.h4">Criar Grupo de Medicamentos</MudText>
+    <hr />
+    <MudContainer Style="display: flex; align-content:center; align-items:center; margin-top: 30px;">
+        <MudPaper Class="pa-4">
+
+            <MudContainer Style="margin-bottom: 50px;">
+                <MudText Align="Align.Center"><b>Adicionar Item ao Grupo</b></MudText>
+                <MudTextField @bind-Value="NomeGrupo" Label="Nome do Grupo" Variant="Variant.Text" ReadOnly="isReadOnly" @onkeypress="Enter"></MudTextField>
+            </MudContainer>
+
+            <MudContainer Class="d-flex align-center">
+                <MudTextField id="codigo" @bind-Value="CodigoMV" OnKeyPress="AddItem" Label="Código do Medicamento" Variant="Variant.Text" ErrorText="Código inválido."></MudTextField>
+                <MudButton id="btnAdd" OnClick="AdicionarCodigoMVLista" Style="margin-left: 20px; height: 30px;" Variant="Variant.Filled" Color="Color.Primary">Adicionar</MudButton>
+            </MudContainer>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Style="margin-left: 100px;">
+            <MudText Align="Align.Center"><b>Código MV do Medicamento</b></MudText>
+            <MudList Clickable="false">
+                @if (ListaCodigosMV != null)
+                {
+                    foreach (var item in ListaCodigosMV)
+                    {
+                        <MudListItem Text="@item.ToString()" Icon="@Icons.Material.Filled.Send" />
+                        <MudDivider />
+                    }
+                }
+
+            </MudList>
+        </MudPaper>
+        <MudButton Style="margin-left: 30px;" Variant="Variant.Filled" Color="Color.Secondary" @onclick="() => AddGrupoBancoDados(NomeGrupo, ListaCodigosMV)">Salvar e Finalizar</MudButton>
+    </MudContainer>
+
+    @if (messageBoxAtivate)
+    {
+        <MudChip></MudChip>
+    }
+
+
+</MudPaper>
+
+
+@code {
+    [Inject] private IDialogService DialogService { get; set; }
+
+
+    private string NomeGrupo { get; set; }
+    private int CodigoMV { get; set; }
+    private List<int> ListaCodigosMV { get; set; } = new();
+    bool isReadOnly = false;
+    bool messageBoxAtivate = false;
+
+
+    private void AdicionarCodigoMVLista()
+    {
+        if (NomeGrupo == null) { MessageBox("Atenção", "Nome do Grupo Obrigatório.", false); return; }
+        if (VerificaSeGrupoJaExiste(NomeGrupo) && !isReadOnly) { MessageBox("Atenção", "Nome do Grupo já existe.", false); return; }
+
+        isReadOnly = true;
+        NomeGrupo = NomeGrupo.ToUpper();
+        if (CodigoMV > 0 && !ListaCodigosMV.Contains(CodigoMV)) ListaCodigosMV.Add(CodigoMV);
+        CodigoMV = 0;
+        StateHasChanged();
+        js.InvokeVoidAsync("focusById", "codigo");
+    }
+
+    private async void MessageBox(string titulo, string aviso, bool finalizar)
+    {
+        messageBoxAtivate = true;
+        bool? result = await DialogService.ShowMessageBox(
+            titulo,
+            aviso,
+            yesText: "OK"
+            , cancelText: "");
+        messageBoxAtivate = false;
+        if (result == true && finalizar) navigation.NavigateTo("/");
+        StateHasChanged();
+    }
+
+    private void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter" || e.Code == "Tab")
+        {
+            js.InvokeVoidAsync("focusById", "codigo");
+        }
+    }
+    private void AddItem(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter" || e.Code == "Tab")
+        {
+            js.InvokeVoidAsync("ClickElement", "btnAdd");
+        }
+    }
+
+    private void AddGrupoBancoDados(string nomeGrupo, List<int> codigos)
+    {
+        if (codigos.Any())
+        {
+            List<Grupo> grupos = new();
+            foreach (var item in codigos)
+            {
+                Grupo grupo = new() { NomeGrupo = nomeGrupo, CodigoMV = item };
+                grupos.Add(grupo);
+            }
+            var result = grupoService.AddAllGrupos(grupos);
+            if (result.IsCompletedSuccessfully)
+            {
+                MessageBox("Grupo Criado", "Salvo com Sucesso!", true);
+            }
+            else
+            {
+                MessageBox("Falha na operação", "Ocorreu um problema ao criar o Grupo.", false);
+            }
+        }
+    }
+    private bool VerificaSeGrupoJaExiste(string nomeGrupo)
+    {
+        var grupo = grupoService.FindByGrupoName(nomeGrupo);
+        return grupo.Result == null ? false : true;
+    }
+}
