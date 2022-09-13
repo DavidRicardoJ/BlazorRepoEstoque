@@ -197,12 +197,18 @@
 
     private void AplicarFiltrosEConfiguracoes()
     {
-        if (!filterList.Any() && !listRepo.Any()) return;
+        if (filterList.Any() is false && listRepo.Any() is false) return;
+
         filterList = listRepo.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
+
         filterList = filterList.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
+
         CalcularReposicao(filterList);
+
         if (ConsumoZero) { filterList = filterList.Where(x => x.ConsumoTotal > 0.0f).ToList(); };
+
         if (ReposicaoZero) { filterList = filterList.Where(x => x.Reposicao >= 0).ToList(); };
+
         filterList = ReordenarID(filterList);
         if (filterList.Count() == 0)
         {
@@ -258,6 +264,7 @@
     {
         if (filterList.Count == 0 || filterItens == false) return;
         if (VerificaItemZeradoOuNegativo()) return;
+        if (VerificaItensDuplicados()) return;
 
         ReportDataReposicao.InputUnidades(GetUnidades());
         ReportDataReposicao.SetListReposicao(filterList, null);
@@ -274,6 +281,33 @@
             foreach (var item in itensZerados)
             {
                 sb.AppendLine("Cód." + item.CodigoMV + " " + item.Medicamento);
+            }
+            var aviso = sb.ToString();
+            ShowMsgBox("Aviso", aviso);
+            return true;
+        }
+        else
+        {
+            alert = false;
+            return false;
+        }
+    }
+
+    private bool VerificaItensDuplicados()
+    {
+        var itensDuplicados = filterList.GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
+
+        if (itensDuplicados.Count() > 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Há itens duplicados na lista de reposição: ");
+            foreach (var item in itensDuplicados)
+            {
+                var itemDuplicado = filterList.Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
+                if (itemDuplicado is not null)
+                {
+                    sb.AppendLine("Cód." + itemDuplicado.CodigoMV + " " + itemDuplicado.Medicamento);
+                }
             }
             var aviso = sb.ToString();
             ShowMsgBox("Aviso", aviso);

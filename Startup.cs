@@ -17,6 +17,7 @@ using BlazorRepoEstoque.Data.IRepository;
 using BlazorRepoEstoque.Data.Repositories;
 using BlazorRepoEstoque.Services;
 using BlazorRepoEstoque.Services.Interfaces;
+using Blazored.LocalStorage;
 
 namespace BlazorRepoEstoque
 {
@@ -39,6 +40,7 @@ namespace BlazorRepoEstoque
             services.AddScoped<HttpClient>();
             services.AddScoped<IGrupoRepository, GrupoRepository>();
             services.AddScoped<IGrupoServices, GrupoServices>();
+            services.AddBlazoredLocalStorage();
 
             #region DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
