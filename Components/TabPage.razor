@@ -26,7 +26,7 @@
         <MudTd DataLabel="Codigo">@context.CodigoMV</MudTd>
         <MudTd Style="max-width: 400px; overflow: hidden; height:none" DataLabel="Medicamento">@context.Medicamento</MudTd>
         <MudTd DataLabel="Unidade">@context.Unidade</MudTd>
-        <MudTd DataLabel="UltimoMovimento">@context.UltimoMovimento.ToShortDateString()</MudTd>
+        <MudTd DataLabel="UltimoMovimento">@context.UltimoMovimento.ToString("dd/MM/yyyy")</MudTd>
         <MudTd DataLabel="ConsumoTotal" Style="text-align: center">@context.ConsumoTotal</MudTd>
         <MudTd DataLabel="EstoqueAtual" Style="text-align: center">@context.EstoqueAtual</MudTd>
         <MudTd DataLabel="DiasDeEstoque" Style="text-align: center">@context.DiasDeEstoque</MudTd>
@@ -110,6 +110,7 @@
         if (e.Code == "Enter" || e.Code == "NumpadEnter" || e.Code == "Tab")
         {
             js.InvokeVoidAsync("focusById", id + 1);
+            js.InvokeVoidAsync("MoveScroll", 75);
         }
     }
 

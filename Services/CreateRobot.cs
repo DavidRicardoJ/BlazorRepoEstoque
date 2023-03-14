@@ -121,7 +121,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine("  \"command\": \"select\", ");
             sb.AppendLine("  \"target\":  \"id=companies\", ");
             sb.AppendLine("   \"targets\": [], ");
-            sb.AppendLine("   \"value\": \"label=FUNFARME-1-HOSPITAL DE BASE SJRIO PRETO\" ");
+            sb.AppendLine("   \"value\": \"label=FUNFARME-1 HOSPITAL DE BASE SJRIO PRETO\" ");
             sb.AppendLine("  }, { ");
 
             sb.AppendLine("  \"id\": \"d8bd4cea-fe6d-49d1-90b7-f18500428458\", ");

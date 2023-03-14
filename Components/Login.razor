@@ -69,7 +69,7 @@
     {
         if (user is null || !user.Equals(model.UsuarioMV.ToUpper()))
         {
-            await localStorage.SetItemAsStringAsync("user", model.UsuarioMV);
+            await localStorage.SetItemAsStringAsync("user", model.UsuarioMV.ToUpper());
         }
     }
 }

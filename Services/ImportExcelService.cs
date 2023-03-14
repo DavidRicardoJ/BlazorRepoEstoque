@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace BlazorRepoEstoque.Services
 {
@@ -48,7 +49,7 @@ namespace BlazorRepoEstoque.Services
                                     if (j == 0 + k) repo.CodigoMV = row.GetCell(j).ToString();
                                     if (j == 1 + k) repo.Medicamento = row.GetCell(j).ToString();
                                     if (j == 2 + k) repo.Unidade = row.GetCell(j).ToString();
-                                    if (j == 3 + k) repo.UltimoMovimento = DateTime.Parse(row.GetCell(j).ToString());
+                                    if (j == 3 + k) repo.UltimoMovimento = DateTime.ParseExact(row.GetCell(j).ToString().Replace(".","/"),"dd/MM/yyyy",null);
                                     if (j == 4 + k) repo.ConsumoTotal = float.Parse(row.GetCell(j).ToString());
                                     if (j == 6 + k) repo.EstoqueAtual = float.Parse(row.GetCell(j).ToString());
                                     if (j == 7 + k) repo.DiasDeEstoque = int.Parse(row.GetCell(j).ToString());
@@ -67,9 +68,12 @@ namespace BlazorRepoEstoque.Services
                 return listRepo;
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return null;
+                var x = new ReposicaoEstoque() { Medicamento = e.Message };
+                listRepo.Add(x);
+                return listRepo;
+                
             }
 
         }

@@ -41,6 +41,7 @@ namespace BlazorRepoEstoque
             services.AddScoped<IGrupoRepository, GrupoRepository>();
             services.AddScoped<IGrupoServices, GrupoServices>();
             services.AddBlazoredLocalStorage();
+           
 
             #region DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
