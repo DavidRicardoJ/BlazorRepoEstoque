@@ -26,9 +26,9 @@ namespace BlazorRepoEstoque.Data
             return _ListReposicao;
         }
 
-        public static void InputDadosScript(LoginUsuarioMV dadosScript)
+        public static void InputLoginMV(LoginUsuarioMV login)
         {
-            Login = dadosScript;
+            Login = login;
         }
 
         public static LoginUsuarioMV GetDadosScript()

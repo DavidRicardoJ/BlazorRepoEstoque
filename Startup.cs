@@ -1,23 +1,17 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using MudBlazor.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Net.Http;
+using Blazored.LocalStorage;
 using BlazorRepoEstoque.Data;
-using Microsoft.EntityFrameworkCore;
 using BlazorRepoEstoque.Data.IRepository;
 using BlazorRepoEstoque.Data.Repositories;
 using BlazorRepoEstoque.Services;
 using BlazorRepoEstoque.Services.Interfaces;
-using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MudBlazor.Services;
+using System.Net.Http;
 
 namespace BlazorRepoEstoque
 {
@@ -35,13 +29,14 @@ namespace BlazorRepoEstoque
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            services.AddServerSideBlazor();            
+            services.AddServerSideBlazor();
             services.AddMudServices();
             services.AddScoped<HttpClient>();
             services.AddScoped<IGrupoRepository, GrupoRepository>();
             services.AddScoped<IGrupoServices, GrupoServices>();
+            services.AddScoped<IEncryptString, EncryptString>();
             services.AddBlazoredLocalStorage();
-           
+
 
             #region DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -70,7 +65,7 @@ namespace BlazorRepoEstoque
             app.UseStaticFiles();
 
             app.UseRouting();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

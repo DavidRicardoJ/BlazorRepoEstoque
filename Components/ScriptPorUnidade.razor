@@ -3,6 +3,7 @@
 @using BlazorRepoEstoque.Services.Interfaces
 @inject IJSRuntime js
 @inject IGrupoServices grupoService
+@inject IEncryptString encrypt
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Unidades</MudText>
@@ -58,7 +59,7 @@
     string titulo;
     string aviso;
 
-    string fileName = "scriptRobot.side";
+    string fileName = "scriptRobot.txt";
 
     string message;
     private bool alert = false;
@@ -95,8 +96,8 @@
         var result = ExcluiItensdeGrupo(ListReposicao);
         if (GerarListaReposicaoUnidade(result) is false) return;
 
-        CreateRobot robot = new();
-        DownloadFile(fileName, robot.GetScriptRobot());
+        CreateScripRobot robot = new();
+        DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
         MessageSucess();
         StateHasChanged();
     }

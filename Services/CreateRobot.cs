@@ -19,9 +19,9 @@ namespace BlazorRepoEstoque.Services
         }
 
 
-        private string BodyRobot(List<ReposicaoEstoque> listReposicao, LoginUsuarioMV scriptAutomationModel)
+        private string BodyRobot(List<ReposicaoEstoque> listReposicao, LoginUsuarioMV login)
         {
-            if (listReposicao == null || scriptAutomationModel == null) return null;
+            if (listReposicao == null || login == null) return null;
 
 
             StringBuilder sb = new();
@@ -84,7 +84,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine("    [\"xpath=//div[@id='context_login']/section/input[2]\", \"xpath:idRelative\"], ");
             sb.AppendLine("    [\"xpath=//input[2]\", \"xpath:position\"] ");
             sb.AppendLine("   ], ");
-            sb.AppendLine("  \"value\": " + $"\"{scriptAutomationModel.UsuarioMV}" + "\" "); //Usuário MV
+            sb.AppendLine("  \"value\": " + $"\"{login.UsuarioMV}" + "\" "); //Usuário MV
             sb.AppendLine("  }, { ");
 
             sb.AppendLine("  \"id\": \"daaa4426-607b-4687-8374-e9db67818870\", ");
@@ -98,7 +98,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine("    [\"xpath=//div[@id='context_login']/section[2]/input[2]\", \"xpath:idRelative\"], ");
             sb.AppendLine("    [\"xpath=//section[2]/input[2]\", \"xpath:position\"] ");
             sb.AppendLine("   ], ");
-            sb.AppendLine("  \"value\": " + $"\"{scriptAutomationModel.Senha}" + "\" "); //Senha Usuário MV
+            sb.AppendLine("  \"value\": " + $"\"{login.Senha}" + "\" "); //Senha Usuário MV
             sb.AppendLine("  }, { ");
 
             sb.AppendLine("  \"id\": \"8852d0ae-15f1-4538-ac3c-18a8e2cf2bfa\", ");
@@ -248,7 +248,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine("     [\"xpath=//div[@id='cdEstoque']/input\", \"xpath:idRelative\"], ");
             sb.AppendLine("     [\"xpath=//div[2]/div[2]/input\", \"xpath:position\"] ");
             sb.AppendLine("    ], ");
-            sb.AppendLine("   \"value\": " + $"\"{scriptAutomationModel.EstoqueOrigem}" + "\" "); // Código estoque de origem
+            sb.AppendLine("   \"value\": " + $"\"{login.EstoqueOrigem}" + "\" "); // Código estoque de origem
             sb.AppendLine("  }, { ");
 
             sb.AppendLine("  \"id\": \"a7da1581-9144-41c4-bf09-6dc11e8c6cc1\", ");
@@ -271,7 +271,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine("     [\"xpath=//div[@id='cdEstoqueSolicitante']/input\", \"xpath:idRelative\"], ");
             sb.AppendLine("     [\"xpath=//div[4]/input\", \"xpath:position\"] ");
             sb.AppendLine("    ], ");
-            sb.AppendLine("   \"value\": " + $"\"{scriptAutomationModel.EstoqueDestino}" + "\" "); // Código do estoque de Destino
+            sb.AppendLine("   \"value\": " + $"\"{login.EstoqueDestino}" + "\" "); // Código do estoque de Destino
             sb.AppendLine("  }, { ");
 
             sb.AppendLine("  \"id\": \"dcc0b465-9512-49be-830e-bc2709fd04ad\", ");
@@ -346,6 +346,20 @@ namespace BlazorRepoEstoque.Services
                 sb.AppendLine("     [\"xpath=//div[3]/div/div/div/div/input\", \"xpath:position\"] ");
                 sb.AppendLine("    ], ");
                 sb.AppendLine("   \"value\": \"${KEY_ENTER}\"  ");
+                sb.AppendLine("  }, { ");
+
+                sb.AppendLine("  \"id\": \"022451cf-a43e-4430-a357-f88d5b7b16c2\", ");
+                sb.AppendLine("  \"comment\": \"\", ");
+                sb.AppendLine("  \"command\": \"click\", ");
+                sb.AppendLine($"  \"target\": \"id=frames{line+2}\", ");
+                sb.AppendLine("  \"targets\": [ ");
+                sb.AppendLine($"     [\"id=frames{line+2}\", \"id\"], ");
+                sb.AppendLine($"     [\"css=#\\\\#frames{line+2}\", \"css:finder\"], ");
+                sb.AppendLine($"     [\"xpath=//button[@id='frames{line+2}']\", \"xpath:attributes\"], ");
+                sb.AppendLine("     [\"xpath=//li[@id='notifications']/ul/li[2]/button\", \"xpath:idRelative\"],  ");
+                sb.AppendLine("     [\"xpath=//button[contains(.,'OK')]\", \"xpath:innerText\"] ");
+                sb.AppendLine("    ], ");
+                sb.AppendLine("   \"value\": \"\"  ");
                 sb.AppendLine("  }, { ");
 
                 line++;

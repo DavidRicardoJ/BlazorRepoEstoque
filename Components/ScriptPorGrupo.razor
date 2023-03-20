@@ -3,6 +3,7 @@
 @using BlazorRepoEstoque.Services.Interfaces
 @inject IJSRuntime js
 @inject IGrupoServices grupoService
+@inject IEncryptString encrypt
 
 
 
@@ -10,16 +11,16 @@
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Grupo</MudText>
     @if (alert)
     {
-            <MudPaper Elevation="15" Class="d-flex align-center">
-                <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
-            </MudPaper>
+        <MudPaper Elevation="15" Class="d-flex align-center">
+            <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
+        </MudPaper>
     }
     <MudCard Style="margin-top: 30px;">
         <MudCardContent Style="width:100%">
             <MudSelect Style="margin: 10px" T="string" FullWidth="true" Placeholder="Selecione o Grupo" MultiSelection="false" @bind-Value="grupoSelecionado">
                 @foreach (var grupo in NomesGrupos)
                 {
-                        <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
+                    <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
                 }
             </MudSelect>
         </MudCardContent>
@@ -29,19 +30,17 @@
     </MudCard>
     @if (messageBox)
     {
-            <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+        <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
     }
 </MudPaper>
 
 
 @code {
-
-
     private bool alert = false;
-    string fileName = "scriptRobot.side";
+    string fileName = "scriptRobot.txt";
     private string grupoSelecionado { get; set; }
     private List<Grupo> ListGrupos { get; set; }
-    private List<string>NomesGrupos{ get; set; }
+    private List<string> NomesGrupos { get; set; }
     private List<ReposicaoEstoque> ListReposicao { get; set; }
     string message;
 
@@ -74,13 +73,14 @@
     {
         if (VerificaLogin() is true && VerificaGrupoSelecionado() is true && GerarListaReposicaoGrupo() is true)
         {
-            CreateRobot robot = new();
-            DownloadFile(fileName, robot.GetScriptRobot());
+            CreateScripRobot robot = new();
+            DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
             StateHasChanged();
             MessageSucess();
         }
 
     }
+
     private void MessageSucess()
     {
         messageBox = true;
@@ -99,6 +99,7 @@
         }
         return true;
     }
+
     private bool VerificaGrupoSelecionado()
     {
         if (String.IsNullOrEmpty(grupoSelecionado) || String.IsNullOrWhiteSpace(grupoSelecionado))
@@ -150,5 +151,4 @@
         messageBox = false;
         StateHasChanged();
     }
-
-    }
+}
