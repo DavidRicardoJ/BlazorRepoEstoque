@@ -13,5 +13,6 @@ namespace BlazorRepoEstoque.Models
         public float EstoqueAtual { get; set; }
         public int DiasDeEstoque { get; set; }
         public int Reposicao { get; set; }
+        public string NomeGrupo { get; set; }
     }
 }

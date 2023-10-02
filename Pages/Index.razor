@@ -5,6 +5,7 @@
 @inject NavigationManager nav;
 @inject IJSRuntime js
 @inject IDialogService Dialog
+@inject IGrupoServices grupoService
 
 
 <title value="Index"></title>
@@ -140,7 +141,7 @@
 
 @code {
     private bool progress = false;
-    
+
     private MemoryStream stream2;
     private List<ReposicaoEstoque> filterList;
     MudDateRangePicker _picker;
@@ -191,6 +192,7 @@
         erroImport = false;
         listRepo = ReordenarID(filterList);
         listRepo = listRepo.OrderBy(x => x.Medicamento).ToList();
+        listRepo = await AddGrupo(listRepo);
     }
 
 
@@ -219,6 +221,7 @@
             alert = false;
             filterItens = true;
             ClosePanel();
+            AddEstiloPosFiltro();
         }
         StateHasChanged();
     }
@@ -229,6 +232,22 @@
         {
             list[i].Id = i;
         }
+        return list;
+    }
+
+    private async Task<List<ReposicaoEstoque>> AddGrupo(List<ReposicaoEstoque> list)
+    {
+        var grupos = await grupoService.GetAllGrupos();
+
+        if (grupos is not null)
+        {
+            foreach (var item in list)
+            {
+                var nomeGrupo = grupos.FirstOrDefault(x => x.CodigoMV.ToString() == item.CodigoMV);
+                if (nomeGrupo is not null) item.NomeGrupo = nomeGrupo.NomeGrupo;
+            }
+        }
+
         return list;
     }
 
@@ -257,6 +276,10 @@
     private void ClosePanel()
     {
         js.InvokeVoidAsync("ClickElementByClass", "mud-expand-panel-header");
+    }
+    private void AddEstiloPosFiltro()
+    {
+        js.InvokeVoidAsync("AdicionarEstiloPosFiltro");
     }
 
     private void CriarScriptAutomacao()
