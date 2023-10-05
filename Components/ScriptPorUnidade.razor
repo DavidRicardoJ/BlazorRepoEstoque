@@ -25,18 +25,6 @@
                             }
                         </MudTreeViewItem>
                     </MudTreeView>
-
-                    <MudSelect Style="margin-top: 10px;" T="string" Label="Não incluir estes grupos:" MultiSelection="true" @bind-SelectedValues="SelectedGrupo">
-                        @foreach (var grupo in NomesGrupos)
-                        {
-                            <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
-                        }
-                    </MudSelect>
-                    @if (SelectedGrupo != null)
-                    {
-                        <MudText Style="margin-top: 10px; color: blue;" Typo="Typo.body2" Class="pl-4">@(string.Join(", ", SelectedGrupo.Select(x=>$"\"{x}\"")))</MudText>
-                    }
-
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" @onclick="OnValidSubmit">Gerar Script</MudButton>
@@ -52,8 +40,7 @@
 
 @code {
     HashSet<string> SelectedValuesUnidades { get; set; }
-    HashSet<string> SelectedGrupo { get; set; }
-    private List<string> NomesGrupos { get; set; }
+
 
     bool messageBox = false;
     string titulo;
@@ -70,7 +57,7 @@
 
     protected override async void OnInitialized()
     {
-        ListReposicao = ReportDataReposicao.GetListReposicao().Select(x => new ReposicaoEstoque
+        ListReposicao = DataReposicaoDTO.GetListReposicao().Select(x => new ReposicaoEstoque
             {
                 CodigoMV = x.CodigoMV,
                 ConsumoTotal = x.ConsumoTotal,
@@ -82,10 +69,8 @@
                 UltimoMovimento = x.UltimoMovimento,
                 Unidade = x.Unidade
             }).ToList();
-        //ListReposicao = ReportDataReposicao.GetListReposicao();
-        Unidades = ReportDataReposicao.GetUnidades();
-        ListGrupos = await grupoService.GetAllGrupos();
-        NomesGrupos = await CriaListaNomeGrupos();
+
+        Unidades = DataReposicaoDTO.GetUnidades();
     }
 
 
@@ -93,8 +78,8 @@
     {
         if (VerificaLogin() is false) return;
 
-        var result = ExcluiItensdeGrupo(ListReposicao);
-        if (GerarListaReposicaoUnidade(result) is false) return;
+
+        if (GerarListaReposicaoUnidade(ListReposicao) == false) return;
 
         CreateScripRobot robot = new();
         DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
@@ -109,33 +94,9 @@
         aviso = "O Script foi criado com sucesso.";
     }
 
-    private List<ReposicaoEstoque> ExcluiItensdeGrupo(List<ReposicaoEstoque> list)
-    {
-        if (SelectedGrupo == null || SelectedGrupo.Count <= 0) return list;
-        List<Grupo> grupos = new();
-        foreach (var grupo in SelectedGrupo)
-        {
-            var result = ListGrupos.Where(x => x.NomeGrupo.Equals(grupo)).ToList();
-            if (result != null)
-            {
-                grupos.AddRange(result);
-            }
-        }
-
-        foreach (var item in grupos)
-        {
-            var element = list.FirstOrDefault(x => x.CodigoMV == item.CodigoMV.ToString());
-            if (element != null)
-            {
-                list.Remove(element);
-            }
-        }
-        return list;
-    }
-
     private bool VerificaLogin()
     {
-        if (ReportDataReposicao.GetDadosScript() == null)
+        if (DataReposicaoDTO.GetDadosScript() == null)
         {
             messageBox = true;
             titulo = "Login";
@@ -152,15 +113,15 @@
         {
             alert = false;
             List<ReposicaoEstoque> list = new();
-            foreach (var item in SelectedValuesUnidades)
+            foreach (var unidade in SelectedValuesUnidades)
             {
-                var medicamento = reposicaoEstoques.Where(m => m.Unidade == item).ToList();
+                var medicamento = reposicaoEstoques.Where(m => m.Unidade == unidade).ToList();
                 if (medicamento != null)
                 {
                     list.AddRange(medicamento);
                 }
             }
-            ReportDataReposicao.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), ReportDataReposicao.Farmacia);
+            DataReposicaoDTO.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
             return true;
         }
         else
@@ -183,5 +144,4 @@
     {
         await js.InvokeAsync<object>("saveFile", fileName, Content);
     }
-
-   }
+}

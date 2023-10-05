@@ -9,7 +9,7 @@ namespace BlazorRepoEstoque.Services
     {
         public string GetScriptRobot()
         {
-            return ScriptRobot(ReportDataReposicao.GetListReposicao(), ReportDataReposicao.GetDadosScript());
+            return ScriptRobot(DataReposicaoDTO.GetListReposicao(), DataReposicaoDTO.GetDadosScript());
         }
 
         private string ScriptRobot(List<ReposicaoEstoque> itensReposicaoEstoques, LoginUsuarioMV loginUsuarioMV)
@@ -22,7 +22,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine($"{loginUsuarioMV.Senha}");
             sb.AppendLine($"{loginUsuarioMV.EstoqueOrigem}");
             sb.AppendLine($"{loginUsuarioMV.EstoqueDestino}");
-            sb.AppendLine($"Reposição de Estoque >> {ReportDataReposicao.Farmacia}");
+            sb.AppendLine($"Reposição de Estoque >> {DataReposicaoDTO.Farmacia}");
 
             foreach (var item in itensReposicaoEstoques)
             {

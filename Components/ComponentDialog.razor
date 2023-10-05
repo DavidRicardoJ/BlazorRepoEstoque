@@ -1,0 +1,29 @@
+﻿@using System.Net
+@using System.Text
+
+<MudDialog DisableSidePadding="true" Style="max-width: 600px;">
+    <DialogContent>
+        <MudContainer Style="max-height: 300px; overflow-y: scroll;">
+            <MudList Clickable="true">
+                @foreach (var item in ProdutosSemGrupo.ListaProdutosSemGrupo)
+                {
+                    string produto = $"{item.CodigoMV} - {item.Medicamento}";
+                    <MudListItem Text="@produto" Icon="@Icons.Material.Filled.Send" />
+                    <MudDivider />
+                }
+            </MudList>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Ok">Fechar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorRepoEstoque.Data
 {
-    public static class ReportDataReposicao
+    public static class DataReposicaoDTO
     {
         private static List<ReposicaoEstoque> _ListReposicao { get; set; }
         public static string Farmacia { get; set; }

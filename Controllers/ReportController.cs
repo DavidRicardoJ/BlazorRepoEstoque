@@ -33,14 +33,14 @@ namespace BlazorRepoEstoque.Controllers
             ReportData reportData = new();
 
             var dt = new DataTable();
-            dt = ObjForDataTable(ReportDataReposicao.GetListReposicao());
+            dt = ObjForDataTable(DataReposicaoDTO.GetListReposicao());
 
             string mimetype = "";
             int extension = 1;
             var path = $"{webHostEnvironment.WebRootPath}\\report\\ReportReposicaoEstoque.rdlc";
 
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("Farmacia", ReportDataReposicao.Farmacia);
+            parameters.Add("Farmacia", DataReposicaoDTO.Farmacia);
 
             LocalReport localReport = new LocalReport(path);
             localReport.AddDataSource("DataSetReposicaoEstoque", dt);

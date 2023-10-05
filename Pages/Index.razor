@@ -288,8 +288,8 @@
         if (VerificaItemZeradoOuNegativo()) return;
         if (VerificaItensDuplicados()) return;
 
-        ReportDataReposicao.InputUnidades(GetUnidades());
-        ReportDataReposicao.SetListReposicao(filterList, null);
+        DataReposicaoDTO.InputUnidades(GetUnidades());
+        DataReposicaoDTO.SetListReposicao(filterList, null);
         NavigateToNewTab();
     }
 

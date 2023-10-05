@@ -4,7 +4,7 @@
 @inject IJSRuntime js
 @inject IGrupoServices grupoService
 @inject IEncryptString encrypt
-
+@inject IDialogService DialogService
 
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
@@ -17,12 +17,23 @@
     }
     <MudCard Style="margin-top: 30px;">
         <MudCardContent Style="width:100%">
-            <MudSelect Style="margin: 10px" T="string" FullWidth="true" Placeholder="Selecione o Grupo" MultiSelection="false" @bind-Value="grupoSelecionado">
-                @foreach (var grupo in NomesGrupos)
-                {
-                    <MudSelectItem T="string" Value="@grupo">@grupo</MudSelectItem>
-                }
-            </MudSelect>
+            <MudPaper Width="300px">
+                <MudList Clickable="true">
+                    @foreach (var item in NomesGrupos)
+                    {
+                        @if (item == null)
+                        {<MudItem>
+                                <MudAlert Severity="Severity.Error" Dense="true" OnClick="OpenDialog" Class="my-2">Há produtos sem grupo cadastrado!</MudAlert>
+                        </MudItem>                          
+                        }else
+                        {
+                            <MudListItem Text="@item" Icon="@Icons.Material.Filled.Send" />
+                            <MudDivider />
+                        }                        
+                    }
+                    
+                </MudList>
+            </MudPaper>
         </MudCardContent>
         <MudCardActions>
             <MudButton @onclick="GeraScript" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Gerar Script</MudButton>
@@ -37,11 +48,13 @@
 
 @code {
     private bool alert = false;
-    string fileName = "scriptRobot.txt";
+    string fileName = "scriptRobot";
     private string grupoSelecionado { get; set; }
     private List<Grupo> ListGrupos { get; set; }
     private List<string> NomesGrupos { get; set; }
+
     private List<ReposicaoEstoque> ListReposicao { get; set; }
+
     string message;
 
     bool messageBox = false;
@@ -51,7 +64,7 @@
 
     protected override async void OnInitialized()
     {
-        ListReposicao = ReportDataReposicao.GetListReposicao().Select(x => new ReposicaoEstoque
+        ListReposicao = DataReposicaoDTO.GetListReposicao().Select(x => new ReposicaoEstoque
             {
                 CodigoMV = x.CodigoMV,
                 ConsumoTotal = x.ConsumoTotal,
@@ -61,22 +74,39 @@
                 Id = x.Id,
                 Reposicao = x.Reposicao,
                 UltimoMovimento = x.UltimoMovimento,
-                Unidade = x.Unidade
+                Unidade = x.Unidade,
+                NomeGrupo = x.NomeGrupo
             }).ToList();
         ListGrupos = await grupoService.GetAllGrupos();
-        NomesGrupos = await CriaListaNomeGrupos();
+        NomesGrupos = ListReposicao.Select(x => x.NomeGrupo).Distinct().OrderBy(nomeGrupo => nomeGrupo).ToList();
     }
-
-
 
     private void GeraScript()
     {
-        if (VerificaLogin() is true && VerificaGrupoSelecionado() is true && GerarListaReposicaoGrupo() is true)
+        if (VerificaLogin() && VerificaSeHáGrupos())
         {
             CreateScripRobot robot = new();
-            DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
-            StateHasChanged();
-            MessageSucess();
+
+            foreach (var grupo in NomesGrupos)
+            {
+                if(grupo is not null)
+                {
+                    var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == grupo).ToList();
+                    DataReposicaoDTO.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+
+                    DownloadFile(fileName + $" - {grupo}.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+                    StateHasChanged();
+                    MessageSucess();
+                }else
+                {
+                    var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == null).ToList();
+                    DataReposicaoDTO.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+
+                    DownloadFile(fileName + $" - Produtos Sem Grupo.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+                    StateHasChanged();
+                    MessageSucess();
+                }
+            }
         }
 
     }
@@ -90,7 +120,7 @@
 
     private bool VerificaLogin()
     {
-        if (ReportDataReposicao.GetDadosScript() == null)
+        if (DataReposicaoDTO.GetDadosScript() == null)
         {
             messageBox = true;
             titulo = "Login";
@@ -100,46 +130,10 @@
         return true;
     }
 
-    private bool VerificaGrupoSelecionado()
+    private bool VerificaSeHáGrupos()
     {
-        if (String.IsNullOrEmpty(grupoSelecionado) || String.IsNullOrWhiteSpace(grupoSelecionado))
-        {
-
-            messageBox = true;
-            titulo = "Grupo";
-            aviso = "Escolha o Grupo de Medicamentos para Gerar o Script.";
-            return false;
-        }
-        return true;
+        return ListReposicao.Any(x => x.NomeGrupo is not null);
     }
-
-    private bool GerarListaReposicaoGrupo()
-    {
-        alert = false;
-        List<ReposicaoEstoque> list = new();
-        List<Grupo> codigosMvlist = ListGrupos.Where(x => x.NomeGrupo.Equals(grupoSelecionado.ToUpper())).ToList();
-        foreach (var item in codigosMvlist)
-        {
-            var medicamento = ListReposicao.Where(m => m.CodigoMV == item.CodigoMV.ToString());
-            if (medicamento != null)
-            {
-                list.AddRange(medicamento);
-            }
-        }
-        if (list.Any())
-        {
-            ReportDataReposicao.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), ReportDataReposicao.Farmacia);
-            return true;
-        }
-        else
-        {
-            message = "Não há nenhum item para este grupo.";
-            alert = true;
-            return false;
-        }
-    }
-
-    private async Task<List<string>> CriaListaNomeGrupos() => await grupoService.GetListaNomeGrupos();
 
     public async void DownloadFile(string fileName, string Content)
     {
@@ -150,5 +144,11 @@
     {
         messageBox = false;
         StateHasChanged();
+    }
+
+    private void OpenDialog()
+    {
+        ProdutosSemGrupo.ListaProdutosSemGrupo = new List<ReposicaoEstoque>(ListReposicao.Where(x => x.NomeGrupo is null));
+        DialogService.Show<ComponentDialog>("Produtos sem grupo cadastrado");
     }
 }
