@@ -1,8 +1,5 @@
 ﻿using BlazorRepoEstoque.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BlazorRepoEstoque.Data
 {
@@ -17,7 +14,7 @@ namespace BlazorRepoEstoque.Data
 
         public static void SetListReposicao(List<ReposicaoEstoque> ListReposicao, string farmacia)
         {
-            _ListReposicao = ListReposicao;
+            _ListReposicao = new List<ReposicaoEstoque>(ListReposicao);
             Farmacia = farmacia;
         }
 
@@ -43,9 +40,8 @@ namespace BlazorRepoEstoque.Data
 
         public static IEnumerable<string> GetUnidades()
         {
-           return Unidades;
+            return Unidades;
         }
 
     }
 }
- 

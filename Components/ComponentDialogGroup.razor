@@ -5,7 +5,7 @@
     <DialogContent>
         <MudContainer Style="max-height: 300px; overflow-y: scroll;">
             <MudList Clickable="true">
-                @foreach (var item in GruposProdutosDto.ListaProdutosSemGrupoDTO)
+                @foreach (var item in GruposProdutosDto.ListaProdutosComGrupoDTO)
                 {
                     string produto = $"{item.CodigoMV} - {item.Medicamento}";
                     <MudListItem Text="@produto" Icon="@Icons.Material.Filled.Send" />
@@ -24,7 +24,7 @@
 
     private void Ok()
     {
-        GruposProdutosDto.ListaProdutosSemGrupoDTO = null;       
+        GruposProdutosDto.ListaProdutosComGrupoDTO = null;       
         MudDialog.Close(DialogResult.Ok(true));
     }
 }

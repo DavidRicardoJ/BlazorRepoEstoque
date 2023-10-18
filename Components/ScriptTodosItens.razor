@@ -1,0 +1,120 @@
+﻿@inject IJSRuntime js
+@inject IEncryptString encrypt
+
+<MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
+    <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script - Todos os Itens</MudText>
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            @if (alert)
+            {
+                <MudPaper Elevation="15" Class="d-flex align-center">
+                    <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
+                </MudPaper>
+            }
+            <MudCard>
+                <MudCardContent Style="width:100%">
+                    <MudText Typo="Typo.body1">Total de itens: @ListReposicao.Count()</MudText>
+
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" @onclick="OnValidSubmit">Gerar Script</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+@if (messageBox)
+{
+    <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+}
+
+@code {
+
+    bool messageBox = false;
+    string titulo;
+    string aviso;
+
+    string fileName = "scriptRobotTodos.txt";
+
+    string message;
+    private bool alert = false;
+
+    private List<Grupo> ListGrupos { get; set; }
+    private IEnumerable<string> Unidades { get; set; }
+    private List<ReposicaoEstoque> ListReposicao { get; set; }
+
+    protected override async void OnInitialized()
+    {
+        ListReposicao = DataReposicaoDTO.GetListReposicao().Select(x => new ReposicaoEstoque
+            {
+                CodigoMV = x.CodigoMV,
+                ConsumoTotal = x.ConsumoTotal,
+                DiasDeEstoque = x.DiasDeEstoque,
+                EstoqueAtual = x.EstoqueAtual,
+                Medicamento = x.Medicamento,
+                Id = x.Id,
+                Reposicao = x.Reposicao,
+                UltimoMovimento = x.UltimoMovimento,
+                Unidade = x.Unidade
+            }).ToList();
+
+        Unidades = DataReposicaoDTO.GetUnidades();
+    }
+
+
+    private void OnValidSubmit()
+    {
+        if (VerificaLogin() is false) return;
+
+        CreateScripRobot robot = new();
+        DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+        MessageSucess();
+        StateHasChanged();
+    }
+
+    private void MessageSucess()
+    {
+        messageBox = true;
+        titulo = "Script";
+        aviso = "O Script foi criado com sucesso.";
+    }
+
+    private bool VerificaLogin()
+    {
+        if (DataReposicaoDTO.GetDadosScript() == null)
+        {
+            messageBox = true;
+            titulo = "Login";
+            aviso = "Preencha os dados de acesso ao MV";
+            return false;
+        }
+        return true;
+    }
+
+
+    private bool GerarListaReposicaoUnidade(List<ReposicaoEstoque> reposicaoEstoques)
+    {
+        if (ListReposicao.Any())
+        {
+            DataReposicaoDTO.SetListReposicao(ListReposicao.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+            return true;
+        }
+        else
+        {
+            message = "A lista de itens está vazia.";
+            alert = true;
+            return false;
+        }
+    }
+
+    private void CloseMsgBox()
+    {
+        messageBox = false;
+        StateHasChanged();
+    }
+
+    public async void DownloadFile(string fileName, string Content)
+    {
+        await js.InvokeAsync<object>("saveFile", fileName, Content);
+    }
+}

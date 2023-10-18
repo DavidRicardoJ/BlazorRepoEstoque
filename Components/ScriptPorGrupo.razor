@@ -22,16 +22,18 @@
                     @foreach (var item in NomesGrupos)
                     {
                         @if (item == null)
-                        {<MudItem>
-                                <MudAlert Severity="Severity.Error" Dense="true" OnClick="OpenDialog" Class="my-2">Há produtos sem grupo cadastrado!</MudAlert>
-                        </MudItem>                          
-                        }else
                         {
-                            <MudListItem Text="@item" Icon="@Icons.Material.Filled.Send" />
+                            <MudItem>
+                                <MudAlert Severity="Severity.Error" Dense="true" OnClick="OpenDialog" Class="my-2">Há produtos sem grupo cadastrado!</MudAlert>
+                            </MudItem>
+                        }
+                        else
+                        {
+                            <MudListItem Text="@item" Icon="@Icons.Material.Filled.Send" OnClick="() => OpenDialog(item)" />
                             <MudDivider />
-                        }                        
+                        }
                     }
-                    
+
                 </MudList>
             </MudPaper>
         </MudCardContent>
@@ -89,26 +91,24 @@
 
             foreach (var grupo in NomesGrupos)
             {
-                if(grupo is not null)
+                if (grupo is not null)
                 {
                     var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == grupo).ToList();
                     DataReposicaoDTO.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
 
                     DownloadFile(fileName + $" - {grupo}.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
-                    StateHasChanged();
-                    MessageSucess();
-                }else
+                }
+                else
                 {
                     var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == null).ToList();
                     DataReposicaoDTO.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
 
                     DownloadFile(fileName + $" - Produtos Sem Grupo.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
-                    StateHasChanged();
-                    MessageSucess();
                 }
             }
+            StateHasChanged();
+            MessageSucess();
         }
-
     }
 
     private void MessageSucess()
@@ -148,7 +148,13 @@
 
     private void OpenDialog()
     {
-        ProdutosSemGrupo.ListaProdutosSemGrupo = new List<ReposicaoEstoque>(ListReposicao.Where(x => x.NomeGrupo is null));
-        DialogService.Show<ComponentDialog>("Produtos sem grupo cadastrado");
+        GruposProdutosDto.ListaProdutosSemGrupoDTO = new List<ReposicaoEstoque>(ListReposicao.Where(x => x.NomeGrupo is null));
+        DialogService.Show<ComponentDialog>($"{GruposProdutosDto.ListaProdutosSemGrupoDTO.Count()} Produtos sem grupo cadastrado");
+    }
+
+    private void OpenDialog(string grupoName)
+    {
+        GruposProdutosDto.ListaProdutosComGrupoDTO = new List<ReposicaoEstoque>(ListReposicao.Where(x => x.NomeGrupo == grupoName));
+        DialogService.Show<ComponentDialogGroup>($"{GruposProdutosDto.ListaProdutosComGrupoDTO.Count()} Produtos --- {grupoName} ---");
     }
 }
