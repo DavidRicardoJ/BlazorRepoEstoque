@@ -1,18 +1,24 @@
-﻿using BlazorRepoEstoque.Data;
-using BlazorRepoEstoque.Models;
+﻿using BlazorRepoEstoque.Models;
 using System.Collections.Generic;
 using System.Text;
+
 
 namespace BlazorRepoEstoque.Services
 {
     public class CreateScripRobot
     {
+        private readonly DataSharedService _sharedService;
+
+        public CreateScripRobot(DataSharedService sharedService)
+        {
+            _sharedService = sharedService;
+        }
         public string GetScriptRobot()
         {
-            return ScriptRobot(DataReposicaoDTO.GetListReposicao(), DataReposicaoDTO.GetDadosScript());
+            return ScriptRobot(_sharedService.GetListReposicao(), _sharedService.GetDadosScript(), _sharedService.GetObservacao());
         }
 
-        private string ScriptRobot(List<ReposicaoEstoque> itensReposicaoEstoques, LoginUsuarioMV loginUsuarioMV)
+        private string ScriptRobot(List<ReposicaoEstoque> itensReposicaoEstoques, LoginUsuarioMV loginUsuarioMV, string Observação)
         {
             if (itensReposicaoEstoques == null || loginUsuarioMV == null) return null;
 
@@ -22,7 +28,7 @@ namespace BlazorRepoEstoque.Services
             sb.AppendLine($"{loginUsuarioMV.Senha}");
             sb.AppendLine($"{loginUsuarioMV.EstoqueOrigem}");
             sb.AppendLine($"{loginUsuarioMV.EstoqueDestino}");
-            sb.AppendLine($"Reposição de Estoque >> {DataReposicaoDTO.Farmacia}");
+            sb.AppendLine(Observação.ToUpper());
 
             foreach (var item in itensReposicaoEstoques)
             {

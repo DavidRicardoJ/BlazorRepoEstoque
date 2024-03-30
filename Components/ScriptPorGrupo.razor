@@ -5,6 +5,8 @@
 @inject IGrupoServices grupoService
 @inject IEncryptString encrypt
 @inject IDialogService DialogService
+@inject ListSharedService listSharedService
+@inject DataSharedService dataSharedService
 
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
@@ -54,6 +56,7 @@
     private string grupoSelecionado { get; set; }
     private List<Grupo> ListGrupos { get; set; }
     private List<string> NomesGrupos { get; set; }
+    
 
     private List<ReposicaoEstoque> ListReposicao { get; set; }
 
@@ -65,8 +68,8 @@
 
 
     protected override async void OnInitialized()
-    {
-        ListReposicao = DataReposicaoDTO.GetListReposicao().Select(x => new ReposicaoEstoque
+    {       
+        ListReposicao = listSharedService.GetListReposicao().Select(x => new ReposicaoEstoque
             {
                 CodigoMV = x.CodigoMV,
                 ConsumoTotal = x.ConsumoTotal,
@@ -87,21 +90,22 @@
     {
         if (VerificaLogin() && VerificaSeHáGrupos())
         {
-            CreateScripRobot robot = new();
+           
+            CreateScripRobot robot = new(dataSharedService);
 
             foreach (var grupo in NomesGrupos)
             {
                 if (grupo is not null)
                 {
                     var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == grupo).ToList();
-                    DataReposicaoDTO.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
 
                     DownloadFile(fileName + $" - {grupo}.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
                 }
                 else
                 {
                     var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == null).ToList();
-                    DataReposicaoDTO.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
 
                     DownloadFile(fileName + $" - Produtos Sem Grupo.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
                 }
@@ -120,7 +124,7 @@
 
     private bool VerificaLogin()
     {
-        if (DataReposicaoDTO.GetDadosScript() == null)
+        if (dataSharedService.GetDadosScript() == null)
         {
             messageBox = true;
             titulo = "Login";

@@ -1,6 +1,6 @@
 ﻿@page "/robot"
-
-
+@inject DataSharedService dataSharedService
+@implements IDisposable
 
 <MudGrid>
 
@@ -10,26 +10,38 @@
         </MudPaper>
     </MudItem>
 
-     <MudItem xs="4">
+    <MudItem xs="4">
         <Login></Login>
     </MudItem>
 
     <MudItem xs="4">
-       <ScriptPorUnidade></ScriptPorUnidade>      
+        <ScriptPorUnidade></ScriptPorUnidade>
     </MudItem>
 
     <MudItem xs="4">
-        <ScriptPorGrupo></ScriptPorGrupo>       
+        <ScriptPorGrupo></ScriptPorGrupo>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            <MudTextField @ref="multilineReference" T="string" Label="Observação" Lines="3" Variant="Variant.Outlined"
+                          Text="@dataSharedService.GetObservacao()" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
+                          OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="dataSharedService.Observacao"/>
+        </MudPaper>
     </MudItem>
 
 </MudGrid>
 
+@code {
+    private MudTextField<string> multilineReference;
 
-@code{
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnInitialized()
     {
-        DataReposicaoDTO.InputLoginMV(null);
-        DataReposicaoDTO.Farmacia = null;
-        base.OnAfterRender(firstRender);
+        dataSharedService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        dataSharedService.OnChange -= StateHasChanged;
     }
 }

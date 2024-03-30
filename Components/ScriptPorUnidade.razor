@@ -4,57 +4,65 @@
 @inject IJSRuntime js
 @inject IGrupoServices grupoService
 @inject IEncryptString encrypt
+@inject DataSharedService _dataSharedService
+@inject ListSharedService listSharedService
 
-<MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
-    <MudCard>
-        <MudCardContent>
-
-
-
-            <MudGrid>
-                <MudItem xs="12" sm="12">
-                    @if (alert)
-                    {
-                        <MudPaper Elevation="15" Class="d-flex align-center">
-                            <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
-                        </MudPaper>
-                    }
-                    <MudCard Elevation="5">
-                        <MudCardHeader>
-                            <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Unidades</MudText>
-                        </MudCardHeader>
-                        <MudCardContent>
-
-                            <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedValuesUnidades">
-                                <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
-                                    @foreach (var unidade in Unidades)
-                                    {
-                                        <MudTreeViewItem Value="@(unidade)" />
-                                    }
-                                </MudTreeViewItem>
-                            </MudTreeView>
-                            <MudCardActions>
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" @onclick="OnValidSubmit">Gerar Script</MudButton>
-                            </MudCardActions>
-
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-            </MudGrid>
-        </MudCardContent>
-    </MudCard>
-    <MudDivider></MudDivider>
-    <MudCard>
-        <MudCardContent>
-            <ScriptTodosItens></ScriptTodosItens>
-        </MudCardContent>
-    </MudCard>
-</MudPaper>
-@if (messageBox)
+@if (Unidades == null)
 {
-    <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 }
+else
+{
+    <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
+        <MudCard>
+            <MudCardContent>
 
+
+
+                <MudGrid>
+                    <MudItem xs="12" sm="12">
+                        @if (alert)
+                        {
+                            <MudPaper Elevation="15" Class="d-flex align-center">
+                                <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
+                            </MudPaper>
+                        }
+                        <MudCard Elevation="5">
+                            <MudCardHeader>
+                                <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Unidades</MudText>
+                            </MudCardHeader>
+                            <MudCardContent>
+
+                                <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedValuesUnidades">
+                                    <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
+                                        @foreach (var unidade in Unidades)
+                                        {
+                                            <MudTreeViewItem Value="@(unidade)" />
+                                        }
+                                    </MudTreeViewItem>
+                                </MudTreeView>
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" @onclick="OnValidSubmit">Gerar Script</MudButton>
+                                </MudCardActions>
+
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+        <MudDivider></MudDivider>
+        <MudCard>
+            <MudCardContent>
+                <ScriptTodosItens></ScriptTodosItens>
+            </MudCardContent>
+        </MudCard>
+    </MudPaper>
+    @if (messageBox)
+    {
+        <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+    }
+}
 @code {
     HashSet<string> SelectedValuesUnidades { get; set; }
 
@@ -70,11 +78,20 @@
 
     private List<Grupo> ListGrupos { get; set; }
     private IEnumerable<string> Unidades { get; set; }
+    private List<ReposicaoEstoque> GetList { get; set; } = new();
     private List<ReposicaoEstoque> ListReposicao { get; set; }
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
-        ListReposicao = DataReposicaoDTO.GetListReposicao().Select(x => new ReposicaoEstoque
+        GetData();
+        PostData();
+    }
+
+    private void GetData()
+    {
+        GetList.AddRange(listSharedService.GetListReposicao());
+
+        ListReposicao = GetList.Select(x => new ReposicaoEstoque
             {
                 CodigoMV = x.CodigoMV,
                 ConsumoTotal = x.ConsumoTotal,
@@ -87,9 +104,14 @@
                 Unidade = x.Unidade
             }).ToList();
 
-        Unidades = DataReposicaoDTO.GetUnidades();
+        Unidades = GetUnidades();
     }
 
+    private void PostData()
+    {
+        _dataSharedService.SetListReposicao(ListReposicao, null);
+        _dataSharedService.InputUnidades(Unidades);
+    }
 
     private void OnValidSubmit()
     {
@@ -98,10 +120,15 @@
 
         if (GerarListaReposicaoUnidade(ListReposicao) == false) return;
 
-        CreateScripRobot robot = new();
+        CreateScripRobot robot = new(_dataSharedService);
         DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
         MessageSucess();
         StateHasChanged();
+    }
+
+    private IEnumerable<string> GetUnidades()
+    {
+        return ListReposicao.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
     }
 
     private void MessageSucess()
@@ -113,7 +140,7 @@
 
     private bool VerificaLogin()
     {
-        if (DataReposicaoDTO.GetDadosScript() == null)
+        if (_dataSharedService.GetDadosScript() == null)
         {
             messageBox = true;
             titulo = "Login";
@@ -138,7 +165,7 @@
                     list.AddRange(medicamento);
                 }
             }
-            DataReposicaoDTO.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+            _dataSharedService.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), _dataSharedService.Farmacia);
             return true;
         }
         else

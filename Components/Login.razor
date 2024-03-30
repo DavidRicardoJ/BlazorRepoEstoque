@@ -3,6 +3,7 @@
 @using BlazorRepoEstoque.Services.Interfaces
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IJSRuntime js
+@inject DataSharedService dataSharedService
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5" Style="@color">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Usuário MV</MudText>
@@ -12,7 +13,7 @@
             <MudCardContent Style="width:max-content">
                 <MudItem xs="12" Style="margin-top: 30px; width: 20rem;">
                     <MudSelect T="string" Label="Farmácia de Destino" Variant="Variant.Text" OffsetY="true" Margin="Margin.Dense"
-                               Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@DataReposicaoDTO.Farmacia" FullWidth="true">
+                               Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@dataSharedService.Farmacia" FullWidth="true">
                         <MudSelectItem Value="@("FARMÁCIA DA EMERGÊNCIA")" />
                         <MudSelectItem Value="@("FARMÁCIA DO 3° ANDAR")" />
                         <MudSelectItem Value="@("FARMÁCIA DO 6° ANDAR")" />
@@ -60,8 +61,9 @@
 
     private void OnValidGroupSubmit()
     {
-        DataReposicaoDTO.InputLoginMV(model);
-        disable = true;
+        dataSharedService.InputLoginMV(model);
+        dataSharedService.SetObs($"Reposição de Estoque >> {dataSharedService.Farmacia}");
+        //disable = true;
         color = "background-color: rgba(123, 237, 159,0.3)";
         UserLocalStorage();
     }

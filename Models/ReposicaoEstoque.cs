@@ -14,5 +14,6 @@ namespace BlazorRepoEstoque.Models
         public int DiasDeEstoque { get; set; }
         public int Reposicao { get; set; }
         public string NomeGrupo { get; set; }
+        public string Especie { get; set; }
     }
 }

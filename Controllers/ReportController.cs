@@ -1,6 +1,7 @@
 ﻿using AspNetCore.Reporting;
 using BlazorRepoEstoque.Data;
 using BlazorRepoEstoque.Models;
+using BlazorRepoEstoque.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,11 +20,13 @@ namespace BlazorRepoEstoque.Controllers
     public class ReportController : ControllerBase
     {
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly ListSharedService listSharedService;
 
-        public ReportController(IWebHostEnvironment webHostEnvironment)
+        public ReportController(IWebHostEnvironment webHostEnvironment, ListSharedService listSharedService)
         {
             this.webHostEnvironment = webHostEnvironment;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            this.listSharedService = listSharedService;
         }
 
         [HttpGet]
@@ -33,14 +36,14 @@ namespace BlazorRepoEstoque.Controllers
             ReportData reportData = new();
 
             var dt = new DataTable();
-            dt = ObjForDataTable(DataReposicaoDTO.GetListReposicao());
+            dt = ObjForDataTable(listSharedService.GetListReposicao());
 
             string mimetype = "";
             int extension = 1;
             var path = $"{webHostEnvironment.WebRootPath}\\report\\ReportReposicaoEstoque.rdlc";
 
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("Farmacia", DataReposicaoDTO.Farmacia);
+            parameters.Add("Farmacia", listSharedService.Farmacia);
 
             LocalReport localReport = new LocalReport(path);
             localReport.AddDataSource("DataSetReposicaoEstoque", dt);

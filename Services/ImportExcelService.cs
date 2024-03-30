@@ -53,6 +53,8 @@ namespace BlazorRepoEstoque.Services
                                     if (j == 4 + k) repo.ConsumoTotal = float.Parse(row.GetCell(j).ToString());
                                     if (j == 6 + k) repo.EstoqueAtual = float.Parse(row.GetCell(j).ToString());
                                     if (j == 7 + k) repo.DiasDeEstoque = int.Parse(row.GetCell(j).ToString());
+                                    if (j == 13 + k) repo.Especie = row.GetCell(j).ToString();
+
                                 }
                             }
                         }

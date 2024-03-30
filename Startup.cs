@@ -35,6 +35,8 @@ namespace BlazorRepoEstoque
             services.AddScoped<IGrupoRepository, GrupoRepository>();
             services.AddScoped<IGrupoServices, GrupoServices>();
             services.AddScoped<IEncryptString, EncryptString>();
+            services.AddScoped<DataSharedService>();
+            services.AddSingleton<ListSharedService>();
             services.AddBlazoredLocalStorage();
 
 

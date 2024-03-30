@@ -1,5 +1,6 @@
 ﻿@inject IJSRuntime js
 @inject IEncryptString encrypt
+@inject DataSharedService dataSharedService
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script - Todos os Itens</MudText>
@@ -45,7 +46,7 @@
 
     protected override async void OnInitialized()
     {
-        ListReposicao = DataReposicaoDTO.GetListReposicao().Select(x => new ReposicaoEstoque
+        ListReposicao = dataSharedService.GetListReposicao().Select(x => new ReposicaoEstoque
             {
                 CodigoMV = x.CodigoMV,
                 ConsumoTotal = x.ConsumoTotal,
@@ -58,7 +59,7 @@
                 Unidade = x.Unidade
             }).ToList();
 
-        Unidades = DataReposicaoDTO.GetUnidades();
+        Unidades = dataSharedService.GetUnidades();
     }
 
 
@@ -66,7 +67,7 @@
     {
         if (VerificaLogin() is false) return;
 
-        CreateScripRobot robot = new();
+        CreateScripRobot robot = new(dataSharedService);
         DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
         MessageSucess();
         StateHasChanged();
@@ -81,7 +82,7 @@
 
     private bool VerificaLogin()
     {
-        if (DataReposicaoDTO.GetDadosScript() == null)
+        if (dataSharedService.GetDadosScript() == null)
         {
             messageBox = true;
             titulo = "Login";
@@ -96,7 +97,7 @@
     {
         if (ListReposicao.Any())
         {
-            DataReposicaoDTO.SetListReposicao(ListReposicao.OrderBy(x => x.Medicamento).ToList(), DataReposicaoDTO.Farmacia);
+            dataSharedService.SetListReposicao(ListReposicao.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
             return true;
         }
         else

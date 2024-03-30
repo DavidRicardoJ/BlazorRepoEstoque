@@ -1,5 +1,6 @@
 ﻿@inject IJSRuntime js
 @inject NavigationManager nav
+@inject ListSharedService listSharedService
 
 
 <MudContainer>
@@ -96,7 +97,8 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
                     list.AddRange(medicamento);
                 }
             }
-            DataReposicaoDTO.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), farmacia);
+            listSharedService.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList());
+            listSharedService.Farmacia = farmacia;
             js.InvokeVoidAsync("ClickElement", "btnGenerate");
             Cancelar.InvokeAsync(true);
 

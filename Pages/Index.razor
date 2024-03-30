@@ -6,6 +6,8 @@
 @inject IJSRuntime js
 @inject IDialogService Dialog
 @inject IGrupoServices grupoService
+@inject ListSharedService listSharedService
+@implements IDisposable
 
 
 <title value="Index"></title>
@@ -40,7 +42,7 @@
                     Relatório
                 </MudButton>
                 <MudButton HtmlTag="btn" Style="margin-left: 25px;"
-                           OnClick="CriarScriptAutomacao"
+                           @onclick="CriarScriptAutomacao"
                            Variant="Variant.Filled"
                            Color="Color.Secondary"
                            StartIcon="@Icons.Filled.Speed">
@@ -52,7 +54,7 @@
     <MudItem xs="6">
 
         <MudExpansionPanels Class="py-5">
-            <MudExpansionPanel Text="Aplicar Filtros e Configurações" MaxHeight="650">
+            <MudExpansionPanel Text="Aplicar Filtros e Configurações">
                 <MudPaper Class="align-self-start" Elevation="3" Style="margin-bottom: 7px;">
                     <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Configurações da Lista</MudText>
                     <MudCheckBox @bind-Checked="@ConsumoZero" Label="Não considera Consumo Total igual a zero." Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
@@ -79,6 +81,18 @@
                         <MudSlider @bind-Value="diasDeEstoque" Step="1" Min="0" Max="15" Color="Color.Info">Valor: Entre 0 e @diasDeEstoque.ToString()</MudSlider>
                     </MudItem>
                 </MudPaper>
+                <MudDivider/>
+                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
+
+                    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedEspecies">
+                        <MudTreeViewItem Value="@("Selecionar Espécies")" Selected="true">
+                            @foreach (var especie in GetEspecies())
+                            {
+                                <MudTreeViewItem Value="@(especie)" Selected="true"/>
+                            }
+                        </MudTreeViewItem>
+                    </MudTreeView>
+                 </MudPaper>
                 <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
                     <MudItem xs="12" sm="6">
                         <MudButton HtmlTag="btn"
@@ -153,6 +167,7 @@
     private string tituloMsgBox;
     private string avisoMsgBox;
 
+    HashSet<string> SelectedEspecies { get; set; }
 
     private bool alert = false;
     private bool ConsumoZero { get; set; } = true;
@@ -166,9 +181,18 @@
     private bool GerarRelatorio;
     IEnumerable<string> Unidades;
 
-    protected override void OnInitialized() => filterList = new();
+    protected override void OnInitialized()
+    {
+        filterList = new();
+        listSharedService.OnChange += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        listSharedService.OnChange -= StateHasChanged;
+    }
 
-    private void Progress()
+
+    public void Progress()
     {
         progress = !progress;
     }
@@ -199,6 +223,31 @@
     private void AplicarFiltrosEConfiguracoes()
     {
         if (filterList.Any() is false && listRepo.Any() is false) return;
+
+        #region Filtrar por Espécie
+        List<ReposicaoEstoque> listaFiltradaPorEspecie = new();
+        if (SelectedEspecies.Any() is false)
+        {
+            SelectedEspecies = new HashSet<string>(GetEspecies());
+        }
+        else if (SelectedEspecies.Contains("Selecionar Espécies") && SelectedEspecies.Count == 1)
+        {
+            SelectedEspecies = new HashSet<string>(GetEspecies());
+        }
+
+        foreach (var especie in SelectedEspecies)
+        {
+            if (especie != "Selecionar Espécies")
+            {
+                var medicamento = listRepo.Where(m => m.Especie == especie).ToList();
+                if (medicamento != null)
+                {
+                    listaFiltradaPorEspecie.AddRange(medicamento);
+                }
+            }
+        }
+        listRepo = listaFiltradaPorEspecie;
+        #endregion
 
         filterList = listRepo.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
 
@@ -265,7 +314,18 @@
         if (VerificaItemZeradoOuNegativo()) return;
 
         Unidades = GetUnidades();
+        listSharedService.SetListReposicao(filterList);
         GerarRelatorio = true;
+    }
+
+    private IEnumerable<string> GetUnidades()
+    {
+        return filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+    }
+
+    private IEnumerable<string> GetEspecies()
+    {
+        return filterList.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
     }
 
     private void CancelaRelatorio()
@@ -287,9 +347,7 @@
         if (filterList.Count == 0 || filterItens == false) return;
         if (VerificaItemZeradoOuNegativo()) return;
         if (VerificaItensDuplicados()) return;
-
-        DataReposicaoDTO.InputUnidades(GetUnidades());
-        DataReposicaoDTO.SetListReposicao(filterList, null);
+        listSharedService.SetListReposicao(filterList);
         NavigateToNewTab();
     }
 
@@ -340,11 +398,6 @@
             alert = false;
             return false;
         }
-    }
-
-    private IEnumerable<string> GetUnidades()
-    {
-        return filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
     }
 
     public async Task NavigateToNewTab()
