@@ -2,7 +2,7 @@
 
 namespace BlazorRepoEstoque.Models
 {
-    public class ReposicaoEstoque
+    public class ReposicaoEstoque : ICloneable
     {
         public int Id { get; set; }
         public string CodigoMV { get; set; }
@@ -15,5 +15,10 @@ namespace BlazorRepoEstoque.Models
         public int Reposicao { get; set; }
         public string NomeGrupo { get; set; }
         public string Especie { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }

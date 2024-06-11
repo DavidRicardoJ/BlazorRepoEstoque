@@ -33,7 +33,8 @@ namespace BlazorRepoEstoque
             services.AddMudServices();
             services.AddScoped<HttpClient>();
             services.AddScoped<IGrupoRepository, GrupoRepository>();
-            services.AddScoped<IGrupoServices, GrupoServices>();
+            services.AddScoped<IGrupoServices, GrupoServices>();           
+            services.AddScoped<IFiltrosServices, FiltrosServices>();
             services.AddScoped<IEncryptString, EncryptString>();
             services.AddScoped<DataSharedService>();
             services.AddSingleton<ListSharedService>();

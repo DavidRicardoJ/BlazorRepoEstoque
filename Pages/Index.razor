@@ -6,6 +6,7 @@
 @inject IJSRuntime js
 @inject IDialogService Dialog
 @inject IGrupoServices grupoService
+@inject IFiltrosServices filtrosServices
 @inject ListSharedService listSharedService
 @implements IDisposable
 
@@ -81,18 +82,36 @@
                         <MudSlider @bind-Value="diasDeEstoque" Step="1" Min="0" Max="15" Color="Color.Info">Valor: Entre 0 e @diasDeEstoque.ToString()</MudSlider>
                     </MudItem>
                 </MudPaper>
-                <MudDivider/>
-                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
+                <MudDivider />
+                @*  filtro por espécie *@
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
 
                     <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedEspecies">
                         <MudTreeViewItem Value="@("Selecionar Espécies")" Selected="true">
                             @foreach (var especie in GetEspecies())
                             {
-                                <MudTreeViewItem Value="@(especie)" Selected="true"/>
+                                <MudTreeViewItem Value="@(especie)" Selected="true" />
                             }
                         </MudTreeViewItem>
                     </MudTreeView>
-                 </MudPaper>
+                </MudPaper>
+
+                @*  filtro por Grupo *@
+                <MudDivider />
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
+                    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedGroups">
+                        <MudTreeViewItem Value="@("Selecionar Grupos")" Selected="true">
+                            @foreach (var grupo in GetGrupos())
+                            {
+                                <MudTreeViewItem Value="@(grupo)" Selected="true" />
+                            }
+                        </MudTreeViewItem>
+                    </MudTreeView>
+                </MudPaper>
+
+
+                @* Aplicar Filtros *@
+                <MudDivider />
                 <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
                     <MudItem xs="12" sm="6">
                         <MudButton HtmlTag="btn"
@@ -119,7 +138,7 @@
 
 @if (GerarRelatorio)
 {
-    <SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@filterList"></SelectUnits>
+    <SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@listReposicaoComFiltro"></SelectUnits>
 }
 @if (showMessageBox)
 {
@@ -142,12 +161,12 @@
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 
 }
-@if (filterList != null && filterList.Count() > 0)
+@if (ListImportada != null && ListImportada.Count() > 0)
 {
     erroImport = false;
     <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
         <MudPaper>
-            <TabPage repoList="@filterList" RowsPerPage="filterList.Count"></TabPage>
+            <TabPage repoList="@listReposicaoComFiltro" RowsPerPage="listReposicaoComFiltro.Count"></TabPage>
         </MudPaper>
     </MudPaper>
 }
@@ -157,17 +176,21 @@
     private bool progress = false;
 
     private MemoryStream stream2;
-    private List<ReposicaoEstoque> filterList;
+    private List<ReposicaoEstoque> ListImportada;
     MudDateRangePicker _picker;
     public double diasDeEstoque = 5;
     DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
-    private List<ReposicaoEstoque> listRepo = new();
+    private List<ReposicaoEstoque> listReposicaoComFiltro;
+
+
+
 
     private bool showMessageBox;
     private string tituloMsgBox;
     private string avisoMsgBox;
 
     HashSet<string> SelectedEspecies { get; set; }
+    HashSet<string> SelectedGroups { get; set; }
 
     private bool alert = false;
     private bool ConsumoZero { get; set; } = true;
@@ -183,7 +206,8 @@
 
     protected override void OnInitialized()
     {
-        filterList = new();
+        ListImportada = new();
+        listReposicaoComFiltro = new();
         listSharedService.OnChange += StateHasChanged;
     }
     public void Dispose()
@@ -207,60 +231,70 @@
         await stream1.CopyToAsync(stream2);
         stream1.Close();
 
-        filterList = await excelService.ReadExcel(stream2);
-        if (filterList == null)
+        ListImportada = await excelService.ReadExcel(stream2);
+        if (ListImportada == null)
         {
             erroImport = true;
             return;
         }
         erroImport = false;
-        listRepo = ReordenarID(filterList);
-        listRepo = listRepo.OrderBy(x => x.Medicamento).ToList();
-        listRepo = await AddGrupo(listRepo);
+
+
+        ListImportada = ReordenarID(ListImportada);
+        ListImportada = ListImportada.OrderBy(x => x.Medicamento).ToList();
+        ListImportada = await AddGrupo(ListImportada);
+
+        listReposicaoComFiltro = CloneListaImportada();
+        LoadGrupos();
+        LoadEspecies();
+    }
+
+    private List<ReposicaoEstoque> CloneListaImportada()
+    {
+        IList<ReposicaoEstoque> ListaClonada = ListImportada.Clone();
+        return ListaClonada.ToList();
+    }
+
+    private void LoadGrupos()
+    {
+        SelectedGroups = GetGrupos().ToHashSet();
+    }
+    private void LoadEspecies()
+    {
+        SelectedEspecies = GetEspecies().ToHashSet();
     }
 
 
     private void AplicarFiltrosEConfiguracoes()
     {
-        if (filterList.Any() is false && listRepo.Any() is false) return;
+        if (ListImportada.Any() is false && listReposicaoComFiltro.Any() is false) return;
+        listReposicaoComFiltro.Clear();
+        listReposicaoComFiltro = CloneListaImportada();
 
         #region Filtrar por Espécie
-        List<ReposicaoEstoque> listaFiltradaPorEspecie = new();
-        if (SelectedEspecies.Any() is false)
-        {
-            SelectedEspecies = new HashSet<string>(GetEspecies());
-        }
-        else if (SelectedEspecies.Contains("Selecionar Espécies") && SelectedEspecies.Count == 1)
-        {
-            SelectedEspecies = new HashSet<string>(GetEspecies());
-        }
-
-        foreach (var especie in SelectedEspecies)
-        {
-            if (especie != "Selecionar Espécies")
-            {
-                var medicamento = listRepo.Where(m => m.Especie == especie).ToList();
-                if (medicamento != null)
-                {
-                    listaFiltradaPorEspecie.AddRange(medicamento);
-                }
-            }
-        }
-        listRepo = listaFiltradaPorEspecie;
+        
+        listReposicaoComFiltro = filtrosServices.FilterByEspecie(listReposicaoComFiltro, SelectedEspecies);
         #endregion
 
-        filterList = listRepo.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
+        #region Filtro por Grupo
 
-        filterList = filterList.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
+        listReposicaoComFiltro = filtrosServices.FilterByBroup(listReposicaoComFiltro, SelectedGroups);
+        #endregion
 
-        CalcularReposicao(filterList);
+        listReposicaoComFiltro = listReposicaoComFiltro.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
 
-        if (ConsumoZero) { filterList = filterList.Where(x => x.ConsumoTotal > 0.0f).ToList(); };
+        listReposicaoComFiltro = listReposicaoComFiltro.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
 
-        if (ReposicaoZero) { filterList = filterList.Where(x => x.Reposicao >= 0).ToList(); };
+        CalcularReposicao(listReposicaoComFiltro);
 
-        filterList = ReordenarID(filterList);
-        if (filterList.Count() == 0)
+        if (ConsumoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); };
+
+        if (ReposicaoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); };
+
+        listReposicaoComFiltro = listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
+
+        listReposicaoComFiltro = ReordenarID(listReposicaoComFiltro);
+        if (listReposicaoComFiltro.Count() == 0)
         {
             alert = true;
             filterItens = false;
@@ -293,7 +327,14 @@
             foreach (var item in list)
             {
                 var nomeGrupo = grupos.FirstOrDefault(x => x.CodigoMV.ToString() == item.CodigoMV);
-                if (nomeGrupo is not null) item.NomeGrupo = nomeGrupo.NomeGrupo;
+                
+                if (nomeGrupo is not null)
+                {
+                    item.NomeGrupo = nomeGrupo.NomeGrupo;
+                }else
+                {
+                    item.NomeGrupo = "PRODUTOS SEM GRUPO";
+                }
             }
         }
 
@@ -310,22 +351,27 @@
 
     private void GeraRelatorio()
     {
-        if (filterList.Count == 0 || filterItens == false) return;
+        if (listReposicaoComFiltro.Count == 0 || filterItens == false) return;
         if (VerificaItemZeradoOuNegativo()) return;
 
         Unidades = GetUnidades();
-        listSharedService.SetListReposicao(filterList);
+        listSharedService.SetListReposicao(listReposicaoComFiltro);
         GerarRelatorio = true;
     }
 
     private IEnumerable<string> GetUnidades()
     {
-        return filterList.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+        return listReposicaoComFiltro.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
     }
 
     private IEnumerable<string> GetEspecies()
     {
-        return filterList.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
+        return ListImportada.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
+    }
+
+    private IEnumerable<string> GetGrupos()
+    {
+        return ListImportada.OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
     }
 
     private void CancelaRelatorio()
@@ -344,16 +390,16 @@
 
     private void CriarScriptAutomacao()
     {
-        if (filterList.Count == 0 || filterItens == false) return;
+        if (listReposicaoComFiltro.Count == 0 || filterItens == false) return;
         if (VerificaItemZeradoOuNegativo()) return;
         if (VerificaItensDuplicados()) return;
-        listSharedService.SetListReposicao(filterList);
+        listSharedService.SetListReposicao(listReposicaoComFiltro);
         NavigateToNewTab();
     }
 
     private bool VerificaItemZeradoOuNegativo()
     {
-        var itensZerados = filterList.Where(x => x.Reposicao <= 0).ToList();
+        var itensZerados = listReposicaoComFiltro.Where(x => x.Reposicao <= 0).ToList();
         if (itensZerados.Count > 0)
         {
             StringBuilder sb = new StringBuilder();
@@ -375,7 +421,7 @@
 
     private bool VerificaItensDuplicados()
     {
-        var itensDuplicados = filterList.GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
+        var itensDuplicados = listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
 
         if (itensDuplicados.Count() > 0)
         {
@@ -383,7 +429,7 @@
             sb.AppendLine("Há itens duplicados na lista de reposição: ");
             foreach (var item in itensDuplicados)
             {
-                var itemDuplicado = filterList.Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
+                var itemDuplicado = listReposicaoComFiltro.Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
                 if (itemDuplicado is not null)
                 {
                     sb.AppendLine("Cód." + itemDuplicado.CodigoMV + " " + itemDuplicado.Medicamento);
