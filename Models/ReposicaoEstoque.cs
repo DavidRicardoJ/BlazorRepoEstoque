@@ -15,6 +15,8 @@ namespace BlazorRepoEstoque.Models
         public int Reposicao { get; set; }
         public string NomeGrupo { get; set; }
         public string Especie { get; set; }
+        public int CodigoEstoque { get; set; }
+        public string Farmacia { get; set; }
 
         public object Clone()
         {

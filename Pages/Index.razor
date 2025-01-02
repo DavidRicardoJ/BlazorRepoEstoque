@@ -128,11 +128,19 @@
             </MudExpansionPanel>
         </MudExpansionPanels>
 
-    </MudItem>
-    <MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="d-flex align-center justify-center " Elevation="4">
+                teste
+
+
+            </MudPaper>
+        </MudItem>
 
     </MudItem>
+
 </MudGrid>
+
+
 
 <a href="@nav.BaseUri.Remove(nav.BaseUri.Length -1, 1)/Robot/GetScriptRobot" target="_blank"></a>
 
@@ -272,7 +280,7 @@
         listReposicaoComFiltro = CloneListaImportada();
 
         #region Filtrar por Espécie
-        
+
         listReposicaoComFiltro = filtrosServices.FilterByEspecie(listReposicaoComFiltro, SelectedEspecies);
         #endregion
 
@@ -327,11 +335,12 @@
             foreach (var item in list)
             {
                 var nomeGrupo = grupos.FirstOrDefault(x => x.CodigoMV.ToString() == item.CodigoMV);
-                
+
                 if (nomeGrupo is not null)
                 {
                     item.NomeGrupo = nomeGrupo.NomeGrupo;
-                }else
+                }
+                else
                 {
                     item.NomeGrupo = "PRODUTOS SEM GRUPO";
                 }

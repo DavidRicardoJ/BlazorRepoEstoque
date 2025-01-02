@@ -16,6 +16,8 @@ namespace BlazorRepoEstoque.Services
 
         private ReposicaoEstoque repo;
         private List<ReposicaoEstoque> listRepo = new();
+        public int _codigoEstoque { get; set; }
+        public string _farmacia { get; set; }
 
         public async Task<List<ReposicaoEstoque>> ReadExcel(MemoryStream stream2)
         {
@@ -29,6 +31,13 @@ namespace BlazorRepoEstoque.Services
                     stream2.Position = 0;
                     XSSFWorkbook xssWorkbook = new XSSFWorkbook(stream2);
                     sheet = xssWorkbook.GetSheetAt(0);
+                    IRow farmaciaOrigem = sheet.GetRow(0);
+                    if (!string.IsNullOrEmpty( farmaciaOrigem.GetCell(1).ToString()))
+                    {
+                        _codigoEstoque = int.Parse(farmaciaOrigem.GetCell(1).ToString());
+                        _farmacia = farmaciaOrigem.GetCell(2).ToString();
+                    }
+                    
                     IRow headerRow = sheet.GetRow(3);
                     int cellCount = headerRow.LastCellNum;
                     int k = 0;
@@ -50,11 +59,12 @@ namespace BlazorRepoEstoque.Services
                                     if (j == 1 + k) repo.Medicamento = row.GetCell(j).ToString();
                                     if (j == 2 + k) repo.Unidade = row.GetCell(j).ToString();
                                     if (j == 3 + k) repo.UltimoMovimento = DateTime.ParseExact(row.GetCell(j).ToString().Replace(".","/"),"dd/MM/yyyy",null);
-                                    if (j == 4 + k) repo.ConsumoTotal = float.Parse(row.GetCell(j).ToString());
+                                    if (j == 5 + k) repo.ConsumoTotal = float.Parse(row.GetCell(j).ToString());
                                     if (j == 6 + k) repo.EstoqueAtual = float.Parse(row.GetCell(j).ToString());
                                     if (j == 7 + k) repo.DiasDeEstoque = int.Parse(row.GetCell(j).ToString());
                                     if (j == 13 + k) repo.Especie = row.GetCell(j).ToString();
-
+                                    repo.CodigoEstoque = _codigoEstoque;
+                                    repo.Farmacia = _farmacia;
                                 }
                             }
                         }
