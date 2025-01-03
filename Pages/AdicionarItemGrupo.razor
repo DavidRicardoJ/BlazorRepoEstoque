@@ -29,7 +29,7 @@
 
         <MudPaper Class="pa-4" Style="margin-left: 100px;">
             <MudText Align="Align.Center"><b>Código MV do Medicamento</b></MudText>
-            <MudList Clickable="false">
+            <MudList Clickable="false" T="int">
                 @if (ListaCodigosMV != null)
                 {
                     foreach (var item in ListaCodigosMV)
@@ -46,7 +46,7 @@
 
     @if (messageBoxAtivate)
     {
-        <MudChip></MudChip>
+        <MudChip T="string"></MudChip>
     }
 
 

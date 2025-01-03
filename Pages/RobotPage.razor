@@ -1,5 +1,6 @@
 ﻿@page "/robot"
 @inject DataSharedService dataSharedService
+@inject ListSharedService listSharedService
 @implements IDisposable
 
 <MudGrid>
@@ -11,7 +12,7 @@
     </MudItem>
 
     <MudItem xs="4">
-        <Login></Login>
+        <Login Farmacia="@listSharedService.Farmacia" CodigoEstoque="listSharedService.CodigoEstoque"></Login>
     </MudItem>
 
     <MudItem xs="4">

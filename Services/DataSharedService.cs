@@ -10,6 +10,7 @@ namespace BlazorRepoEstoque.Services
        
         public string Farmacia { get; set; }
         public string Observacao { get; set; }
+        public int CodigoEstoque { get; set; }
         private LoginUsuarioMV Login { get; set; }
 
         private IEnumerable<string> Unidades { get; set; }
@@ -35,7 +36,7 @@ namespace BlazorRepoEstoque.Services
             NotifyStateChanged();
         }
 
-        public LoginUsuarioMV GetDadosScript()
+        public LoginUsuarioMV GetDadosLoginScript()
         {
             return Login;           
         }

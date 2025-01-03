@@ -10,6 +10,7 @@ namespace BlazorRepoEstoque.Services
     {
         public event Action? OnChange;
         public string Farmacia { get; set; }
+        public int CodigoEstoque { get; set; }
         private IList<ReposicaoEstoque> _ListReposicao { get; set; }
         public void SetListReposicao(List<ReposicaoEstoque> ListReposicao)
         {

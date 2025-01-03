@@ -15,7 +15,7 @@ namespace BlazorRepoEstoque.Services
         }
         public string GetScriptRobot()
         {
-            return ScriptRobot(_sharedService.GetListReposicao(), _sharedService.GetDadosScript(), _sharedService.GetObservacao());
+            return ScriptRobot(_sharedService.GetListReposicao(), _sharedService.GetDadosLoginScript(), _sharedService.GetObservacao());
         }
 
         private string ScriptRobot(List<ReposicaoEstoque> itensReposicaoEstoques, LoginUsuarioMV loginUsuarioMV, string Observação)

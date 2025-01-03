@@ -3,13 +3,24 @@
 
 <MudDialog DisableSidePadding="true" Style="max-width: 600px;">
     <DialogContent>
-        <MudContainer Style="max-height: 300px; overflow-y: scroll;">
+        <MudContainer Style="max-height: 300px; min-height: 100px; overflow-y: scroll;">
             <MudList Clickable="true">
-                @foreach (var item in GruposProdutosDto.ListaProdutosSemGrupoDTO)
+                
+                @if (GruposProdutosDto.ListaProdutosSemGrupoDTO != null && GruposProdutosDto.ListaProdutosSemGrupoDTO.Any())
                 {
-                    string produto = $"{item.CodigoMV} - {item.Medicamento}";
-                    <MudListItem Text="@produto" Icon="@Icons.Material.Filled.Send" />
-                    <MudDivider />
+                    @foreach (var item in GruposProdutosDto.ListaProdutosSemGrupoDTO)
+                    {
+                        string produto = $"{item.CodigoMV} - {item.Medicamento}";
+                        <MudListItem Icon="@Icons.Material.Filled.Send">@produto</MudListItem>
+                        @if (item != GruposProdutosDto.ListaProdutosSemGrupoDTO.Last())
+                        {
+                            <MudDivider />
+                        }
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1">Nenhum produto encontrado.</MudText>
                 }
             </MudList>
         </MudContainer>
@@ -24,7 +35,6 @@
 
     private void Ok()
     {
-        GruposProdutosDto.ListaProdutosSemGrupoDTO = null;       
         MudDialog.Close(DialogResult.Ok(true));
     }
 }

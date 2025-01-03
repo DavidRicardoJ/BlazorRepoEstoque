@@ -1,5 +1,4 @@
-﻿
-@inject HttpClient httpClient
+﻿@inject HttpClient httpClient
 @inject IJSRuntime js
 
 
@@ -44,10 +43,10 @@
 </MudTable>
 
 <div class="d-flex flex-wrap mt-4">
-    <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
-    <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
-    <MudSwitch @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
-    <MudSwitch @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
+    <MudSwitch T="bool" @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+    <MudSwitch T="bool" @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    <MudSwitch T="bool" @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
+    <MudSwitch T="bool" @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
     <MudSpacer />
     <div style="min-width:200px;">
         <MudText Inline="true" Class="align-self-center">Selected1: @selectedItem1?.Medicamento</MudText>

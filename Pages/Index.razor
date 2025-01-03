@@ -25,28 +25,28 @@
             <InputFile id="fileInput" OnChange="GetFile" onloadstart="Progress" hidden single />
 
             <MudButton HtmlTag="label"
-                       onchange="GetFile"
-                       Variant="Variant.Filled"
-                       Color="Color.Secondary"
-                       StartIcon="@Icons.Filled.CloudUpload"
-                       for="fileInput">
+            onchange="GetFile"
+            Variant="Variant.Filled"
+            Color="Color.Secondary"
+            StartIcon="@Icons.Filled.CloudUpload"
+            for="fileInput">
                 Buscar Arquivo Excel
             </MudButton>
         </MudPaper>
         <MudItem xs="12">
             <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Elevation="3" Style="margin-top: 5px;">
                 <MudButton HtmlTag="btn"
-                           OnClick="GeraRelatorio"
-                           Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Custom.FileFormats.FilePdf">
+                OnClick="GeraRelatorio"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Custom.FileFormats.FilePdf">
                     Relatório
                 </MudButton>
                 <MudButton HtmlTag="btn" Style="margin-left: 25px;"
-                           @onclick="CriarScriptAutomacao"
-                           Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Filled.Speed">
+                @onclick="CriarScriptAutomacao"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Filled.Speed">
                     Criar Script de Automação
                 </MudButton>
             </MudPaper>
@@ -54,7 +54,7 @@
     </MudItem>
     <MudItem xs="6">
 
-        <MudExpansionPanels Class="py-5">
+        <MudExpansionPanels Class="py-3" Style="margin:3px" Elevation="7">
             <MudExpansionPanel Text="Aplicar Filtros e Configurações">
                 <MudPaper Class="align-self-start" Elevation="3" Style="margin-bottom: 7px;">
                     <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Configurações da Lista</MudText>
@@ -115,11 +115,11 @@
                 <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
                     <MudItem xs="12" sm="6">
                         <MudButton HtmlTag="btn"
-                                   Style="width: max-content; margin: 20px;"
-                                   OnClick="AplicarFiltrosEConfiguracoes"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   StartIcon="@Icons.Sharp.FilterAlt">
+                        Style="width: max-content; margin: 20px;"
+                        OnClick="AplicarFiltrosEConfiguracoes"
+                        Variant="Variant.Filled"
+                        Color="Color.Secondary"
+                        StartIcon="@Icons.Sharp.FilterAlt">
                             Aplicar Filtros e Configurações
                         </MudButton>
                     </MudItem>
@@ -129,11 +129,13 @@
         </MudExpansionPanels>
 
         <MudItem xs="12">
-            <MudPaper Class="d-flex align-center justify-center " Elevation="4">
-                teste
+            @if (farmacia is not null)
+            {
+                <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style=" width: 100%; padding: 19px;">
+                    <MudText Color="Color.Info" Typo="Typo.h5">@farmacia, ESTOQUE: @estoque</MudText>
+                </MudPaper>
+            }
 
-
-            </MudPaper>
         </MudItem>
 
     </MudItem>
@@ -190,6 +192,8 @@
     DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
     private List<ReposicaoEstoque> listReposicaoComFiltro;
 
+    private string farmacia = null;
+    private int estoque;
 
 
 
@@ -255,6 +259,9 @@
         listReposicaoComFiltro = CloneListaImportada();
         LoadGrupos();
         LoadEspecies();
+
+        farmacia = ListImportada[0].Farmacia;
+        estoque = ListImportada[0].CodigoEstoque;
     }
 
     private List<ReposicaoEstoque> CloneListaImportada()
@@ -403,6 +410,8 @@
         if (VerificaItemZeradoOuNegativo()) return;
         if (VerificaItensDuplicados()) return;
         listSharedService.SetListReposicao(listReposicaoComFiltro);
+        listSharedService.Farmacia = farmacia;
+        listSharedService.CodigoEstoque = estoque;
         NavigateToNewTab();
     }
 
