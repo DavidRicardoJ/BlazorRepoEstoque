@@ -1,0 +1,77 @@
+﻿@page "/produtos"
+@inject IProdutoEstoqueMinimoService ProdutoService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudContainer>
+    <MudText Typo="Typo.h4" GutterBottom="true">Lista de Produtos com Estoque Mínimo</MudText>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="AdicionarProduto" Class="mb-10">
+        Adicionar Produto
+    </MudButton>
+
+    <MudTable Items="@produtos" Hover="true" Breakpoint="Breakpoint.None">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Nome do Produto</MudTh>
+            <MudTh>Quantidade Mínima</MudTh>
+            <MudTh>Estoque Solicitante</MudTh>
+            <MudTh>Ações</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.Id</MudTd>
+            <MudTd DataLabel="Nome do Produto">@context.NomeProduto</MudTd>
+            <MudTd DataLabel="Quantidade Mínima">@context.QuantidadeMinima</MudTd>
+            <MudTd DataLabel="Estoque Solicitante">@context.EstoqueSolicitante</MudTd>
+            <MudTd DataLabel="Ações">
+                <MudIconButton Color="Color.Info" Title="Editar" Icon="@Icons.Material.Filled.Edit" OnClick="() => EditarProduto(context.Id, context.EstoqueSolicitante)" />
+                <MudIconButton Color="Color.Error" Title="Excluir" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeletarProduto(context.Id, context.EstoqueSolicitante)" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer>
+
+@code {
+    private List<ProdutoEstoqueMinimo> produtos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        produtos = await ProdutoService.GetProdutosAsync();
+    }
+
+    private void AdicionarProduto()
+    {
+        Navigation.NavigateTo("/produtos/novo");
+    }
+
+    private void EditarProduto(int id, int estoque)
+    {
+        Navigation.NavigateTo($"/produtos/editar/{id}/{estoque}");
+    }
+
+    private async Task DeletarProduto(int id, int estoque)
+    {
+        var result = await ConfirmarExclusao();
+        if (result == null) return;
+        if (result == true)
+        {
+            await ProdutoService.DeleteProdutoAsync(id, estoque);
+            Snackbar.Add("Produto excluido com sucesso!", Severity.Success);
+            produtos = await ProdutoService.GetProdutosAsync();            
+        }
+        
+    }
+
+    private async Task<bool?> ConfirmarExclusao()
+    {
+        
+        bool? result = await DialogService.ShowMessageBox(
+            "Atenção",
+            "Confirma a exclusão?",
+            yesText: "Excuir Item", cancelText: "Cancelar");
+
+           
+        return result;
+    }
+}

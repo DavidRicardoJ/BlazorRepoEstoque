@@ -9,9 +9,9 @@ namespace BlazorRepoEstoque.Data.Repositories
 {
     public class GrupoRepository : IGrupoRepository
     {
-        private readonly ApplicationDbContext context;
+        private readonly AppDbContext context;
 
-        public GrupoRepository(ApplicationDbContext context)
+        public GrupoRepository(AppDbContext context)
         {
             this.context = context;
         }

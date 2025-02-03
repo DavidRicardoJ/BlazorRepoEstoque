@@ -1,0 +1,212 @@
+﻿@page "/produtos/novo"
+@inject IProdutoEstoqueMinimoService ProdutoService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject IMedicamentoService MedicamentoService
+@inject IDialogService DialogService
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudText Typo="Typo.h4" GutterBottom="true">Adicionar Novo Produto</MudText>
+
+    <EditForm Context="editContext" Model="@novoProduto" OnValidSubmit="SalvarProduto">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h6" GutterBottom="true">Informações do Produto</MudText>
+
+                <MudTextField Label="Código do produto"
+                @ref="numericFieldRef1"
+                @bind-Value="novoProduto.Id"
+                Variant="Variant.Outlined"
+                Margin="Margin.Normal"
+                @onblur="() => BuscarMedicamento( novoProduto.Id)"
+                onkeydown="(e) => HandleKeyDown(e, numericFieldRef3)" />
+
+                <ValidationMessage For="@(() => novoProduto.Id)" class="danger" />
+
+                <MudTextField Label="Nome do Produto"
+                @ref="numericFieldRef2"
+                @bind-Value="novoProduto.NomeProduto"
+                Variant="Variant.Outlined"
+                ReadOnly="true"
+                Margin="Margin.Normal"
+                @onkeydown="(e) => HandleKeyDown(e, numericFieldRef3)" />
+                <ValidationMessage For="@(() => novoProduto.NomeProduto)" class="danger" />
+
+                <MudTextField Label="Quantidade Mínima"
+                @ref="numericFieldRef3"
+                @bind-Value="novoProduto.QuantidadeMinima"
+                Variant="Variant.Outlined"
+                Margin="Margin.Normal"
+                @onkeydown="(e) => HandleKeyDown(e, numericFieldRef4)" />
+                <ValidationMessage For="@(() => novoProduto.QuantidadeMinima)" class="danger" />
+
+                <MudTextField Label="Estoque Solicitante"
+                @bind-Value="novoProduto.EstoqueSolicitante"
+                @ref="numericFieldRef4"
+                Variant="Variant.Outlined"
+                Margin="Margin.Normal" />
+                <ValidationMessage For="@(() => novoProduto.EstoqueSolicitante)" class="danger" />
+
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled"
+                Color="Color.Primary"
+                ButtonType="ButtonType.Submit">
+                    Salvar
+                </MudButton>
+
+                <MudButton Style="margin-left:20px;"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                OnClick="Cancelar">
+                    Cancelar
+                </MudButton>               
+            </MudCardActions>
+        </MudCard>
+
+
+    </EditForm>
+</MudContainer>
+@if (showMessageBox)
+{
+    <MessageBox Titulo="@tituloMsgBox" Aviso="@avisoMsgBox" okButton="CloseMsgBox" />
+}
+@code {
+    private ProdutoEstoqueMinimo novoProduto = new();
+    private MudTextField<int> numericFieldRef1;
+    private MudTextField<string> numericFieldRef2;
+    private MudTextField<int> numericFieldRef3;
+    private MudTextField<int> numericFieldRef4;
+    private EditContext editContext;
+
+    private bool showMessageBox;
+    private string tituloMsgBox;
+    private string avisoMsgBox;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(novoProduto);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await numericFieldRef1.SelectAsync();
+        }
+    }
+
+    private async Task SalvarProduto()
+    {  // Verifica se o formulário é válido
+        if (editContext.Validate())
+        {            
+            var result = await ProdutoService.AddProdutoAsync(novoProduto);
+            if (result is null)
+            {
+                Snackbar.Add("Produto adicionado com sucesso!", Severity.Success);
+                ClearFields();
+            }else
+            {
+                ShowMsgBox("Falha na Operação", result);
+                NovoProduto();
+                ClearFields();
+            }
+
+        }
+        else
+        {
+            Snackbar.Add("Por favor, corrija os erros no formulário.", Severity.Error);
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/produtos");
+    }
+
+    private async Task BuscarMedicamento(int IdProduto)
+    {
+        if (IdProduto == 0) return;
+        var med = await MedicamentoService.GetMedicamentoByIdAsync(IdProduto);
+        if (med != null)
+        {
+            novoProduto.NomeProduto = med.NomeMedicamento;
+
+        }
+        else
+        {
+            ShowMsgBox("Produto não encontrado", "Produto não encontrado, por favor, verifique o código digitado ou o cadastre.");
+            ClearFields();
+        }
+    }
+    private async Task HandleKeyDown(KeyboardEventArgs e, MudTextField<int> nextField)
+    {
+        if (e.Key == "Enter")
+        {
+            if (nextField != null)
+            {
+                await nextField.SelectAsync();
+            }
+        }
+    }
+    private async Task HandleKeyDown(KeyboardEventArgs e, MudTextField<string> nextField)
+    {
+        if (e.Key == "Enter")
+        {
+            if (nextField != null)
+            {
+                await nextField.FocusAsync();
+            }
+        }
+    }
+    private async Task HandleBuscaMedicamento(KeyboardEventArgs e, int IdProduto)
+    {
+        if (e.Key == "Enter" || e.Key == "Tab")
+        {
+            if (IdProduto != 0)
+            {
+                await BuscarMedicamento(IdProduto);
+                StateHasChanged();
+
+                if (numericFieldRef3 != null)
+                {
+                    await numericFieldRef3.SelectAsync();
+                }
+            }
+        }
+    }
+
+    private void ShowMsgBox(string titulo, string aviso)
+    {
+        this.tituloMsgBox = titulo;
+        this.avisoMsgBox = aviso;
+        showMessageBox = true;
+    }
+
+    private void CloseMsgBox()
+    {
+        showMessageBox = false;
+    }
+
+    private void NovoProduto()
+    {
+        novoProduto = new ProdutoEstoqueMinimo();
+        editContext = new EditContext(novoProduto);
+    }
+
+    private async void ClearFields()
+    {
+        await numericFieldRef1.Clear();
+        await numericFieldRef2.Clear();
+        await numericFieldRef3.Clear();
+        await numericFieldRef4.Clear();
+        await numericFieldRef1.SelectAsync();
+    }
+}
+
+<style>
+    .danger {
+        color: red;
+    }
+</style>

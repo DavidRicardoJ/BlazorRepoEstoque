@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
+using System;
 using System.Net.Http;
 
 namespace BlazorRepoEstoque
@@ -33,18 +34,23 @@ namespace BlazorRepoEstoque
             services.AddMudServices();
             services.AddScoped<HttpClient>();
             services.AddScoped<IGrupoRepository, GrupoRepository>();
-            services.AddScoped<IGrupoServices, GrupoServices>();           
+            services.AddScoped<IGrupoServices, GrupoServices>();
             services.AddScoped<IFiltrosServices, FiltrosServices>();
             services.AddScoped<IEncryptString, EncryptString>();
             services.AddScoped<DataSharedService>();
+            services.AddScoped<IProdutoEstoqueMinimoService, ProdutoEstoqueMinimoService>();
+            services.AddScoped<IMedicamentoService, MedicamentoService>();
+
             services.AddSingleton<ListSharedService>();
             services.AddBlazoredLocalStorage();
 
 
             #region DbContext
-            services.AddDbContext<ApplicationDbContext>(options =>
+           
+            services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseMySql(Configuration.GetConnectionString("DefaultConnection2"),
+                     new MySqlServerVersion(new Version(8, 0, 21)));
             });
             #endregion
             services.AddDatabaseDeveloperPageExceptionFilter();

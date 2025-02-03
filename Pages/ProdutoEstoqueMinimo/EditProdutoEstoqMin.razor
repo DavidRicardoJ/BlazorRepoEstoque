@@ -1,0 +1,106 @@
+﻿@page "/produtos/editar/{id}/{estoque}"
+@inject IProdutoEstoqueMinimoService ProdutoService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<MudContainer>
+    <MudText Typo="Typo.h4" GutterBottom="true">Editar Produto</MudText>
+
+    @if (produto != null)
+    {
+        <EditForm Model="@produto" OnValidSubmit="SalvarAlteracoes">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <MudTextField @bind-Value="produto.NomeProduto" 
+            Label="Nome do Produto"
+            For="@(() => produto.NomeProduto)"
+            ReadOnly/>
+
+            <MudTextField @bind-Value="produto.QuantidadeMinima" 
+            Label="Quantidade Mínima"
+            InputType="InputType.Number"
+            For="@(() => produto.QuantidadeMinima)"/>
+
+            <MudTextField @bind-Value="produto.EstoqueSolicitante" 
+            Label="Estoque Solicitante"
+            InputType="InputType.Number"
+            For="@(() => produto.EstoqueSolicitante)"/>
+
+            <MudButton Variant="Variant.Filled" 
+            Color="Color.Primary" 
+            ButtonType="ButtonType.Submit"
+            Class="mt-3">
+                Salvar Alterações
+            </MudButton>
+
+            <MudButton Variant="Variant.Text" 
+            Color="Color.Default" 
+            Class="mt-3" 
+            OnClick="Cancelar">
+                Cancelar
+            </MudButton>
+        </EditForm>
+    }
+    else
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public string Estoque { get; set; }
+
+    private ProdutoEstoqueMinimo produto;
+    private EditContext editContext;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (int.TryParse(Id, out int produtoId) && (int.TryParse(Estoque, out int estoque)))
+        {
+            produto = await ProdutoService.GetProdutoByIdAsync(produtoId,estoque );
+            if (produto == null)
+            {
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+                Snackbar.Add("Produto não encontrado", Severity.Error);
+                Navigation.NavigateTo("/produtos");
+            }
+            else
+            {
+                editContext = new EditContext(produto);
+            }
+        }
+        else
+        {
+            Snackbar.Add("ID inválido", Severity.Error);
+            Navigation.NavigateTo("/produtos");
+        }
+    }
+
+    private async Task SalvarAlteracoes()
+    {
+        if (editContext.Validate())
+        {
+            try
+            {
+                await ProdutoService.UpdateProdutoAsync(produto);
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+                Snackbar.Add("Produto atualizado com sucesso!", Severity.Success);
+                Navigation.NavigateTo("/produtos");
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro ao atualizar produto: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navigation.NavigateTo("/produtos");
+    }
+}

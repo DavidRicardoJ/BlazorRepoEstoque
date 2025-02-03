@@ -1,15 +1,17 @@
 ﻿
 <MudNavMenu Class="mudblazor-navmenu">
     <div class="docs-nav-fader"></div>
-
+    <MudNavLink Href="/">Inicio</MudNavLink>
     <MudNavGroup Title="Grupo"
                  Icon="fas fa-bars"
-                 ExpandIcon="@Icons.Material.Filled.ExpandMore" Style="margin-top: 40px;">
-        <MudNavLink Href="/">Inicio</MudNavLink>
+                 ExpandIcon="@Icons.Material.Filled.ExpandMore" Style="margin-top: 40px;">       
         <MudNavLink  Href="/criargrupo">Criar Grupo</MudNavLink>
         <MudNavLink  Href="/excluirgrupo">Excluir Grupo</MudNavLink>
         <MudNavLink  Href="/adicionaritemgrupo">Adicionar itens Grupo</MudNavLink>
         <MudNavLink  Href="/excluiritemgrupo">Excluir Item Grupo</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Estoque Mínimo">
+        <MudLink Href="/produtos" Color="Color.Dark">Produtos com Estoque Mínimos</MudLink>
     </MudNavGroup>
 </MudNavMenu>
 
