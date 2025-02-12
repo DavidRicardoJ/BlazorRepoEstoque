@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BlazorRepoEstoque.Migrations
 {
     /// <inheritdoc />
-    public partial class newBD : Migration
+    public partial class newBd : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +35,7 @@ namespace BlazorRepoEstoque.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
+                    EstoqueOrigem = table.Column<ushort>(type: "SMALLINT UNSIGNED", nullable: false),
                     EstoqueSolicitante = table.Column<ushort>(type: "SMALLINT UNSIGNED", nullable: false),
                     NomeProduto = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -42,26 +43,26 @@ namespace BlazorRepoEstoque.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProdutoEstoqueMinimo", x => new { x.Id, x.EstoqueSolicitante });
+                    table.PrimaryKey("PK_ProdutoEstoqueMinimo", x => new { x.Id, x.EstoqueSolicitante, x.EstoqueOrigem });
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "tbmedicamento",
-                columns: table => new
-                {
-                    idMedicamento = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    medicamento = table.Column<string>(type: "varchar(120)", maxLength: 120, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    unidade = table.Column<string>(type: "varchar(45)", maxLength: 45, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tbmedicamento", x => x.idMedicamento);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+            //migrationBuilder.CreateTable(
+            //    name: "tbmedicamento",
+            //    columns: table => new
+            //    {
+            //        idMedicamento = table.Column<int>(type: "int", nullable: false)
+            //            .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+            //        medicamento = table.Column<string>(type: "varchar(120)", maxLength: 120, nullable: false)
+            //            .Annotation("MySql:CharSet", "utf8mb4"),
+            //        unidade = table.Column<string>(type: "varchar(45)", maxLength: 45, nullable: false)
+            //            .Annotation("MySql:CharSet", "utf8mb4")
+            //    },
+            //    constraints: table =>
+            //    {
+            //        table.PrimaryKey("PK_tbmedicamento", x => x.idMedicamento);
+            //    })
+            //    .Annotation("MySql:CharSet", "utf8mb4");
         }
 
         /// <inheritdoc />
@@ -73,8 +74,8 @@ namespace BlazorRepoEstoque.Migrations
             migrationBuilder.DropTable(
                 name: "ProdutoEstoqueMinimo");
 
-            migrationBuilder.DropTable(
-                name: "tbmedicamento");
+            //migrationBuilder.DropTable(
+            //    name: "tbmedicamento");
         }
     }
 }

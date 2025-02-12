@@ -2,7 +2,6 @@
 using BlazorRepoEstoque.Models;
 using BlazorRepoEstoque.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +41,7 @@ namespace BlazorRepoEstoque.Services
                 {
                     return "Produto já cadastrado";
                 }
-               return e.Message;
+                return e.Message;
             }
             return null;
         }
@@ -53,9 +52,12 @@ namespace BlazorRepoEstoque.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteProdutoAsync(int id, int estoque)
+        public async Task DeleteProdutoAsync(int id, int estoqueSolicitante, int estoqueOrigem)
         {
-            var produto = await _context.ProdutoEstoqueMinimo.Where(p => p.Id == id && p.EstoqueSolicitante == estoque).FirstOrDefaultAsync();
+            var produto = await _context.ProdutoEstoqueMinimo.Where(p => p.Id == id
+            && p.EstoqueOrigem == estoqueOrigem
+            && p.EstoqueSolicitante == estoqueSolicitante
+            ).FirstOrDefaultAsync();
             if (produto != null)
             {
                 _context.ProdutoEstoqueMinimo.Remove(produto);

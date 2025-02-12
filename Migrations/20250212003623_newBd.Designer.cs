@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorRepoEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250121232326_newBD")]
-    partial class newBD
+    [Migration("20250212003623_newBd")]
+    partial class newBd
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,9 @@ namespace BlazorRepoEstoque.Migrations
                     b.Property<ushort>("EstoqueSolicitante")
                         .HasColumnType("SMALLINT UNSIGNED");
 
+                    b.Property<ushort>("EstoqueOrigem")
+                        .HasColumnType("SMALLINT UNSIGNED");
+
                     b.Property<string>("NomeProduto")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -86,7 +89,7 @@ namespace BlazorRepoEstoque.Migrations
                     b.Property<uint>("QuantidadeMinima")
                         .HasColumnType("MEDIUMINT UNSIGNED");
 
-                    b.HasKey("Id", "EstoqueSolicitante");
+                    b.HasKey("Id", "EstoqueSolicitante", "EstoqueOrigem");
 
                     b.ToTable("ProdutoEstoqueMinimo");
                 });

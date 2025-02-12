@@ -11,11 +11,25 @@
         Adicionar Produto
     </MudButton>
 
-    <MudTable Items="@produtos" Hover="true" Breakpoint="Breakpoint.None">
+    <!-- Campo de pesquisa -->
+    <MudContainer MaxWidth="MaxWidth.Small" Style="float: right">
+        <MudTextField @bind-Value="searchString"
+        Label="Pesquisar por Nome, Código ou Estoque Solicitante"
+        Adornment="Adornment.End"
+        AdornmentIcon="@Icons.Material.Filled.Search"
+        Variant="Variant.Outlined"  
+        Clearable = "true"
+        Margin="Margin.Normal" />
+
+    </MudContainer>
+    
+    <MudTable Items="@produtos" Filter="FilterFunc" Hover="true" Breakpoint="Breakpoint.None" 
+    FixedHeader="true" Elevation="7" Striped="true" Class="mt-5">
         <HeaderContent>
             <MudTh>ID</MudTh>
             <MudTh>Nome do Produto</MudTh>
             <MudTh>Quantidade Mínima</MudTh>
+            <MudTh>Estoque de Origem</MudTh>
             <MudTh>Estoque Solicitante</MudTh>
             <MudTh>Ações</MudTh>
         </HeaderContent>
@@ -23,21 +37,27 @@
             <MudTd DataLabel="ID">@context.Id</MudTd>
             <MudTd DataLabel="Nome do Produto">@context.NomeProduto</MudTd>
             <MudTd DataLabel="Quantidade Mínima">@context.QuantidadeMinima</MudTd>
+            <MudTd DataLabel="Estoque de Origem">@context.EstoqueOrigem</MudTd>
             <MudTd DataLabel="Estoque Solicitante">@context.EstoqueSolicitante</MudTd>
             <MudTd DataLabel="Ações">
                 <MudIconButton Color="Color.Info" Title="Editar" Icon="@Icons.Material.Filled.Edit" OnClick="() => EditarProduto(context.Id, context.EstoqueSolicitante)" />
-                <MudIconButton Color="Color.Error" Title="Excluir" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeletarProduto(context.Id, context.EstoqueSolicitante)" />
+                <MudIconButton Color="Color.Error" Title="Excluir" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeletarProduto(context.Id, context.EstoqueSolicitante, context.NomeProduto, context.EstoqueOrigem)" />
             </MudTd>
         </RowTemplate>
     </MudTable>
 </MudContainer>
-
 @code {
     private List<ProdutoEstoqueMinimo> produtos = new();
+    private string searchString = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        produtos = await ProdutoService.GetProdutosAsync();
+        var produtosOriginais = await ProdutoService.GetProdutosAsync();
+        produtos = produtosOriginais
+            .OrderBy(x => x.NomeProduto)
+            .GroupBy(x => x.EstoqueSolicitante)
+            .SelectMany(grupo => grupo)
+            .ToList();
     }
 
     private void AdicionarProduto()
@@ -50,28 +70,46 @@
         Navigation.NavigateTo($"/produtos/editar/{id}/{estoque}");
     }
 
-    private async Task DeletarProduto(int id, int estoque)
+    private async Task DeletarProduto(int id, int estoqueOrigem, string nomeProduto, int estoqueSolicitante)
     {
-        var result = await ConfirmarExclusao();
+        var result = await ConfirmarExclusao(nomeProduto);
         if (result == null) return;
         if (result == true)
         {
-            await ProdutoService.DeleteProdutoAsync(id, estoque);
+            await ProdutoService.DeleteProdutoAsync(id, estoqueOrigem, estoqueSolicitante);
             Snackbar.Add("Produto excluido com sucesso!", Severity.Success);
-            produtos = await ProdutoService.GetProdutosAsync();            
+            produtos = await ProdutoService.GetProdutosAsync();
         }
-        
+
     }
 
-    private async Task<bool?> ConfirmarExclusao()
+    private async Task<bool?> ConfirmarExclusao(string nomeProduto)
     {
-        
+
         bool? result = await DialogService.ShowMessageBox(
             "Atenção",
-            "Confirma a exclusão?",
+            $"Confirma a exclusão do item - {nomeProduto}?",
             yesText: "Excuir Item", cancelText: "Cancelar");
 
-           
+
         return result;
+    }
+
+    private bool FilterFunc(ProdutoEstoqueMinimo produto)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+
+        // Verifica se o nome do produto contém o texto da pesquisa (case insensitive)
+        if (produto.NomeProduto.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Verifica se o ID (convertido para string) contém o texto da pesquisa
+        if (produto.Id.ToString().Contains(searchString))
+            return true;
+        if (produto.EstoqueSolicitante.ToString().Contains(searchString))
+            return true;
+
+        return false;
     }
 }

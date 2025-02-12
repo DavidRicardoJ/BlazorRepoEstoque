@@ -75,6 +75,9 @@ namespace BlazorRepoEstoque.Migrations
                     b.Property<ushort>("EstoqueSolicitante")
                         .HasColumnType("SMALLINT UNSIGNED");
 
+                    b.Property<ushort>("EstoqueOrigem")
+                        .HasColumnType("SMALLINT UNSIGNED");
+
                     b.Property<string>("NomeProduto")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -83,7 +86,7 @@ namespace BlazorRepoEstoque.Migrations
                     b.Property<uint>("QuantidadeMinima")
                         .HasColumnType("MEDIUMINT UNSIGNED");
 
-                    b.HasKey("Id", "EstoqueSolicitante");
+                    b.HasKey("Id", "EstoqueSolicitante", "EstoqueOrigem");
 
                     b.ToTable("ProdutoEstoqueMinimo");
                 });

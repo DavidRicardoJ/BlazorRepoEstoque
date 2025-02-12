@@ -20,6 +20,6 @@ namespace BlazorRepoEstoque.Services.Interfaces
         Task UpdateProdutoAsync(ProdutoEstoqueMinimo produto);
 
         // Remove um produto por ID
-        Task DeleteProdutoAsync(int id, int estoque);
+        Task DeleteProdutoAsync(int id, int estoqueOrigem, int estoqueSolicitante);
     }
 }

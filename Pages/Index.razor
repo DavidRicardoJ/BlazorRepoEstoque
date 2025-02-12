@@ -25,11 +25,11 @@
             <InputFile id="fileInput" OnChange="GetFile" onloadstart="Progress" hidden single accept=".xlsx" />
 
             <MudButton HtmlTag="label"
-                       onchange="GetFile"
-                       Variant="Variant.Filled"
-                       Color="Color.Secondary"
-                       StartIcon="@Icons.Filled.CloudUpload"
-                       for="fileInput">
+            onchange="GetFile"
+            Variant="Variant.Filled"
+            Color="Color.Secondary"
+            StartIcon="@Icons.Filled.CloudUpload"
+            for="fileInput">
                 Buscar Arquivo Excel
             </MudButton>
         </MudPaper>
@@ -37,17 +37,17 @@
         <MudItem xs="12">
             <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Elevation="3" Style="margin-top: 5px;">
                 <MudButton HtmlTag="btn"
-                           OnClick="GeraRelatorio"
-                           Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Custom.FileFormats.FilePdf">
+                OnClick="GeraRelatorio"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Custom.FileFormats.FilePdf">
                     Relatório
                 </MudButton>
                 <MudButton HtmlTag="btn" Style="margin-left: 25px;"
-                           @onclick="CriarScriptAutomacao"
-                           Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Filled.Speed">
+                @onclick="CriarScriptAutomacao"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Filled.Speed">
                     Criar Script de Automação
                 </MudButton>
             </MudPaper>
@@ -109,18 +109,35 @@
                         </MudTreeViewItem>
                     </MudTreeView>
                 </MudPaper>
+                <MudDivider />
+                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5 flex-column">
 
+                    <MudSwitch T="bool" @bind-Value="ativeProdutoEstoqMin"
+                    CheckedChanged="OnAtiveProdutoEstoqMinChanged" Color="Color.Error">
+                        Considerar Lista de Produtos com Estoque Minímo
+                    </MudSwitch>
+
+                    @if (ativeProdutoEstoqMin)
+                    {
+                        <MudContainer MaxWidth="MaxWidth.ExtraSmall">
+                            <MudNumericField @bind-value="codigoEstoqueOrigem" @ref="numericField" Required="true"
+                            RequiredError="Código obrigatório." Error="numericFieldErro"
+                            Label="Código do Estoque de Origem" Variant="Variant.Outlined" />
+                        </MudContainer>
+                    }
+
+                </MudPaper>
 
                 @* Aplicar Filtros *@
                 <MudDivider />
                 <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
                     <MudItem xs="12" sm="6">
                         <MudButton HtmlTag="btn"
-                                   Style="width: max-content; margin: 20px;"
-                                   OnClick="AplicarFiltrosEConfiguracoes"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   StartIcon="@Icons.Sharp.FilterAlt">
+                        Style="width: max-content; margin: 20px;"
+                        OnClick="AplicarFiltrosEConfiguracoes"
+                        Variant="Variant.Filled"
+                        Color="Color.Secondary"
+                        StartIcon="@Icons.Sharp.FilterAlt">
                             Aplicar Filtros e Configurações
                         </MudButton>
                     </MudItem>
@@ -196,7 +213,10 @@
     private string farmacia = null;
     private int estoque;
 
-
+    private bool ativeProdutoEstoqMin = false;
+    private int? codigoEstoqueOrigem;
+    private MudNumericField<int?> numericField;
+    private bool numericFieldErro;
 
     private bool showMessageBox;
     private string tituloMsgBox;
@@ -223,6 +243,7 @@
         listReposicaoComFiltro = new();
         listSharedService.OnChange += StateHasChanged;
     }
+
     public void Dispose()
     {
         listSharedService.OnChange -= StateHasChanged;
@@ -283,6 +304,7 @@
 
     private void AplicarFiltrosEConfiguracoes()
     {
+        if (ativeProdutoEstoqMin && codigoEstoqueOrigem == null) return;
         if (ListImportada.Any() is false && listReposicaoComFiltro.Any() is false) return;
         listReposicaoComFiltro.Clear();
         listReposicaoComFiltro = CloneListaImportada();
@@ -481,5 +503,16 @@
     private void CloseMsgBox()
     {
         showMessageBox = false;
+    }
+    private async void OnAtiveProdutoEstoqMinChanged(bool novoValor)
+    {
+        ativeProdutoEstoqMin = novoValor;
+        StateHasChanged();
+        await Task.Yield();
+
+        if (numericField != null && ativeProdutoEstoqMin)
+        {
+            await numericField.FocusAsync();
+        }
     }
 }

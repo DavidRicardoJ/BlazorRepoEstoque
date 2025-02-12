@@ -12,39 +12,46 @@
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <MudTextField @bind-Value="produto.NomeProduto" 
-            Label="Nome do Produto"
-            For="@(() => produto.NomeProduto)"
-            ReadOnly/>
+            <MudTextField @bind-Value="produto.NomeProduto"
+                          Label="Nome do Produto"
+                          For="@(() => produto.NomeProduto)"
+                          ReadOnly />
 
-            <MudTextField @bind-Value="produto.QuantidadeMinima" 
-            Label="Quantidade Mínima"
-            InputType="InputType.Number"
-            For="@(() => produto.QuantidadeMinima)"/>
+            <MudTextField @bind-Value="produto.QuantidadeMinima" Style="color: blue; font-weight:700"
+                          Label="Quantidade Mínima"                          
+                          InputType="InputType.Number"
+                          For="@(() => produto.QuantidadeMinima)" />
 
-            <MudTextField @bind-Value="produto.EstoqueSolicitante" 
-            Label="Estoque Solicitante"
-            InputType="InputType.Number"
-            For="@(() => produto.EstoqueSolicitante)"/>
+            <MudTextField @bind-Value="produto.EstoqueOrigem"
+                          Label="Estoque de Origem"
+                          InputType="InputType.Number"
+                          ReadOnly
+                          For="@(() => produto.EstoqueSolicitante)" />
 
-            <MudButton Variant="Variant.Filled" 
-            Color="Color.Primary" 
-            ButtonType="ButtonType.Submit"
-            Class="mt-3">
+            <MudTextField @bind-Value="produto.EstoqueSolicitante"
+                          Label="Estoque Solicitante"
+                          InputType="InputType.Number"
+                          ReadOnly
+                          For="@(() => produto.EstoqueSolicitante)" />
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       ButtonType="ButtonType.Submit"
+                       Class="mt-3">
                 Salvar Alterações
             </MudButton>
 
-            <MudButton Variant="Variant.Text" 
-            Color="Color.Default" 
-            Class="mt-3" 
-            OnClick="Cancelar">
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Default"
+                       Class="mt-3"
+                       OnClick="Cancelar">
                 Cancelar
             </MudButton>
         </EditForm>
     }
     else
     {
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
     }
 </MudContainer>
 
@@ -62,7 +69,7 @@
     {
         if (int.TryParse(Id, out int produtoId) && (int.TryParse(Estoque, out int estoque)))
         {
-            produto = await ProdutoService.GetProdutoByIdAsync(produtoId,estoque );
+            produto = await ProdutoService.GetProdutoByIdAsync(produtoId, estoque);
             if (produto == null)
             {
                 Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;

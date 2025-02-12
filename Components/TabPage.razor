@@ -1,5 +1,6 @@
 ﻿@inject HttpClient httpClient
 @inject IJSRuntime js
+@inject ISnackbar Snackbar
 
 
 <MudTable Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" FixedFooter="true" FixedHeader="true"
@@ -119,6 +120,7 @@
         Elements.Remove(item);
         Elements = ReordenarID(Elements);
         StateHasChanged();
+        Snackbar.Add("Item excluído.", Severity.Error);
     }
 
     private List<ReposicaoEstoque> ReordenarID(List<ReposicaoEstoque> list)
