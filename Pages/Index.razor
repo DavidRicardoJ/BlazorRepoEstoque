@@ -8,6 +8,7 @@
 @inject IGrupoServices grupoService
 @inject IFiltrosServices filtrosServices
 @inject ListSharedService listSharedService
+@inject IProdutoEstoqueMinimoService produtoEstoqueMinimoService
 @implements IDisposable
 
 
@@ -150,7 +151,7 @@
             @if (farmacia is not null)
             {
                 <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style=" width: 100%; padding: 19px;">
-                    <MudText Color="Color.Info" Typo="Typo.h5">@farmacia, ESTOQUE: @estoque</MudText>
+                    <MudText Color="Color.Info" Typo="Typo.h5">@farmacia, ESTOQUE: @estoqueDestino</MudText>
                 </MudPaper>
             }
 
@@ -189,7 +190,7 @@
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 
 }
-@if (ListImportada != null && ListImportada.Count() > 0)
+@if (ListImportadaOriginal != null && ListImportadaOriginal.Count() > 0)
 {
     erroImport = false;
     <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
@@ -204,14 +205,14 @@
     private bool progress = false;
 
     private MemoryStream stream2;
-    private List<ReposicaoEstoque> ListImportada;
+    private List<ReposicaoEstoque> ListImportadaOriginal;
     MudDateRangePicker _picker;
     public double diasDeEstoque = 5;
     DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
     private List<ReposicaoEstoque> listReposicaoComFiltro;
 
     private string farmacia = null;
-    private int estoque;
+    private int estoqueDestino;
 
     private bool ativeProdutoEstoqMin = false;
     private int? codigoEstoqueOrigem;
@@ -239,7 +240,7 @@
 
     protected override void OnInitialized()
     {
-        ListImportada = new();
+        ListImportadaOriginal = new();
         listReposicaoComFiltro = new();
         listSharedService.OnChange += StateHasChanged;
     }
@@ -265,8 +266,8 @@
         await stream1.CopyToAsync(stream2);
         stream1.Close();
 
-        ListImportada = await excelService.ReadExcel(stream2);
-        if (ListImportada == null)
+        ListImportadaOriginal = await excelService.ReadExcel(stream2);
+        if (ListImportadaOriginal == null)
         {
             erroImport = true;
             return;
@@ -274,21 +275,21 @@
         erroImport = false;
 
 
-        ListImportada = ReordenarID(ListImportada);
-        ListImportada = ListImportada.OrderBy(x => x.Medicamento).ToList();
-        ListImportada = await AddGrupo(ListImportada);
+        ListImportadaOriginal = ReordenarID(ListImportadaOriginal);
+        ListImportadaOriginal = ListImportadaOriginal.OrderBy(x => x.Medicamento).ToList();
+        ListImportadaOriginal = await AddGrupo(ListImportadaOriginal);
 
         listReposicaoComFiltro = CloneListaImportada();
         LoadGrupos();
         LoadEspecies();
 
-        farmacia = ListImportada[0].Farmacia;
-        estoque = ListImportada[0].CodigoEstoque;
+        farmacia = ListImportadaOriginal[0].Farmacia;
+        estoqueDestino = ListImportadaOriginal[0].CodigoEstoque;
     }
 
     private List<ReposicaoEstoque> CloneListaImportada()
     {
-        IList<ReposicaoEstoque> ListaClonada = ListImportada.Clone();
+        IList<ReposicaoEstoque> ListaClonada = ListImportadaOriginal.Clone();
         return ListaClonada.ToList();
     }
 
@@ -302,10 +303,10 @@
     }
 
 
-    private void AplicarFiltrosEConfiguracoes()
+    private async Task AplicarFiltrosEConfiguracoes()
     {
         if (ativeProdutoEstoqMin && codigoEstoqueOrigem == null) return;
-        if (ListImportada.Any() is false && listReposicaoComFiltro.Any() is false) return;
+        if (ListImportadaOriginal.Any() is false && listReposicaoComFiltro.Any() is false) return;
         listReposicaoComFiltro.Clear();
         listReposicaoComFiltro = CloneListaImportada();
 
@@ -319,17 +320,38 @@
         listReposicaoComFiltro = filtrosServices.FilterByBroup(listReposicaoComFiltro, SelectedGroups);
         #endregion
 
-        listReposicaoComFiltro = listReposicaoComFiltro.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
+        #region Filtro por Dias de Estoque
 
+        listReposicaoComFiltro = listReposicaoComFiltro.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
+        #endregion
+
+        #region Filtro por Ultimo Movimento
         listReposicaoComFiltro = listReposicaoComFiltro.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
+        #endregion
+
 
         CalcularReposicao(listReposicaoComFiltro);
 
+        #region Filtro por Consumo Zero
         if (ConsumoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); };
+        #endregion
 
+        #region Filtro por Reposição Zero
         if (ReposicaoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); };
+        #endregion
 
         listReposicaoComFiltro = listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
+
+        #region Filtro por Estoque Mínimo
+        if (ativeProdutoEstoqMin)
+        { 
+            listReposicaoComFiltro =await produtoEstoqueMinimoService.AddProdutosComEstoqueMin(
+                ListImportadaOriginal,
+                listReposicaoComFiltro,
+                codigoEstoqueOrigem.Value,
+                estoqueDestino);
+        }
+        #endregion
 
         listReposicaoComFiltro = ReordenarID(listReposicaoComFiltro);
         if (listReposicaoComFiltro.Count() == 0)
@@ -405,12 +427,12 @@
 
     private IEnumerable<string> GetEspecies()
     {
-        return ListImportada.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
+        return ListImportadaOriginal.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
     }
 
     private IEnumerable<string> GetGrupos()
     {
-        return ListImportada.OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
+        return ListImportadaOriginal.OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
     }
 
     private void CancelaRelatorio()
@@ -434,7 +456,7 @@
         if (VerificaItensDuplicados()) return;
         listSharedService.SetListReposicao(listReposicaoComFiltro);
         listSharedService.Farmacia = farmacia;
-        listSharedService.CodigoEstoque = estoque;
+        listSharedService.CodigoEstoque = estoqueDestino;
         NavigateToNewTab();
     }
 

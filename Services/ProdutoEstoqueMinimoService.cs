@@ -12,6 +12,7 @@ namespace BlazorRepoEstoque.Services
     public class ProdutoEstoqueMinimoService : IProdutoEstoqueMinimoService
     {
         private readonly AppDbContext _context;
+        private List<ProdutoEstoqueMinimo> ProdutosForaDasLista = new();
 
         public ProdutoEstoqueMinimoService(AppDbContext context)
         {
@@ -63,6 +64,54 @@ namespace BlazorRepoEstoque.Services
                 _context.ProdutoEstoqueMinimo.Remove(produto);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public List<ProdutoEstoqueMinimo> GetProdutosForaDasListas()
+        {
+            return ProdutosForaDasLista;
+        }
+
+        public async Task<List<ReposicaoEstoque>> AddProdutosComEstoqueMin(
+            List<ReposicaoEstoque> listaOriginal,
+            List<ReposicaoEstoque> listaFiltrada,
+            int estoqueOrigem, int estoqueSolicitante)
+        {
+            var produtosEstoqueMinimo = await _context.ProdutoEstoqueMinimo.
+                Where(p => p.EstoqueOrigem == estoqueOrigem && p.EstoqueSolicitante == estoqueSolicitante).ToListAsync();
+            if (produtosEstoqueMinimo.Any())
+            {
+                foreach (var produto in produtosEstoqueMinimo)
+                {
+                    var itemListFilter = listaFiltrada.Where(p => p.CodigoMV == produto.Id.ToString()).FirstOrDefault();
+                    var ItemListOriginal = listaOriginal.Where(p => p.CodigoMV == produto.Id.ToString()).FirstOrDefault();
+
+                    if (itemListFilter is not null)
+                    {
+                        itemListFilter.IsEstoqMin = true;
+                        if (itemListFilter.EstoqueAtual < produto.QuantidadeMinima)
+                        {
+                            itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.EstoqueAtual);
+                        }
+                    }                   
+                    else
+                    {
+                        if (ItemListOriginal != null)
+                        {
+                            if (ItemListOriginal.EstoqueAtual < produto.QuantidadeMinima)
+                            {
+                                ItemListOriginal.Reposicao = (int)(produto.QuantidadeMinima - ItemListOriginal.EstoqueAtual);
+                                listaFiltrada.Add(ItemListOriginal);
+                            }
+
+                        }
+                        else
+                        {
+                            ProdutosForaDasLista.Add(produto);
+                        }
+                    }
+                }
+            }
+            return listaFiltrada;
         }
     }
 }
