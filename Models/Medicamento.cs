@@ -8,7 +8,7 @@ namespace BlazorRepoEstoque.Models
     {
         [Key]
         [Column("idMedicamento")]
-        public int IdMedicamento { get; set; }
+        public int? IdMedicamento { get; set; }
 
         [Required]
         [Column("medicamento")]

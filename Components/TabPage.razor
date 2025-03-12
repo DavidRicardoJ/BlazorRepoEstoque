@@ -23,18 +23,46 @@
 
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Codigo">@context.CodigoMV</MudTd>
-        <MudTd Style="max-width: 400px; overflow: hidden; height:none" DataLabel="Medicamento">@context.Medicamento</MudTd>
-        <MudTd DataLabel="Unidade">@context.Unidade</MudTd>
-        <MudTd DataLabel="UltimoMovimento">@context.UltimoMovimento.ToString("dd/MM/yyyy")</MudTd>
-        <MudTd DataLabel="ConsumoTotal" Style="text-align: center">@context.ConsumoTotal</MudTd>
-        <MudTd DataLabel="EstoqueAtual" Style="text-align: center">@context.EstoqueAtual</MudTd>
-        <MudTd DataLabel="DiasDeEstoque" Style="text-align: center">@context.DiasDeEstoque</MudTd>
+        <MudTd DataLabel="Codigo">
+            <MudText Typo="Typo.body1" Color="@(context.IsEstoqMin ? Color.Primary : Color.Default)">
+                @context.CodigoMV
+            </MudText>
+        </MudTd>
+
+        <MudTd Style="max-width: 400px; overflow: hidden; height: auto" DataLabel="Medicamento">
+            <MudText Typo="Typo.body1" Color="@(context.IsEstoqMin ? Color.Primary : Color.Default)">
+                @context.Medicamento
+            </MudText>
+        </MudTd>
+
+        <MudTd DataLabel="Unidade">
+            <MudText Typo="Typo.body1" Color="@(context.IsEstoqMin ? Color.Primary : Color.Default)">
+                @context.Unidade
+            </MudText>
+        </MudTd>
+        <MudTd DataLabel="UltimoMovimento">
+            @context.UltimoMovimento.ToString("dd/MM/yyyy")
+        </MudTd>
+
+        <MudTd DataLabel="ConsumoTotal" Style="text-align: center">
+            @context.ConsumoTotal
+        </MudTd>
+
+        <MudTd DataLabel="EstoqueAtual" Style="text-align: center">
+            @context.EstoqueAtual
+        </MudTd>
+
+        <MudTd DataLabel="DiasDeEstoque" Style="text-align: center">
+            @context.DiasDeEstoque
+        </MudTd>
+
         <MudTd DataLabel="Reposicao">
+
             <input id="@context.Id" @bind-value="@context.Reposicao"
                    @onkeypress="(KeyboardEventArgs e) => { Enter(e, context.Id); }"
                    style="width: 80px; text-align:center; color:blue; font-weight:bold; border: none;"
                    onclick="document.getElementById(@context.Id).select()" />
+
         </MudTd>
         <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Medium" Class="ma-2" Color="Color.Error" OnClick="()=> ExcluirItem(context.Id)" /></MudTd>
     </RowTemplate>
@@ -86,10 +114,10 @@
 
 
 
-    protected override void OnInitialized()
-    {
-        Elements = repoList;
-    }
+    // protected override void OnInitialized()
+    // {
+    //     Elements = repoList;
+    // }
 
     private bool FilterFunc1(ReposicaoEstoque element) => FilterFunc(element, searchString1);
     private bool FilterFunc2(ReposicaoEstoque element) => FilterFunc(element, searchString2);

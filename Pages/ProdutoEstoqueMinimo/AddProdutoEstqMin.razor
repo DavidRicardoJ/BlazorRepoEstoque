@@ -42,14 +42,14 @@
                 <ValidationMessage For="@(() => novoProduto.QuantidadeMinima)" class="danger" />
 
                 <MudTextField Label="Estoque de Origem"
-                              @bind-Value="novoProduto.EstoqueOrigem"
-                              @ref="numericFieldRef4"
-                              Variant="Variant.Outlined"
-                              @onkeydown="(e) => HandleKeyDown(e, numericFieldRef5)"
-                              Margin="Margin.Normal" />
+                @bind-Value="novoProduto.EstoqueOrigem"
+                @ref="numericFieldRef4"
+                Variant="Variant.Outlined"
+                @onkeydown="(e) => HandleKeyDown(e, numericFieldRef5)"
+                Margin="Margin.Normal" />
                 <ValidationMessage For="@(() => novoProduto.EstoqueOrigem)" class="danger" />
 
-                <MudTextField Label="Estoque Solicitante"
+                <MudTextField Label="Estoque de Destino"
                 @bind-Value="novoProduto.EstoqueSolicitante"
                 @ref="numericFieldRef5"
                 Variant="Variant.Outlined"
@@ -68,7 +68,7 @@
                 Variant="Variant.Filled"
                 Color="Color.Secondary"
                 OnClick="Cancelar">
-                    Cancelar
+                    Sair
                 </MudButton>               
             </MudCardActions>
         </MudCard>
@@ -115,6 +115,8 @@
             {
                 Snackbar.Add("Produto adicionado com sucesso!", Severity.Success);
                 ClearFields();
+                await Task.Delay(1500);
+                Navigation.NavigateTo("/produtos", true);
             }else
             {
                 ShowMsgBox("Falha na Operação", result);

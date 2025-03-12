@@ -8,10 +8,10 @@ namespace BlazorRepoEstoque.Services
 {
     public class FiltrosServices:IFiltrosServices
     {
-        public List<ReposicaoEstoque> FilterByBroup(List<ReposicaoEstoque> listReposição, HashSet<string> SelectedGroups)
+        public List<ReposicaoEstoque> FilterByBroup(List<ReposicaoEstoque> listReposição, IEnumerable<string> SelectedGroups)
         {
 
-            if (SelectedGroups.Contains("Selecionar Grupos")) { SelectedGroups.Remove("Selecionar Grupos"); }
+            //if (SelectedGroups.Contains("Selecionar Grupos")) { SelectedGroups.Remove("Selecionar Grupos"); }
 
             if (SelectedGroups.Any() is false || listReposição.Any() is false) return new List<ReposicaoEstoque>();
 
@@ -28,10 +28,10 @@ namespace BlazorRepoEstoque.Services
             return listaFiltradaPorGrupo;
         }
 
-        public List<ReposicaoEstoque> FilterByEspecie(List<ReposicaoEstoque> listReposição, HashSet<string> SelectedEspecies)
+        public List<ReposicaoEstoque> FilterByEspecie(List<ReposicaoEstoque> listReposição, IEnumerable<string> SelectedEspecies)
         {
 
-            if (SelectedEspecies.Contains("Selecionar Espécies")) { SelectedEspecies.Remove("Selecionar Espécies"); }
+            //if (SelectedEspecies.Contains("Selecionar Espécies")) { SelectedEspecies.Remove("Selecionar Espécies"); }
 
             if (SelectedEspecies.Any() is false || listReposição.Any() is false) return new List<ReposicaoEstoque>();
 

@@ -25,7 +25,7 @@
             <MudDivider Style="margin: 20px; color: blue;"></MudDivider>
 
             <MudSelect T="string" Placeholder="Escolha o item do grupo" AnchorOrigin="Origin.BottomCenter"
-                       MultiSelection="true" @onclick="OnChangeNameGrupo" @bind-SelectedValues="ListItemSelect">
+                       MultiSelection="true" @onclick="OnChangeNameGrupo" SelectedValues="ListItemSelect">
                 @if (ListItemGrupo != null)
                 {
                     foreach (var grupo in ListItemGrupo)

@@ -4,7 +4,7 @@
 <MudDialog DisableSidePadding="true" Style="max-width: 600px;">
     <DialogContent>
         <MudContainer Style="max-height: 300px; min-height: 100px; overflow-y: scroll;">
-            <MudList Clickable="true">
+            <MudList T="string" Clickable="true">
                
                 @if (GruposProdutosDto.ListaProdutosComGrupoDTO != null && GruposProdutosDto.ListaProdutosComGrupoDTO.Any())
                 {
@@ -31,7 +31,7 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
 
     private void Ok()
     {

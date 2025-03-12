@@ -1,9 +1,9 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider Theme="_currentTheme" />
-<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" />
+<MudThemeProvider @bind-IsDarkMode="_isDarkMode" Theme="_currentTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
 <MudSnackbarProvider />
-
 
 <MudLayout>
     <MudRTLProvider RightToLeft="@_rightToLeft">
@@ -13,99 +13,61 @@
                 <MudText Typo="Typo.h5" Class="mudblazor-appbar-brand-text">Reposição de Estoque</MudText>
             </MudHidden>
             <MudSpacer />
-
             <MudSpacer />
             <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
                 <MudTooltip Text="Toggle light/dark theme">
-                    <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@((e) => DarkMode())" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@((e) => ToggleDarkMode())" />
                 </MudTooltip>
                 <MudTooltip Text="Toggle right-to-left/left-to-right">
                     <MudIconButton Icon="@Icons.Material.Filled.FormatTextdirectionRToL" Color="Color.Inherit" OnClick="@((e) => RightToLeftToggle())" />
                 </MudTooltip>
             </MudHidden>
             <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
-                <MudMenu Icon="@Icons.Filled.Settings" Color="Color.Inherit" Dense="true" Direction="Direction.Right" OffsetY="true">
+                <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Inherit" Dense="true" Direction="Direction.Right" OffsetY="true">
                     <div class="px-2">
-                        <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@((e) => DarkMode())" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@((e) => ToggleDarkMode())" />
                         <MudIconButton Icon="@Icons.Material.Filled.FormatTextdirectionRToL" Color="Color.Inherit" OnClick="@((e) => RightToLeftToggle())" />
                     </div>
                 </MudMenu>
             </MudHidden>
         </MudAppBar>
 
-        <MudDrawer @bind-Open=_drawerOpen Elevation="25" Class="mudblazor-appbar-band">
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="25" Class="mudblazor-appbar-band">
             <MudDrawerHeader Class="mudblazor-brand" LinkToIndex="true">
                 <img src="/images/logoStorage.png" alt="logo" width="100px" height="100%" />
             </MudDrawerHeader>
             <NavMenu />
-
         </MudDrawer>
     </MudRTLProvider>
     <MudMainContent Class="mudblazor-main-content">
         <MudContainer MaxWidth="MaxWidth.Large">
             @Body
         </MudContainer>
-
         <MudScrollToTop TopOffset="400">
             <MudFab Icon="@Icons.Material.Filled.KeyboardArrowUp" Color="Color.Primary" />
         </MudScrollToTop>
     </MudMainContent>
-
 </MudLayout>
 
-@code
-{
+@code {
     private bool _drawerOpen = false;
     private bool _rightToLeft = false;
-    private string searchValue = string.Empty;
+    private bool _isDarkMode = false; // Controla o modo escuro
 
-    private void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-
-    private void RightToLeftToggle()
-    {
-        _rightToLeft = !_rightToLeft;
-    }
-
-    protected override void OnInitialized()
-    { 
-        _currentTheme = _defaultTheme;
-        StateHasChanged();       
-    }
-   
-    #region Theme
-
-    private void DarkMode()
-    {
-        if (_currentTheme == _defaultTheme)
+    private readonly MudTheme _currentTheme = new MudTheme()
         {
-            _currentTheme = _darkTheme;
-        }
-        else
-        {
-            _currentTheme = _defaultTheme;
-        }
-    }
-
-    private MudTheme _currentTheme = new MudTheme();
-    private readonly MudTheme _defaultTheme =
-        new MudTheme()
-        {
-            Palette = new Palette()
+            PaletteLight = new PaletteLight() // Tema claro (opcional, personalize se necessário)
             {
-                Black = "#272c34"
-            }
-        };
-    private readonly MudTheme _darkTheme =
-        new MudTheme()
-        {
-            Palette = new Palette()
+                Primary = "#007bff",
+                Background = "#ffffff",
+                AppbarBackground = "#007bff",
+                TextPrimary = "#000000"
+            },
+            PaletteDark = new PaletteDark() // Tema escuro
             {
                 Black = "#27272f",
                 Background = "#32333d",
-                BackgroundGrey = "#27272f",
+                BackgroundGray = "#27272f",
                 Surface = "#373740",
                 DrawerBackground = "#27272f",
                 DrawerText = "rgba(255,255,255, 0.50)",
@@ -120,6 +82,23 @@
             }
         };
 
-    #endregion
+    protected override void OnInitialized()
+    {
+        _isDarkMode = false; // Inicia no modo claro por padrão
+    }
 
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private void RightToLeftToggle()
+    {
+        _rightToLeft = !_rightToLeft;
+    }
+
+    private void ToggleDarkMode()
+    {
+        _isDarkMode = !_isDarkMode; // Alterna entre claro e escuro
+    }
 }

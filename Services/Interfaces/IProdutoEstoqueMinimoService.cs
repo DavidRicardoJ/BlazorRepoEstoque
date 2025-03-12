@@ -21,5 +21,12 @@ namespace BlazorRepoEstoque.Services.Interfaces
 
         // Remove um produto por ID
         Task DeleteProdutoAsync(int id, int estoqueOrigem, int estoqueSolicitante);
+
+        List<ProdutoEstoqueMinimo> GetProdutosForaDasListas();
+
+        Task<List<ReposicaoEstoque>> AddProdutosComEstoqueMin(
+            List<ReposicaoEstoque> listaOriginal,
+            List<ReposicaoEstoque> listaFiltrada,
+            int estoqueOrigem, int estoqueSolicitante);
     }
 }

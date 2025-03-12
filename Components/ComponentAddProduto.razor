@@ -1,0 +1,128 @@
+﻿@inject IDialogService DialogService
+@inject IMedicamentoService MedicamentoService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="@success">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField T="int?"                   
+                    @ref="productCodeField"
+                    Label="Código do Produto"
+                    @bind-Value="model.IdMedicamento"
+                    For="@(() => model.IdMedicamento)"
+                    Required="true"
+                    Immediate="true"
+                    Variant="Variant.Outlined"
+                    OnBlur="SearchProduct"
+                    @onkeypress="HandleKeyPress" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField T="string"
+                    Label="Descrição"
+                    @bind-Value="model.NomeMedicamento"
+                    Disabled="true"
+                    Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudTextField T="string"
+                    Label="Unidade"
+                    @bind-Value="model.Unidade"
+                    Disabled="true"
+                    Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudTextField @ref="quantityField"
+                    T="int?"
+                    Label="Quantidade"
+                    @bind-Value="model.Quantidade"
+                    For="@(() => model.Quantidade)"
+                    Required="true"
+                    Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Color="Color.Primary"
+        Disabled="!success"
+        OnClick="Submit">Adicionar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public IMudDialogInstance MudDialog { get; set; }
+
+    private MudForm form;
+    private bool success;
+    private MudTextField<int?> productCodeField;
+    private MudTextField<int?> quantityField;
+
+    public ProductModel model { get; set; } = new();
+
+
+    private async Task SearchProduct()
+    {
+        if (model.IdMedicamento != null)
+        {
+            var medicamento = await MedicamentoService.GetMedicamentoByIdAsync((int)model.IdMedicamento);
+            if (medicamento != null)
+            {
+                model.NomeMedicamento = medicamento.NomeMedicamento;
+                model.Unidade = medicamento.Unidade;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private void Submit()
+    {
+        if (success)
+        {
+            MudDialog.Close(DialogResult.Ok(model));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public class ProductModel : Medicamento
+    {
+        public int? Quantidade { get; set; }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && model.IdMedicamento.HasValue)
+        {
+            await SearchProduct(); // Executa a busca ao pressionar Enter
+            await Task.CompletedTask; // Pequeno delay para garantir que a busca complete
+            await quantityField.FocusAsync(); // Move o foco para o campo Quantidade
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -5,8 +5,8 @@ namespace BlazorRepoEstoque.Services.Interfaces
 {
     public interface IFiltrosServices
     {
-        public List<ReposicaoEstoque> FilterByBroup(List<ReposicaoEstoque> listReposição, HashSet<string> SelectedGroups);
+        public List<ReposicaoEstoque> FilterByBroup(List<ReposicaoEstoque> listReposição, IEnumerable<string> SelectedGroups);
 
-        public List<ReposicaoEstoque> FilterByEspecie(List<ReposicaoEstoque> listReposição, HashSet<string> SelectedEspecies);
+        public List<ReposicaoEstoque> FilterByEspecie(List<ReposicaoEstoque> listReposição, IEnumerable<string> SelectedEspecies);
     }
 }

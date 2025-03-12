@@ -3,13 +3,13 @@
 @inject ListSharedService listSharedService
 
 
-<MudContainer>
+<MudContainer Class="mt-5">
 
 
 <MudPaper Elevation="7" Style="display: flex; flex-direction: column; position: relative; top: -200px !important; /*z-index:10000;*/
 justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="300px">
 
-    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedValues">
+    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true"  SelectedValues="SelectedValues">
         <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
             @foreach (var unidade in Unidades)
             {

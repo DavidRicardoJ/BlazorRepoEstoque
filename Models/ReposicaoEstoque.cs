@@ -17,6 +17,7 @@ namespace BlazorRepoEstoque.Models
         public string Especie { get; set; }
         public int CodigoEstoque { get; set; }
         public string Farmacia { get; set; }
+        public bool IsEstoqMin { get; set; }
 
         public object Clone()
         {

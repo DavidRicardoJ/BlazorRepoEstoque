@@ -33,7 +33,7 @@ else
                             </MudCardHeader>
                             <MudCardContent>
 
-                                <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" @bind-SelectedValues="SelectedValuesUnidades">
+                                <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true" SelectedValues="SelectedValuesUnidades">
                                     <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
                                         @foreach (var unidade in Unidades)
                                         {

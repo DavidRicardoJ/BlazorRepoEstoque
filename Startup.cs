@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
-using System;
 using System.Net.Http;
 
 namespace BlazorRepoEstoque
@@ -46,11 +45,11 @@ namespace BlazorRepoEstoque
 
 
             #region DbContext
-           
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection2"),
-                     new MySqlServerVersion(new Version(8, 0, 21)));
+                       ServerVersion.AutoDetect(Configuration.GetConnectionString("DefaultConnection2")));
             });
             #endregion
             services.AddDatabaseDeveloperPageExceptionFilter();
