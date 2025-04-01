@@ -381,10 +381,12 @@
         if (ConsumoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); }
         ;
         #endregion
+        #endregion
 
         #region Filtro por Reposição Zero
         if (ReposicaoMenorZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); }
         ;
+        #endregion
         #endregion
 
         listReposicaoComFiltro = listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
