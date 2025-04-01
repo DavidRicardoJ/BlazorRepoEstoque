@@ -4,6 +4,7 @@ using BlazorRepoEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorRepoEstoque.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250315004905_GroupName")]
+    partial class GroupName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,21 +43,6 @@ namespace BlazorRepoEstoque.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Grupos");
-                });
-
-            modelBuilder.Entity("BlazorRepoEstoque.Models.GrupoProduto", b =>
-                {
-                    b.Property<int>("NomeGrupoID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProdutoID")
-                        .HasColumnType("int");
-
-                    b.HasKey("NomeGrupoID", "ProdutoID");
-
-                    b.HasIndex("ProdutoID");
-
-                    b.ToTable("GruposProdutos");
                 });
 
             modelBuilder.Entity("BlazorRepoEstoque.Models.Medicamento", b =>
@@ -85,11 +73,11 @@ namespace BlazorRepoEstoque.Migrations
 
             modelBuilder.Entity("BlazorRepoEstoque.Models.NomeGrupo", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int?>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("GroupName")
                         .IsRequired()
@@ -123,35 +111,6 @@ namespace BlazorRepoEstoque.Migrations
                     b.HasKey("Id", "EstoqueSolicitante", "EstoqueOrigem");
 
                     b.ToTable("ProdutoEstoqueMinimo");
-                });
-
-            modelBuilder.Entity("BlazorRepoEstoque.Models.GrupoProduto", b =>
-                {
-                    b.HasOne("BlazorRepoEstoque.Models.NomeGrupo", "NomeGrupo")
-                        .WithMany("GruposProdutos")
-                        .HasForeignKey("NomeGrupoID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BlazorRepoEstoque.Models.Medicamento", "Produto")
-                        .WithMany("GruposProdutos")
-                        .HasForeignKey("ProdutoID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NomeGrupo");
-
-                    b.Navigation("Produto");
-                });
-
-            modelBuilder.Entity("BlazorRepoEstoque.Models.Medicamento", b =>
-                {
-                    b.Navigation("GruposProdutos");
-                });
-
-            modelBuilder.Entity("BlazorRepoEstoque.Models.NomeGrupo", b =>
-                {
-                    b.Navigation("GruposProdutos");
                 });
 #pragma warning restore 612, 618
         }

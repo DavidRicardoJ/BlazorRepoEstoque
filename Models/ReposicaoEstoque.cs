@@ -18,6 +18,8 @@ namespace BlazorRepoEstoque.Models
         public int CodigoEstoque { get; set; }
         public string Farmacia { get; set; }
         public bool IsEstoqMin { get; set; }
+        public bool IsAdd { get; set; }
+        public string PeriodoImportacaoExcel { get; set; }
 
         public object Clone()
         {

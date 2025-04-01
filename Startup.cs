@@ -1,7 +1,5 @@
 using Blazored.LocalStorage;
 using BlazorRepoEstoque.Data;
-using BlazorRepoEstoque.Data.IRepository;
-using BlazorRepoEstoque.Data.Repositories;
 using BlazorRepoEstoque.Services;
 using BlazorRepoEstoque.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -31,17 +29,17 @@ namespace BlazorRepoEstoque
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddServerSideBlazor();
             services.AddMudServices();
-            services.AddScoped<HttpClient>();
-            services.AddScoped<IGrupoRepository, GrupoRepository>();
-            services.AddScoped<IGrupoServices, GrupoServices>();
+            services.AddScoped<HttpClient>();                       
             services.AddScoped<IFiltrosServices, FiltrosServices>();
             services.AddScoped<IEncryptString, EncryptString>();
             services.AddScoped<DataSharedService>();
             services.AddScoped<IProdutoEstoqueMinimoService, ProdutoEstoqueMinimoService>();
             services.AddScoped<IMedicamentoService, MedicamentoService>();
+            services.AddScoped<IGroupService, NomeGrupoService>();
 
             services.AddSingleton<ListSharedService>();
             services.AddBlazoredLocalStorage();
+
 
 
             #region DbContext
@@ -53,7 +51,14 @@ namespace BlazorRepoEstoque
             });
             #endregion
             services.AddDatabaseDeveloperPageExceptionFilter();
+
+            using (var scope = services.BuildServiceProvider().CreateScope()) 
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.Migrate();  // Aplica as migrations pendentes
+            }
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,0 +1,58 @@
+﻿@inject IGroupService NomeGrupoService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="nomeGrupo.GroupName" Label="Nome do Grupo" Required="true"
+                      RequiredError="Nome do grupo é obrigatório" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Salvar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public Grupo NomeGrupo { get; set; }
+
+    private Grupo nomeGrupo = new Grupo();
+
+    protected override void OnInitialized()
+    {
+        nomeGrupo = NomeGrupo ?? new Grupo();
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(nomeGrupo.GroupName))
+        {
+            Snackbar.Add("Nome do grupo é obrigatório", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            if (nomeGrupo.Id is null)
+            {
+                await NomeGrupoService.CreateNomeGrupoAsync(nomeGrupo);
+                Snackbar.Add("Grupo adicionado com sucesso!", Severity.Success);
+            }
+            else
+            {
+                await NomeGrupoService.UpdateNomeGrupoAsync(nomeGrupo);
+                Snackbar.Add("Grupo atualizado com sucesso!", Severity.Success);
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao salvar: {ex.Message}", Severity.Error);
+        }
+    }
+}

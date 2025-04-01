@@ -10,8 +10,10 @@ namespace BlazorRepoEstoque.Data
         }
 
         public virtual DbSet<ProdutoEstoqueMinimo> ProdutoEstoqueMinimo { get; set; }
-        public virtual DbSet<Medicamento> Medicamentos { get; set; }
-        public virtual DbSet<Grupo> Grupos { get; set; }
+        public virtual DbSet<Medicamento> Medicamentos { get; set; }       
+        public virtual DbSet<Grupo> GroupNames { get; set; }
+        public virtual DbSet<GrupoProduto> GruposProdutos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ProdutoEstoqueMinimo>(entity =>
@@ -30,12 +32,25 @@ namespace BlazorRepoEstoque.Data
                 entity.Property(e => e.Unidade).IsRequired().HasMaxLength(45);
             });
 
-            modelBuilder.Entity<Grupo>(s =>
+            modelBuilder.Entity<Grupo>(Entity =>
             {
-                s.HasKey("Id");
-                s.Property(x => x.NomeGrupo).IsRequired().HasColumnType("varchar(60)");
-                s.Property(x => x.CodigoMV).IsRequired();
+                Entity.HasKey(e => e.Id);
+                Entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                Entity.Property(e => e.GroupName).IsRequired().HasMaxLength(80);               
             });
+
+            // Configurar o relacionamento entre NomeGrupo e GrupoProduto
+            modelBuilder.Entity<GrupoProduto>()
+                .HasOne(gp => gp.Grupo)
+                .WithMany(ng => ng.GruposProdutos)
+                .HasForeignKey(gp => gp.NomeGrupoID);
+
+            // Configurar o relacionamento entre Medicamento e GrupoProduto
+            modelBuilder.Entity<GrupoProduto>()
+                .HasOne(gp => gp.Produto)
+                .WithMany(m => m.GruposProdutos)
+                .HasForeignKey(gp => gp.ProdutoID);
+            modelBuilder.Entity<GrupoProduto>().HasKey(gp => new { gp.NomeGrupoID, gp.ProdutoID });
         }
     }
 }

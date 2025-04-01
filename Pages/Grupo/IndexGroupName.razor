@@ -1,0 +1,128 @@
+﻿@page "/nomegrupos"
+@using BlazorRepoEstoque.Components.Group
+@inject IGroupService NomeGrupoService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h4" Class="mb-4">Gerenciamento de Grupos</MudText>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">Lista de Grupos</MudText>
+                <MudSpacer />
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add"
+                           OnClick="OpenAddDialog">Adicionar Grupo</MudButton>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTable Items="@nomeGrupos" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@isLoading"
+                          LoadingProgressColor="Color.Primary">
+                    <HeaderContent>
+                        <MudTh>ID</MudTh>
+                        <MudTh>Nome do Grupo</MudTh>
+                        <MudTh>Ações</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="ID">@context.Id</MudTd>
+                        <MudTd DataLabel="Nome do Grupo">@context.GroupName</MudTd>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small"
+                                           OnClick="@(() => OpenEditDialog(context))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                           OnClick="@(() => OpenDeleteDialog(context))" />
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <MudText>Nenhum grupo encontrado.</MudText>
+                    </NoRecordsContent>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<Grupo> nomeGrupos = new List<Grupo>();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNomeGrupos();
+    }
+
+    private async Task LoadNomeGrupos()
+    {
+        isLoading = true;
+        try
+        {
+            nomeGrupos = await NomeGrupoService.GetNomeGruposAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar grupos: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("NomeGrupo", new Grupo());
+
+        var dialog = await DialogService.ShowAsync<NomeGrupoDialog>("Novo Grupo", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadNomeGrupos();
+        }
+    }
+
+    private async Task OpenEditDialog(Grupo nomeGrupo)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("NomeGrupo", new Grupo
+            {
+                Id = nomeGrupo.Id,
+                GroupName = nomeGrupo.GroupName
+            });
+
+        var dialog = await DialogService.ShowAsync<NomeGrupoDialog>("Editar Grupo", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadNomeGrupos();
+        }
+    }
+
+    private async Task OpenDeleteDialog(Grupo nomeGrupo)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", $"Tem certeza que deseja excluir o grupo '{nomeGrupo.GroupName}'?");
+
+        var dialog = await DialogService.ShowAsync<DeleteConfirmDialog>("Confirmar Exclusão", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            try
+            {
+                await NomeGrupoService.DeleteNomeGrupoAsync((int)nomeGrupo.Id);
+                Snackbar.Add("Grupo excluído com sucesso!", Severity.Success);
+                await LoadNomeGrupos();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro ao excluir: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

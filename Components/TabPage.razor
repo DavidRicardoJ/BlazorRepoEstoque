@@ -24,19 +24,25 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Codigo">
-            <MudText Typo="Typo.body1" Color="@(context.IsEstoqMin ? Color.Primary : Color.Default)">
+            <MudText Typo="Typo.body1"
+                     Color="@(context.IsAdd ? Color.Secondary : (context.IsEstoqMin ? Color.Primary : Color.Default))">
                 @context.CodigoMV
             </MudText>
         </MudTd>
 
         <MudTd Style="max-width: 400px; overflow: hidden; height: auto" DataLabel="Medicamento">
-            <MudText Typo="Typo.body1" Color="@(context.IsEstoqMin ? Color.Primary : Color.Default)">
-                @context.Medicamento
-            </MudText>
+            <MudTooltip Text="@(context.IsEstoqMin ? "Produto Estoque Mínimo" : (context.IsAdd ? "Produto Adicionado" : ""))"
+                        Placement="Placement.Top"
+                        Delay="500"
+                        Visible="@(context.IsEstoqMin || context.IsAdd)">
+                <MudText Typo="Typo.body1" Color="@(context.IsAdd ? Color.Secondary : (context.IsEstoqMin ? Color.Primary : Color.Default))">
+                    @context.Medicamento
+                </MudText>
+            </MudTooltip>
         </MudTd>
 
         <MudTd DataLabel="Unidade">
-            <MudText Typo="Typo.body1" Color="@(context.IsEstoqMin ? Color.Primary : Color.Default)">
+            <MudText Typo="Typo.body1" Color="@(context.IsAdd ? Color.Secondary : (context.IsEstoqMin ? Color.Primary : Color.Default))">                
                 @context.Unidade
             </MudText>
         </MudTd>
@@ -57,12 +63,10 @@
         </MudTd>
 
         <MudTd DataLabel="Reposicao">
-
             <input id="@context.Id" @bind-value="@context.Reposicao"
                    @onkeypress="(KeyboardEventArgs e) => { Enter(e, context.Id); }"
                    style="width: 80px; text-align:center; color:blue; font-weight:bold; border: none;"
-                   onclick="document.getElementById(@context.Id).select()" />
-
+                   onclick="document.getElementById(@context.Id).select()">
         </MudTd>
         <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Medium" Class="ma-2" Color="Color.Error" OnClick="()=> ExcluirItem(context.Id)" /></MudTd>
     </RowTemplate>
@@ -111,13 +115,6 @@
         return base.OnParametersSetAsync();
     }
 
-
-
-
-    // protected override void OnInitialized()
-    // {
-    //     Elements = repoList;
-    // }
 
     private bool FilterFunc1(ReposicaoEstoque element) => FilterFunc(element, searchString1);
     private bool FilterFunc2(ReposicaoEstoque element) => FilterFunc(element, searchString2);

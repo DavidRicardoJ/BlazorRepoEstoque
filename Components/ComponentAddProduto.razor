@@ -6,7 +6,7 @@
         <MudForm @ref="form" @bind-IsValid="@success">
             <MudGrid>
                 <MudItem xs="12">
-                    <MudTextField T="int?"                   
+                    <MudTextField T="int?"
                     @ref="productCodeField"
                     Label="Código do Produto"
                     @bind-Value="model.IdMedicamento"
@@ -14,23 +14,24 @@
                     Required="true"
                     Immediate="true"
                     Variant="Variant.Outlined"
-                    OnBlur="SearchProduct"
                     @onkeypress="HandleKeyPress" />
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudTextField T="string"
+                    <MudTextField T="string" @ref="NameProductField"
                     Label="Descrição"
                     @bind-Value="model.NomeMedicamento"
-                    Disabled="true"
+                    ReadOnly="true"
+                    Style="color: darkblue"
                     Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="6">
-                    <MudTextField T="string"
+                    <MudTextField T="string" @ref="UnitField"
                     Label="Unidade"
                     @bind-Value="model.Unidade"
-                    Disabled="true"
+                    ReadOnly="true"
+                    Style="color: darkblue"
                     Variant="Variant.Outlined" />
                 </MudItem>
 
@@ -62,10 +63,14 @@
     private MudForm form;
     private bool success;
     private MudTextField<int?> productCodeField;
+    private MudTextField<string> NameProductField;
+    private MudTextField<string> UnitField;
     private MudTextField<int?> quantityField;
 
     public ProductModel model { get; set; } = new();
 
+    [Parameter]
+    public List<ReposicaoEstoque> ListReposicaoEstoque { get; set; }
 
     private async Task SearchProduct()
     {
@@ -76,6 +81,12 @@
             {
                 model.NomeMedicamento = medicamento.NomeMedicamento;
                 model.Unidade = medicamento.Unidade;
+            }
+            else
+            {
+                MessageNotFound();
+                ClearFields();
+                await productCodeField.FocusAsync();
             }
 
             StateHasChanged();
@@ -101,10 +112,28 @@
     {
         if (args.Key == "Enter" && model.IdMedicamento.HasValue)
         {
-            await SearchProduct(); // Executa a busca ao pressionar Enter
-            await Task.CompletedTask; // Pequeno delay para garantir que a busca complete
-            await quantityField.FocusAsync(); // Move o foco para o campo Quantidade
+            await SearchProduct();
+            await Task.CompletedTask;
+            await quantityField.FocusAsync();
         }
+    }
+
+    private async void MessageNotFound()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Atenção",
+            "Produto não encontrado.\n Faça o cadastro do item no sistema.",
+            yesText: "Ok", cancelText: "");
+
+        StateHasChanged();
+    }
+
+    private async void ClearFields()
+    {
+        await productCodeField.Clear();
+        await NameProductField.Clear();
+        await UnitField.Clear();
+        await quantityField.Clear();
     }
 }
 

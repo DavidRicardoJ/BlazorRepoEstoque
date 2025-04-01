@@ -1,0 +1,240 @@
+﻿@page "/grupo/additemgroup"
+@inject IGroupService GrupoService
+@inject IMedicamentoService MedicamentoService
+@inject ISnackbar Snackbar
+
+<MudPaper>
+    <MudStack>
+        <MudText Typo="Typo.h5" Align="Align.Center">Adicionar item a um Grupo</MudText>
+        <MudContainer MaxWidth="MaxWidth.Small">
+            <MudSelect Label="Grupo" Variant="Variant.Filled" @bind-Value="grupo.Id" T="int?" Placeholder="Selecione um grupo" TextChanged="HandlerComboBoxChange">
+                @foreach (var item in grupos)
+                {
+                    <MudSelectItem Value="@item.Id">@item.GroupName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudContainer>
+        <MudDivider Class="ma-2"></MudDivider>
+
+
+
+        <EditForm Context="editContext" Model="@novoProduto" OnValidSubmit="AddProduto">
+            <DataAnnotationsValidator />
+            <MudGrid Spacing="1" Justify="Justify.Center">
+                <MudItem xs="2">
+                    <MudTextField Label="Código MV"
+                    @ref="TextFieldRef1"
+                    @bind-Value="novoProduto.IdMedicamento"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Normal"
+                    Disabled="!isGroup"
+                    @onblur="() => BuscarMedicamento(novoProduto.IdMedicamento)"
+                    onkeydown="(e) => HandleKeyDown(e, ButtonRef)" />
+                    <ValidationMessage For="@(() => novoProduto.IdMedicamento)" class="danger" />
+                </MudItem>
+
+                <MudItem xs="7">
+                    <MudTextField Label="Descrição"
+                    @ref="TextFieldRef2"
+                    @bind-Value="novoProduto.NomeMedicamento"
+                    Variant="Variant.Outlined"
+                    ReadOnly="true"
+                    Margin="Margin.Normal" />
+                    <ValidationMessage For="@(() => novoProduto.NomeMedicamento)" class="danger" />
+                </MudItem>
+
+
+                <MudItem xs="3">
+                    <MudTextField Label="Unidade"
+                    @ref="TextFieldRef3"
+                    @bind-Value="novoProduto.Unidade"
+                    Variant="Variant.Outlined"
+                    ReadOnly="true"
+                    Margin="Margin.Normal" />
+                    <ValidationMessage For="@(() => novoProduto.Unidade)" class="danger" />
+                </MudItem>
+            </MudGrid>
+            <MudContainer Class="d-flex justify-end pa-2">
+                <MudButton @ref="ButtonRef" Variant="Variant.Filled" ButtonType="ButtonType.Submit"
+                EndIcon="@Icons.Material.Filled.Add" Color="Color.Success">Adicionar</MudButton>
+            </MudContainer>
+        </EditForm>
+
+        <MudTable Items="@Elements" Hover="true" Breakpoint="Breakpoint.Sm">
+            <HeaderContent>
+                <MudTh>Grupo</MudTh>
+                <MudTh>Cód. MV</MudTh>
+                <MudTh>Produto</MudTh>
+                <MudTh>Unidade</MudTh>
+                <MudTh>Excluir</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Grupo">@context.Grupo.GroupName</MudTd>
+                <MudTd DataLabel="CodMV">@context.Produto.IdMedicamento</MudTd>
+                <MudTd DataLabel="Produto">@context.Produto.NomeMedicamento</MudTd>
+                <MudTd DataLabel="Unidade">@context.Produto.Unidade</MudTd>
+                <MudTd DataLabel="Excluir"><MudFab Color="Color.Error" 
+                    StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                            OnClick="(()=> DeleteElement(context))" /></MudTd>
+            </RowTemplate>
+        </MudTable>
+
+
+    </MudStack>
+
+</MudPaper>
+
+@if (showMessageBox)
+{
+    <MessageBox Titulo="@tituloMsgBox" Aviso="@avisoMsgBox" okButton="CloseMsgBox" />
+}
+
+
+@code {
+    bool isGroup = false;
+    private int GrupoId { get; set; }
+    private Medicamento novoProduto = new();
+
+    private List<Grupo> grupos = new();
+    private Grupo grupo = new();
+    private MudTextField<int?> TextFieldRef1;
+    private MudTextField<string> TextFieldRef2;
+    private MudTextField<string> TextFieldRef3;
+    private MudButton ButtonRef;
+
+    private bool showMessageBox;
+    private string tituloMsgBox;
+    private string avisoMsgBox;
+
+    private List<GrupoProduto> Elements = new List<GrupoProduto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGrupos();
+    }
+    private async Task LoadGrupos()
+    {
+        grupos = await GrupoService.GetNomeGruposAsync();
+    }
+
+    private async Task BuscarMedicamento(int? IdProduto)
+    {
+        if (IdProduto == 0 || IdProduto == null) return;
+
+        var med = await MedicamentoService.GetMedicamentoByIdAsync((int)IdProduto);
+        if (med != null)
+        {
+            novoProduto.NomeMedicamento = med.NomeMedicamento;
+            novoProduto.Unidade = med.Unidade;
+        }
+        else
+        {
+            ShowMsgBox("Produto não encontrado", "Produto não encontrado, por favor, verifique o código digitado ou o cadastre.");
+            await ClearFields();
+        }
+    }
+
+    private async Task HandlerComboBoxChange()
+    {
+        if (grupo.Id is not null)
+        {
+            isGroup = true;
+            await UpdateElements();
+        }
+        else
+        {
+            isGroup = false;
+        }
+    }
+
+    private async Task UpdateElements()
+    {
+        Elements.Clear();
+        var grupoProduto = await GrupoService.GetGrupoProdutosByGroupId((int)grupo.Id);
+        if (grupoProduto != null)
+        {
+            Elements.AddRange(grupoProduto);
+        }
+    }
+
+    private async Task DeleteElement(GrupoProduto grupoProduto)
+    {
+        try
+        {
+            await GrupoService.RemoveGrupoProduto((int)grupoProduto.Grupo.Id, (int)grupoProduto.Produto.IdMedicamento);
+            Snackbar.Add("Removido com sucesso!", Severity.Success);
+            await UpdateElements();
+        }
+        catch (Exception e)
+        {
+            
+            Snackbar.Add(e.Message, Severity.Error);
+        }
+     
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e, MudButton nextField)
+    {
+        if (e.Key == "Enter")
+        {
+            if (nextField != null)
+            {
+                await nextField.FocusAsync();
+            }
+        }
+    }
+
+    private void ShowMsgBox(string titulo, string aviso)
+    {
+        this.tituloMsgBox = titulo;
+        this.avisoMsgBox = aviso;
+        showMessageBox = true;
+    }
+
+    private async Task AddProduto()
+    {
+        var groupName = grupos.Where(g => g.Id == grupo.Id).FirstOrDefault();
+        var element = new GrupoProduto
+            {
+                Grupo = new Grupo { Id = grupo.Id, GroupName = groupName.GroupName },
+                Produto = new Medicamento { IdMedicamento = novoProduto.IdMedicamento, NomeMedicamento = novoProduto.NomeMedicamento, Unidade = novoProduto.Unidade }
+            };
+
+
+        if (Elements.Exists(e => e.Produto.IdMedicamento == element.Produto.IdMedicamento))
+        {
+            Snackbar.Add("O item já consta no grupo!", Severity.Error);
+        }
+        else
+        {
+            try
+            {
+                await GrupoService.AddGrupoProduto((int)element.Grupo.Id,(int) element.Produto.IdMedicamento);
+                Elements.Add(element);
+                Snackbar.Add("Adicionado com sucesso!", Severity.Success);
+            }
+            catch (Exception e)
+            {
+
+                Snackbar.Add(e.Message, Severity.Error);
+            }
+
+        }
+
+        await ClearFields();
+    }
+
+    private void CloseMsgBox()
+    {
+        showMessageBox = false;
+    }
+
+    private async Task ClearFields()
+    {
+        if (TextFieldRef1 != null) await TextFieldRef1.Clear();
+        if (TextFieldRef2 != null) await TextFieldRef2.Clear();
+        if (TextFieldRef3 != null) await TextFieldRef3.Clear();
+        if (TextFieldRef1 != null) await TextFieldRef1.FocusAsync();
+    }
+
+}

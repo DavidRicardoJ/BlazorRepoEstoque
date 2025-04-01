@@ -9,11 +9,11 @@
 <MudPaper Elevation="7" Style="display: flex; flex-direction: column; position: relative; top: -200px !important; /*z-index:10000;*/
 justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="300px">
 
-    <MudTreeView T="string" CheckBoxColor="Color.Tertiary" MultiSelection="true"  SelectedValues="SelectedValues">
-        <MudTreeViewItem Value="@("SELECIONAR UNIDADES")">
+        <MudTreeView T="string" CheckBoxColor="Color.Tertiary" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="SelectedValues">
+        <MudTreeViewItem Text="SELECIONAR UNIDADES">
             @foreach (var unidade in Unidades)
             {
-                <MudTreeViewItem Value="@(unidade)" />
+                <MudTreeViewItem Value="@unidade" />
             }
         </MudTreeViewItem>
     </MudTreeView>
@@ -75,7 +75,7 @@ justify-content: center; align-items: center; margin-bottom: 15px;" MinHeight="3
     [Parameter]
     public EventCallback<bool> Cancelar { get; set; }
 
-    HashSet<string> SelectedValues { get; set; }
+    IReadOnlyCollection<string> SelectedValues { get; set; } = new List<string>();
     private bool alert = false;
 
 

@@ -18,6 +18,7 @@ namespace BlazorRepoEstoque.Services
         private List<ReposicaoEstoque> listRepo = new();
         public int _codigoEstoque { get; set; }
         public string _farmacia { get; set; }
+        public string _periodoImportacaoExcel { get; set; }
 
         public async Task<List<ReposicaoEstoque>> ReadExcel(MemoryStream stream2)
         {
@@ -32,10 +33,12 @@ namespace BlazorRepoEstoque.Services
                     XSSFWorkbook xssWorkbook = new XSSFWorkbook(stream2);
                     sheet = xssWorkbook.GetSheetAt(0);
                     IRow farmaciaOrigem = sheet.GetRow(0);
+                    IRow periodoImportado = sheet.GetRow(1);
                     if (!string.IsNullOrEmpty( farmaciaOrigem.GetCell(1).ToString()))
                     {
                         _codigoEstoque = int.Parse(farmaciaOrigem.GetCell(1).ToString());
                         _farmacia = farmaciaOrigem.GetCell(2).ToString();
+                        _periodoImportacaoExcel = periodoImportado.GetCell(4).ToString();
                     }
                     
                     IRow headerRow = sheet.GetRow(3);
@@ -65,6 +68,7 @@ namespace BlazorRepoEstoque.Services
                                     if (j == 13 + k) repo.Especie = row.GetCell(j).ToString();
                                     repo.CodigoEstoque = _codigoEstoque;
                                     repo.Farmacia = _farmacia;
+                                    repo.PeriodoImportacaoExcel = _periodoImportacaoExcel;
                                 }
                             }
                         }
