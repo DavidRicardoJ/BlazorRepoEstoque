@@ -52,11 +52,11 @@ namespace BlazorRepoEstoque
             #endregion
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            using (var scope = services.BuildServiceProvider().CreateScope()) 
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.Migrate();  // Aplica as migrations pendentes
-            }
+            //using (var scope = services.BuildServiceProvider().CreateScope()) 
+            //{
+            //    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            //    dbContext.Database.Migrate();  // Aplica as migrations pendentes
+            //}
         }
 
 

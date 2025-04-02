@@ -57,7 +57,7 @@
     <MudItem xs="6">
 
         <MudExpansionPanels Class="py-3" Style="margin:-1px;" Elevation="7">
-            <MudExpansionPanel Style="color: darkblue" Text="Aplicar Filtros e Configurações">
+            <MudExpansionPanel  Text="Aplicar Filtros e Configurações">
 
                 <MudPaper Class="align-self-start" Elevation="3" Style="margin-bottom: 7px; height:contain">
                     <MudItem xs="12" sm="8">
@@ -381,13 +381,13 @@
         if (ConsumoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); }
         ;
         #endregion
-        #endregion
+       
 
         #region Filtro por Reposição Zero
         if (ReposicaoMenorZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); }
         ;
         #endregion
-        #endregion
+       
 
         listReposicaoComFiltro = listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
 

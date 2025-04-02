@@ -44,7 +44,7 @@
     private IEnumerable<string> Unidades { get; set; }
     private List<ReposicaoEstoque> ListReposicao { get; set; }
 
-    protected override async void OnInitialized()
+    protected override void OnInitialized()
     {
         ListReposicao = dataSharedService.GetListReposicao().Select(x => new ReposicaoEstoque
             {
