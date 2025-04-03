@@ -16,179 +16,179 @@
 <title value="Home"></title>
 
 <MudGrid>
-    <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-4 mud-theme-tertiary">
-            <h3>Interface Auxiliar de Reposição de Estoque </h3>
-            <hr />
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="6">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
-            <InputFile id="fileInput" OnChange="GetFile" hidden single accept=".xlsx" />
+	<MudItem xs="12">
+		<MudPaper Class="d-flex align-center justify-center mud-width-full py-4 mud-theme-tertiary">
+			<h3>Interface Auxiliar de Reposição de Estoque </h3>
+			<hr />
+		</MudPaper>
+	</MudItem>
+	<MudItem xs="6">
+		<MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
+			<InputFile id="fileInput" OnChange="GetFile" hidden single accept=".xlsx" />
 
-            <MudButton HtmlTag="label"
-            Variant="Variant.Filled"
-            Color="Color.Secondary"
-            StartIcon="@Icons.Material.Filled.CloudUpload"
-            for="fileInput">
-                Buscar Arquivo Excel
-            </MudButton>
-        </MudPaper>
+			<MudButton HtmlTag="label"
+					   Variant="Variant.Filled"
+					   Color="Color.Secondary"
+					   StartIcon="@Icons.Material.Filled.CloudUpload"
+					   for="fileInput">
+				Buscar Arquivo Excel
+			</MudButton>
+		</MudPaper>
 
-        <MudItem xs="12">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Elevation="3" Style="margin-top: 3px;">
-                <MudButton HtmlTag="btn"
-                OnClick="GeraRelatorio"
-                Variant="Variant.Filled"
-                Color="Color.Secondary"
-                StartIcon="@Icons.Custom.FileFormats.FilePdf">
-                    Relatório
-                </MudButton>
-                <MudButton HtmlTag="btn" Style="margin-left: 25px;"
-                @onclick="CriarScriptAutomacao"
-                Variant="Variant.Filled"
-                Color="Color.Secondary"
-                StartIcon="@Icons.Material.Filled.Speed">
-                    Criar Script de Automação
-                </MudButton>
-            </MudPaper>
-        </MudItem>
-    </MudItem>
-    <MudItem xs="6">
+		<MudItem xs="12">
+			<MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Elevation="3" Style="margin-top: 3px;">
+				<MudButton HtmlTag="btn"
+						   OnClick="GeraRelatorio"
+						   Variant="Variant.Filled"
+						   Color="Color.Secondary"
+						   StartIcon="@Icons.Custom.FileFormats.FilePdf">
+					Relatório
+				</MudButton>
+				<MudButton HtmlTag="btn" Style="margin-left: 25px;"
+						   @onclick="CriarScriptAutomacao"
+						   Variant="Variant.Filled"
+						   Color="Color.Secondary"
+						   StartIcon="@Icons.Material.Filled.Speed">
+					Criar Script de Automação
+				</MudButton>
+			</MudPaper>
+		</MudItem>
+	</MudItem>
+	<MudItem xs="6">
 
-        <MudExpansionPanels Class="py-3" Style="margin:-1px;" Elevation="7">
-            <MudExpansionPanel  Text="Aplicar Filtros e Configurações">
+		<MudExpansionPanels Class="py-3" Style="margin:-1px;" Elevation="7">
+			<MudExpansionPanel Text="Aplicar Filtros e Configurações">
 
-                <MudPaper Class="align-self-start" Elevation="3" Style="margin-bottom: 7px; height:contain">
-                    <MudItem xs="12" sm="8">
-                        <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Configurações da Lista</MudText>
-                        <MudCheckBox @bind-Value="@ConsumoZero" T="bool" Label="Não considera Consumo Total igual a zero."
-                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+				<MudPaper Class="align-self-start" Elevation="3" Style="margin-bottom: 7px; height:contain">
+					<MudItem xs="12" sm="8">
+						<MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Configurações da Lista</MudText>
+						<MudCheckBox @bind-Value="@ConsumoZero" T="bool" Label="Não considera Consumo Total igual a zero."
+									 Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
-                        <MudCheckBox @bind-Value="@ReposicaoMenorZero" T="bool" Label="Não considera Reposição menor que zero."
-                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+						<MudCheckBox @bind-Value="@ReposicaoMenorZero" T="bool" Label="Não considera Reposição menor que zero."
+									 Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
-                        <MudCheckBox @bind-Value="@ReposicaoIgualZero" T="bool" Label="Não considera Reposição igual a zero."
-                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+						<MudCheckBox @bind-Value="@ReposicaoIgualZero" T="bool" Label="Não considera Reposição igual a zero."
+									 Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
-                        <MudCheckBox @bind-Value="@ExcluirItensDuplicados" T="bool" Label="Excluir itens duplicados."
-                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+						<MudCheckBox @bind-Value="@ExcluirItensDuplicados" T="bool" Label="Excluir itens duplicados."
+									 Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
-                        <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-5">
-                            <MudNumericField T="int" @bind-Value="fatorReposicao" Label="Fator de Reposição" Variant="Variant.Outlined"
-                            Min="1" Max="31" Step="1" Style="max-width: contain; margin-bottom: 20px;" />
-                        </MudContainer>
-                    </MudItem>
-                </MudPaper>
+						<MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-5">
+							<MudNumericField T="int" @bind-Value="fatorReposicao" Label="Fator de Reposição" Variant="Variant.Outlined"
+											 Min="1" Max="31" Step="1" Style="max-width: contain; margin-bottom: 20px;" />
+						</MudContainer>
+					</MudItem>
+				</MudPaper>
 
-                @*  Último Movimento *@
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="margin-bottom: 7px;">
-                    <MudItem xs="12" sm="6">
-                        <MudText Typo="Typo.h6" Color="Color.Primary">Último Movimento</MudText>
-                        <MudDateRangePicker @ref="_picker" Label="Período Considerado" @bind-DateRange="_dateRange" DateFormat="dd/MM/yyyy">
+				@*  Último Movimento *@
+				<MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="margin-bottom: 7px;">
+					<MudItem xs="12" sm="6">
+						<MudText Typo="Typo.h6" Color="Color.Primary">Último Movimento</MudText>
+						<MudDateRangePicker @ref="_picker" Label="Período Considerado" @bind-DateRange="_dateRange" DateFormat="dd/MM/yyyy">
 
-                            <PickerActions>
-                                <MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker.ClearAsync())">Clear</MudButton>
-                                <MudButton OnClick="@(() => _picker.CloseAsync(false))">Cancel</MudButton>
-                                <MudButton Color="Color.Primary" OnClick="@(() => _picker.CloseAsync())">Ok</MudButton>
-                            </PickerActions>
-                        </MudDateRangePicker>
-                    </MudItem>
-                </MudPaper>
+							<PickerActions>
+								<MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker.ClearAsync())">Clear</MudButton>
+								<MudButton OnClick="@(() => _picker.CloseAsync(false))">Cancel</MudButton>
+								<MudButton Color="Color.Primary" OnClick="@(() => _picker.CloseAsync())">Ok</MudButton>
+							</PickerActions>
+						</MudDateRangePicker>
+					</MudItem>
+				</MudPaper>
 
-                @*  Dias de Estoque *@                
-                <MudDivider />
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
-                    <MudItem xs="12" sm="6">
-                        <MudText Typo="Typo.h6" Color="Color.Primary">Dias de Estoque</MudText>
-                        <MudSlider @bind-Value="diasDeEstoque" Step="1" Min="0" Max="15" Color="Color.Info">Valor: Entre 0 e @diasDeEstoque.ToString()</MudSlider>
-                    </MudItem>
-                </MudPaper>
-                <MudDivider />
+				@*  Dias de Estoque *@                
+				<MudDivider />
+				<MudPaper Class="d-flex align-center justify-center mud-width-full py-5">
+					<MudItem xs="12" sm="6">
+						<MudText Typo="Typo.h6" Color="Color.Primary">Dias de Estoque</MudText>
+						<MudSlider @bind-Value="diasDeEstoque" Step="1" Min="0" Max="15" Color="Color.Info">Valor: Entre 0 e @diasDeEstoque.ToString()</MudSlider>
+					</MudItem>
+				</MudPaper>
+				<MudDivider />
 
-                @*  filtro por espécie *@
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="width: contain">
-                    <MudSelect T="string" Label="Selecionar Espécies" MultiSelection="true" Clearable
-                    @bind-SelectedValues="SelectedEspecies" SelectAll="false">
-                        @foreach (var especie in GetEspecies())
-                        {
-                            <MudSelectItem T="string" Value="@especie" />
-                        }
-                    </MudSelect>
-                </MudPaper>
+				@*  filtro por espécie *@
+				<MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="width: contain">
+					<MudSelect T="string" Label="Selecionar Espécies" MultiSelection="true" Clearable
+							   @bind-SelectedValues="SelectedEspecies" SelectAll="false">
+						@foreach (var especie in GetEspecies())
+						{
+							<MudSelectItem T="string" Value="@especie" />
+						}
+					</MudSelect>
+				</MudPaper>
 
-                @*  filtro por Grupo *@
-                <MudDivider />
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="width: contain">
-                    <MudSelect T="string" Label="Selecionar Grupo" MultiSelection="true" Clearable
-                    @bind-SelectedValues="SelectedGroups" SelectAll="false">
-                        @foreach (var grupo in GetGrupos())
-                        {
-                            <MudSelectItem T="string" Value="@grupo" />
-                        }
-                    </MudSelect>
-                </MudPaper>
-                <MudDivider />
-                <MudPaper Class="d-flex align-center justify-center mud-width-full py-5 flex-column">
+				@*  filtro por Grupo *@
+				<MudDivider />
+				<MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="width: contain">
+					<MudSelect T="string" Label="Selecionar Grupo" MultiSelection="true" Clearable
+							   @bind-SelectedValues="SelectedGroups" SelectAll="false">
+						@foreach (var grupo in GetGrupos())
+						{
+							<MudSelectItem T="string" Value="@grupo" />
+						}
+					</MudSelect>
+				</MudPaper>
+				<MudDivider />
+				<MudPaper Class="d-flex align-center justify-center mud-width-full py-5 flex-column">
 
-                    <MudSwitch T="bool" @bind-Value="ativeProdutoEstoqMin"
-                    CheckedChanged="OnAtiveProdutoEstoqMinChanged" Color="Color.Error">
-                        Considerar Lista de Produtos com Estoque Minímo
-                    </MudSwitch>
+					<MudSwitch T="bool" @bind-Value="ativeProdutoEstoqMin"
+							   CheckedChanged="OnAtiveProdutoEstoqMinChanged" Color="Color.Error">
+						Considerar Lista de Produtos com Estoque Minímo
+					</MudSwitch>
 
-                    @if (ativeProdutoEstoqMin)
-                    {
-                        if (SelectedEspecies.Contains("MEDICAMENTOS") || SelectedEspecies.Contains("MEDICAMENTOS CONTROLADOS"))
-                        {
-                            codigoEstoqueOrigem = 2;
-                        }
-                        else
-                        {
-                            codigoEstoqueOrigem = 1;
-                        }
-                        <MudContainer MaxWidth="MaxWidth.ExtraSmall">
-                            <MudNumericField @bind-value="codigoEstoqueOrigem" @ref="numericField" Required="true"
-                            RequiredError="Código obrigatório." Error="numericFieldErro"
-                            Label="Código do Estoque do Almoxarifado" Variant="Variant.Outlined" />
-                        </MudContainer>
-                    }
+					@if (ativeProdutoEstoqMin)
+					{
+						if (SelectedEspecies.Contains("MEDICAMENTOS") || SelectedEspecies.Contains("MEDICAMENTOS CONTROLADOS"))
+						{
+							codigoEstoqueOrigem = 2;
+						}
+						else
+						{
+							codigoEstoqueOrigem = 1;
+						}
+						<MudContainer MaxWidth="MaxWidth.ExtraSmall">
+							<MudNumericField @bind-value="codigoEstoqueOrigem" @ref="numericField" Required="true"
+											 RequiredError="Código obrigatório." Error="numericFieldErro"
+											 Label="Código do Estoque do Almoxarifado" Variant="Variant.Outlined" />
+						</MudContainer>
+					}
 
-                </MudPaper>
+				</MudPaper>
 
-                @* Aplicar Filtros *@
-                <MudDivider />
-                <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
-                    <MudItem xs="12" sm="6">
-                        <MudButton HtmlTag="btn"
-                        Style="width: max-content; margin: 20px;"
-                        OnClick="AplicarFiltrosEConfiguracoes"
-                        Variant="Variant.Filled"
-                        Color="Color.Secondary"
-                        StartIcon="@Icons.Material.Sharp.FilterAlt">
-                            Aplicar Filtros e Configurações
-                        </MudButton>
-                    </MudItem>
-                </MudPaper>
+				@* Aplicar Filtros *@
+				<MudDivider />
+				<MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
+					<MudItem xs="12" sm="6">
+						<MudButton HtmlTag="btn"
+								   Style="width: max-content; margin: 20px;"
+								   OnClick="AplicarFiltrosEConfiguracoes"
+								   Variant="Variant.Filled"
+								   Color="Color.Secondary"
+								   StartIcon="@Icons.Material.Sharp.FilterAlt">
+							Aplicar Filtros e Configurações
+						</MudButton>
+					</MudItem>
+				</MudPaper>
 
-            </MudExpansionPanel>
-        </MudExpansionPanels>
+			</MudExpansionPanel>
+		</MudExpansionPanels>
 
-        <MudItem xs="12" Style="margin-bottom: 5px">
+		<MudItem xs="12" Style="margin-bottom: 5px">
 
-            @if (farmacia is not null)
-            {
-                <MudPaper Class="d-flex align-center justify-center" Elevation="4" Style=" width: 100%; padding: 5px;">
-                    <MudStack>
-                        <MudText Color="Color.Info" Typo="Typo.h6">@farmacia, ESTOQUE: @estoqueDestino</MudText>
-                        <MudText Color="Color.Dark">Período: @periodoImportacaoExcel</MudText>
-                    </MudStack>                   
-                    <MudFab IconColor="Color.Warning" StartIcon="@Icons.Material.Filled.Add" Class="ml-6 pl-2" Disabled="!filterItens"
-                    Label="Novo Item" Color="Color.Primary" Size="Size.Medium" OnClick="OpenDialogAddProduto" />
-                </MudPaper>
-            }
+			@if (farmacia is not null)
+			{
+				<MudPaper Class="d-flex align-center justify-center" Elevation="4" Style=" width: 100%; padding: 5px;">
+					<MudStack>
+						<MudText Color="Color.Info" Typo="Typo.h6">@farmacia, ESTOQUE: @estoqueDestino</MudText>
+						<MudText Color="Color.Dark">Período: @periodoImportacaoExcel</MudText>
+					</MudStack>
+					<MudFab IconColor="Color.Warning" StartIcon="@Icons.Material.Filled.Add" Class="ml-6 pl-2" Disabled="!filterItens"
+							Label="Novo Item" Color="Color.Primary" Size="Size.Medium" OnClick="OpenDialogAddProduto" />
+				</MudPaper>
+			}
 
-        </MudItem>
-    </MudItem>
+		</MudItem>
+	</MudItem>
 </MudGrid>
 
 
@@ -197,503 +197,505 @@
 
 @if (GerarRelatorio)
 {
-    <SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@listReposicaoComFiltro"></SelectUnits>
+	<SelectUnits Unidades="@Unidades" Cancelar="CancelaRelatorio" ListReposicao="@listReposicaoComFiltro"></SelectUnits>
 }
 @if (showMessageBox)
 {
-    <MessageBox Titulo="@tituloMsgBox" Aviso="@avisoMsgBox" okButton="CloseMsgBox" />
+	<MessageBox Titulo="@tituloMsgBox" Aviso="@avisoMsgBox" okButton="CloseMsgBox" />
 }
 
 
 @if (alert)
 {
-    <MudAlert Severity="Severity.Info" Elevation="10">A lista está vazia.</MudAlert>
+	<MudAlert Severity="Severity.Info" Elevation="10">A lista está vazia.</MudAlert>
 }
 
 @if (erroImport)
 {
-    <MudAlert Severity="Severity.Error" Elevation="10">OCORREU UM ERRO NA IMPORTAÇÃO DO ARQUIVO EXCEL.</MudAlert>
+	<MudAlert Severity="Severity.Error" Elevation="10">OCORREU UM ERRO NA IMPORTAÇÃO DO ARQUIVO EXCEL.</MudAlert>
 }
 
 @if (progress)
 {
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+	<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 
 }
 @if (ListImportadaOriginal != null && ListImportadaOriginal.Count() > 0)
 {
-    erroImport = false;
-    <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
-        <MudPaper>
-            <TabPage repoList="@listReposicaoComFiltro" RowsPerPage="listReposicaoComFiltro.Count"></TabPage>
-        </MudPaper>
-    </MudPaper>
-    <ComponentAddProduto ListReposicaoEstoque="@listReposicaoComFiltro" />
+	erroImport = false;
+	<MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
+		<MudPaper>
+			<TabPage repoList="@listReposicaoComFiltro" RowsPerPage="listReposicaoComFiltro.Count"></TabPage>
+		</MudPaper>
+	</MudPaper>
+	<ComponentAddProduto ListReposicaoEstoque="@listReposicaoComFiltro" />
 }
 
 
 
 @code {
-    private bool progress = false;
-
-    private MemoryStream stream2;
-    private List<ReposicaoEstoque> ListImportadaOriginal;
-    MudDateRangePicker _picker;
-    public double diasDeEstoque = 5;
-    DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
-    private List<ReposicaoEstoque> listReposicaoComFiltro;
-
-    private string farmacia = null;
-    private int estoqueDestino;
-    private string periodoImportacaoExcel;
-
-    private bool ativeProdutoEstoqMin = false;
-    private int? codigoEstoqueOrigem;
-    private MudNumericField<int?> numericField;
-    private bool numericFieldErro;
-
-    private bool showMessageBox;
-    private string tituloMsgBox;
-    private string avisoMsgBox;
-
-    private IEnumerable<string> SelectedEspecies = new HashSet<string>();
-    private IEnumerable<string> SelectedGroups { get; set; }
-
-    private bool alert = false;
-    private bool ConsumoZero { get; set; } = true;
-    private bool ReposicaoMenorZero { get; set; } = true;
-    private bool ReposicaoIgualZero { get; set; } = false;
-    private bool ExcluirItensDuplicados { get; set; } = true;
-    private int fatorReposicao = 1;
-    private bool filterItens = false; // itens já foram filtrados?
-    private bool erroImport = false;
-    DialogOptions disableBackdropClick = new DialogOptions() { BackdropClick = true };
-
-    private bool GerarRelatorio;
-    IEnumerable<string> Unidades;
-
-    protected override void OnInitialized()
-    {
-        ListImportadaOriginal = new();
-        listReposicaoComFiltro = new();
-        listSharedService.OnChange += StateHasChanged;
-        ReposicaoMenorZero = true;
-        ConsumoZero = true;
-    }
-
-    public void Dispose()
-    {
-        listSharedService.OnChange -= StateHasChanged;
-    }
-
-
-    public void Progress()
-    {
-        progress = !progress;
-    }
-
-    public async Task GetFile(InputFileChangeEventArgs e) //get excel file
-    {
-        ImportExcelService excelService = new();
-        //https://docs.microsoft.com/en-us/aspnet/core/blazor/file-uploads?view=aspnetcore-5.0&pivots=webassembly
-        //prepare filestream from uploaded file
-        var stream1 = e.File.OpenReadStream();
-        stream2 = new MemoryStream();
-        await stream1.CopyToAsync(stream2);
-        stream1.Close();
-
-        ListImportadaOriginal = await excelService.ReadExcel(stream2);
-        if (ListImportadaOriginal == null)
-        {
-            erroImport = true;
-            return;
-        }
-        erroImport = false;
-
-
-        ListImportadaOriginal = ReordenarID(ListImportadaOriginal);
-        ListImportadaOriginal = ListImportadaOriginal.OrderBy(x => x.Medicamento).ToList();
-        ListImportadaOriginal = await AddGrupo(ListImportadaOriginal);
-
-        listReposicaoComFiltro = CloneListaImportada();
-        LoadGrupos();
-        LoadEspecies();
-
-        farmacia = ListImportadaOriginal[0].Farmacia;
-        estoqueDestino = ListImportadaOriginal[0].CodigoEstoque;
-        periodoImportacaoExcel = ListImportadaOriginal[0].PeriodoImportacaoExcel;
-    }
-
-    private List<ReposicaoEstoque> CloneListaImportada()
-    {
-        IList<ReposicaoEstoque> ListaClonada = ListImportadaOriginal.Clone();
-        return ListaClonada.ToList();
-    }
-
-    private void LoadGrupos()
-    {
-        SelectedGroups = GetGrupos().ToHashSet();
-    }
-    private void LoadEspecies()
-    {
-        SelectedEspecies = GetEspecies().ToHashSet();
-    }
-
-
-    private async Task AplicarFiltrosEConfiguracoes()
-    {
-        if (ativeProdutoEstoqMin && codigoEstoqueOrigem == null) return;
-        if (ListImportadaOriginal.Any() is false && listReposicaoComFiltro.Any() is false) return;
-        listReposicaoComFiltro.Clear();
-        listReposicaoComFiltro = CloneListaImportada();
-
-        #region Excluir Itens Duplicados
-
-        if (ExcluirItensDuplicados)
-        {
-            listReposicaoComFiltro = listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Select(g => g.First()).ToList();
-        }
-        #endregion
-
-        #region Filtrar por Espécie
-
-        listReposicaoComFiltro = filtrosServices.FilterByEspecie(listReposicaoComFiltro, SelectedEspecies);
-        #endregion
-
-        #region Filtro por Grupo
-
-        listReposicaoComFiltro = filtrosServices.FilterByBroup(listReposicaoComFiltro, SelectedGroups);
-        #endregion
-
-        #region Filtro por Dias de Estoque
-
-        listReposicaoComFiltro = listReposicaoComFiltro.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
-        #endregion
-
-        #region Filtro por Ultimo Movimento
-        listReposicaoComFiltro = listReposicaoComFiltro.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
-        #endregion
-
-
-        CalcularReposicao(listReposicaoComFiltro);
-
-        #region Filtro por Consumo Zero
-        if (ConsumoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); }
-        ;
-        #endregion
-       
-
-        #region Filtro por Reposição Zero
-        if (ReposicaoMenorZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); }
-        ;
-        #endregion
-       
-
-        listReposicaoComFiltro = listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
-
-        #region Filtro por Estoque Mínimo
-        if (ativeProdutoEstoqMin)
-        {
-            listReposicaoComFiltro = await produtoEstoqueMinimoService.AddProdutosComEstoqueMin(
-                ListImportadaOriginal,
-                listReposicaoComFiltro,
-                codigoEstoqueOrigem.Value,
-                estoqueDestino);
-            await MostrarProdutosForaLista();
-        }
-
-        #endregion
-
-        #region Filtro por Reposição igual a Zero
-
-        if (ReposicaoIgualZero)
-        {
-            listReposicaoComFiltro = listReposicaoComFiltro.Where(r => r.Reposicao != 0).ToList();
-        }
-        #endregion
-
-        listReposicaoComFiltro = ReordenarID(listReposicaoComFiltro);
-        if (listReposicaoComFiltro.Count() == 0)
-        {
-            alert = true;
-            filterItens = false;
-        }
-        else
-        {
-            alert = false;
-            filterItens = true;
-            ClosePanel();
-            AddEstiloPosFiltro();
-        }
-        StateHasChanged();
-    }
-
-    private List<ReposicaoEstoque> ReordenarID(List<ReposicaoEstoque> list)
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            list[i].Id = i;
-        }
-        return list;
-    }
-
-    private async Task<List<ReposicaoEstoque>> AddGrupo(List<ReposicaoEstoque> list)
-    {
-        var grupos = await grupoService.GetAllGrupoProdutos();
-
-        if (grupos is not null)
-        {
-            foreach (var item in list)
-            {
-                var nomeGrupo = grupos.FirstOrDefault(x => x.Produto.IdMedicamento.ToString() == item.CodigoMV);
-
-                if (nomeGrupo is not null)
-                {
-                    item.NomeGrupo = nomeGrupo.Grupo.GroupName;
-                }
-                else
-                {
-                    item.NomeGrupo = "PRODUTOS SEM GRUPO";
-                }
-            }
-        }
-
-        return list;
-    }
-
-    private void CalcularReposicao(List<ReposicaoEstoque>
-    list)
-    {
-        foreach (var item in list)
-        {
-            item.Reposicao = ((int)item.ConsumoTotal * fatorReposicao - (int)item.EstoqueAtual);
-        }
-    }
-
-    private void GeraRelatorio()
-    {
-        if (listReposicaoComFiltro.Count == 0 || filterItens == false) return;
-        if (VerificaItemZeradoOuNegativo()) return;
-
-        Unidades = GetUnidades();
-        listSharedService.SetListReposicao(listReposicaoComFiltro);
-        GerarRelatorio = true;
-    }
-
-    private IEnumerable<string> GetUnidades()
-    {
-        return listReposicaoComFiltro.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
-    }
-
-    private IEnumerable<string>
-        GetEspecies()
-    {
-        return ListImportadaOriginal.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
-    }
-
-    private IEnumerable<string>
-        GetGrupos()
-    {
-        return ListImportadaOriginal.OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
-    }
-
-    private void CancelaRelatorio()
-    {
-        GerarRelatorio = false;
-    }
-
-    private void ClosePanel()
-    {
-        js.InvokeVoidAsync("ClickElementByClass", "mud-expand-panel-header");
-    }
-    private void AddEstiloPosFiltro()
-    {
-        js.InvokeVoidAsync("AdicionarEstiloPosFiltro");
-    }
-
-    private void CriarScriptAutomacao()
-    {
-        if (listReposicaoComFiltro.Count == 0 || filterItens == false) return;
-        if (VerificaItemZeradoOuNegativo()) return;
-        if (VerificaItensDuplicados()) return;
-        listSharedService.SetListReposicao(listReposicaoComFiltro);
-        listSharedService.Farmacia = farmacia;
-        listSharedService.CodigoEstoque = estoqueDestino;
-        NavigateToNewTab();
-    }
-
-    private bool VerificaItemZeradoOuNegativo()
-    {
-        var itensZerados = listReposicaoComFiltro.Where(x => x.Reposicao <= 0).ToList();
-        if (itensZerados.Count > 0)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Há itens zerados ou negativos na lista de reposição: ");
-            foreach (var item in itensZerados)
-            {
-                sb.AppendLine("Cód." + item.CodigoMV + " " + item.Medicamento);
-            }
-            var aviso = sb.ToString();
-            ShowMsgBox("Aviso", aviso);
-            return true;
-        }
-        else
-        {
-            alert = false;
-            return false;
-        }
-    }
-
-    private bool VerificaItensDuplicados()
-    {
-        var itensDuplicados = listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
-
-        if (itensDuplicados.Count() > 0)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Há itens duplicados na lista de reposição: ");
-            foreach (var item in itensDuplicados)
-            {
-                var itemDuplicado = listReposicaoComFiltro.Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
-                if (itemDuplicado is not null)
-                {
-                    sb.AppendLine("Cód." + itemDuplicado.CodigoMV + " " + itemDuplicado.Medicamento);
-                }
-            }
-            var aviso = sb.ToString();
-            ShowMsgBox("Aviso", aviso);
-            return true;
-        }
-        else
-        {
-            alert = false;
-            return false;
-        }
-    }
-
-    public async Task NavigateToNewTab()
-    {
-        string url = "/Robot";
-        await js.InvokeAsync
-        <object>
-            ("open", url, "_blank");
-    }
-
-    private void ShowMsgBox(string titulo, string aviso)
-    {
-        this.tituloMsgBox = titulo;
-        this.avisoMsgBox = aviso;
-        showMessageBox = true;
-    }
-
-    private void CloseMsgBox()
-    {
-        showMessageBox = false;
-    }
-    private async void OnAtiveProdutoEstoqMinChanged(bool novoValor)
-    {
-        ativeProdutoEstoqMin = novoValor;
-        StateHasChanged();
-        await Task.Yield();
-
-        if (numericField != null && ativeProdutoEstoqMin)
-        {
-            await numericField.FocusAsync();
-        }
-    }
-
-    private Task MostrarProdutosForaLista()
-    {
-        var listaProdutosForaLista = produtoEstoqueMinimoService.GetProdutosForaDasListas();
-
-        if (listaProdutosForaLista != null && listaProdutosForaLista.Any())
-        {
-            List
-            <string>
-                DialogContent = new();
-            for (int i = 0; i < listaProdutosForaLista.Count; i++)
-            {
-                DialogContent.Add("Cód. " + listaProdutosForaLista[i].Id + " - " + listaProdutosForaLista[i].NomeProduto);
-            }
-
-
-            string Title = "Estes produtos com Estoque Mínimo não consta na Importação do Excel, adicione-os manualmente.";
-            var options = new DialogOptions { CloseButton = false };
-            var parameters = new DialogParameters<ComponetMultLineiDialog>
-                            {
-                            { x => x.MultiLineMessage, DialogContent},
-                            };
-            return DialogService.ShowAsync<ComponetMultLineiDialog>
-                (Title, parameters, options);
-        }
-        return Task.CompletedTask;
-    }
-
-    private async Task OpenDialogAddProduto()
-    {
-        var options = new DialogOptions
-            {
-                CloseOnEscapeKey = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true
-            };
-
-        var dialog = await DialogService.ShowAsync<ComponentAddProduto>
-            ("Adicionar Novo Produto", options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled && result.Data is ComponentAddProduto.ProductModel model)
-        {
-            await VerificaItemExistente(model);
-        }
-    }
-
-    private async Task VerificaItemExistente(ComponentAddProduto.ProductModel model)
-    {
-        var item = listReposicaoComFiltro.FirstOrDefault(x => x.CodigoMV == model.IdMedicamento.ToString());
-        if (item != null)
-        {
-            MessageItemExist();
-        }
-        else
-        {
-            var grupos = await grupoService.GetAllGrupoProdutos();
-
-            string nomeGrupo = string.Empty;
-
-            var grupoProduto = grupos.FirstOrDefault(x => x.Produto.IdMedicamento.ToString() == model.IdMedicamento.ToString());
-
-            if (grupoProduto?.Grupo == null)
-            {
-                nomeGrupo = "PRODUTOS SEM GRUPO";
-            }else
-            {
-                nomeGrupo = grupoProduto.Grupo.GroupName;
-            }
-
-            listReposicaoComFiltro.Add(new ReposicaoEstoque
-                {
-                    CodigoMV = model.IdMedicamento.ToString(),
-                    Reposicao = (int)model.Quantidade,
-                    Medicamento = model.NomeMedicamento,
-                    UltimoMovimento = DateTime.Now,
-                    Unidade = model.Unidade,
-                    IsAdd = true,
-                    NomeGrupo = nomeGrupo
-                    
-                });
-            StateHasChanged();
-        }
-    }
-
-    private async void MessageItemExist()
-    {
-        bool? result = await DialogService.ShowMessageBox(
-        "Atenção",
-        "O produto já se encontra na lista!",
-        yesText: "Ok", cancelText: "");
-
-        StateHasChanged();
-    }
+	private bool progress = false;
+
+	private MemoryStream stream2;
+	private List<ReposicaoEstoque> ListImportadaOriginal;
+	MudDateRangePicker _picker;
+	public double diasDeEstoque = 5;
+	DateRange _dateRange = new DateRange(DateTime.Now.AddDays(-4).Date, DateTime.Now.Date);
+	private List<ReposicaoEstoque> listReposicaoComFiltro;
+
+	private string farmacia = null;
+	private int estoqueDestino;
+	private string periodoImportacaoExcel;
+
+	private bool ativeProdutoEstoqMin = false;
+	private int? codigoEstoqueOrigem;
+	private MudNumericField<int?> numericField;
+	private bool numericFieldErro;
+
+	private bool showMessageBox;
+	private string tituloMsgBox;
+	private string avisoMsgBox;
+
+	private IEnumerable<string> SelectedEspecies = new HashSet<string>();
+	private IEnumerable<string> SelectedGroups { get; set; }
+
+	private bool alert = false;
+	private bool ConsumoZero { get; set; } = true;
+	private bool ReposicaoMenorZero { get; set; } = true;
+	private bool ReposicaoIgualZero { get; set; } = false;
+	private bool ExcluirItensDuplicados { get; set; } = true;
+	private int fatorReposicao = 1;
+	private bool filterItens = false; // itens já foram filtrados?
+	private bool erroImport = false;
+	DialogOptions disableBackdropClick = new DialogOptions() { BackdropClick = true };
+
+	private bool GerarRelatorio;
+	IEnumerable<string> Unidades;
+
+	protected override void OnInitialized()
+	{
+		ListImportadaOriginal = new();
+		listReposicaoComFiltro = new();
+		listSharedService.OnChange += StateHasChanged;
+		ReposicaoMenorZero = true;
+		ConsumoZero = true;
+	}
+
+	public void Dispose()
+	{
+		listSharedService.OnChange -= StateHasChanged;
+	}
+
+
+	public void Progress()
+	{
+		progress = !progress;
+	}
+
+	public async Task GetFile(InputFileChangeEventArgs e) //get excel file
+	{
+		ImportExcelService excelService = new();
+		//https://docs.microsoft.com/en-us/aspnet/core/blazor/file-uploads?view=aspnetcore-5.0&pivots=webassembly
+		//prepare filestream from uploaded file
+		var stream1 = e.File.OpenReadStream();
+		stream2 = new MemoryStream();
+		await stream1.CopyToAsync(stream2);
+		stream1.Close();
+
+		ListImportadaOriginal = await excelService.ReadExcel(stream2);
+		if (ListImportadaOriginal == null)
+		{
+			erroImport = true;
+			return;
+		}
+		erroImport = false;
+
+
+		ListImportadaOriginal = ReordenarID(ListImportadaOriginal);
+		ListImportadaOriginal = ListImportadaOriginal.OrderBy(x => x.Medicamento).ToList();
+		ListImportadaOriginal = await AddGrupo(ListImportadaOriginal);
+
+		listReposicaoComFiltro = CloneListaImportada();
+		LoadGrupos();
+		LoadEspecies();
+
+		farmacia = ListImportadaOriginal[0].Farmacia;
+		estoqueDestino = ListImportadaOriginal[0].CodigoEstoque;
+		periodoImportacaoExcel = ListImportadaOriginal[0].PeriodoImportacaoExcel;
+	}
+
+	private List<ReposicaoEstoque> CloneListaImportada()
+	{
+		IList<ReposicaoEstoque> ListaClonada = ListImportadaOriginal.Clone();
+		return ListaClonada.ToList();
+	}
+
+	private void LoadGrupos()
+	{
+		SelectedGroups = GetGrupos().ToHashSet();
+	}
+	private void LoadEspecies()
+	{
+		SelectedEspecies = GetEspecies().ToHashSet();
+	}
+
+
+	private async Task AplicarFiltrosEConfiguracoes()
+	{
+		if (ativeProdutoEstoqMin && codigoEstoqueOrigem == null) return;
+		if (ListImportadaOriginal.Any() is false && listReposicaoComFiltro.Any() is false) return;
+		listReposicaoComFiltro.Clear();
+		listReposicaoComFiltro = CloneListaImportada();
+
+		#region Excluir Itens Duplicados
+
+		if (ExcluirItensDuplicados)
+		{
+			listReposicaoComFiltro = listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Select(g => g.First()).ToList();
+		}
+		#endregion
+
+		#region Filtrar por Espécie
+
+		listReposicaoComFiltro = filtrosServices.FilterByEspecie(listReposicaoComFiltro, SelectedEspecies);
+		#endregion
+
+
+
+		#region Filtro por Dias de Estoque
+
+		listReposicaoComFiltro = listReposicaoComFiltro.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= diasDeEstoque).ToList();
+		#endregion
+
+		#region Filtro por Ultimo Movimento
+		listReposicaoComFiltro = listReposicaoComFiltro.Where(u => u.UltimoMovimento >= _dateRange.Start && u.UltimoMovimento <= _dateRange.End).ToList();
+		#endregion
+
+
+		CalcularReposicao(listReposicaoComFiltro);
+
+		#region Filtro por Consumo Zero
+		if (ConsumoZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); }
+		#endregion
+
+
+		#region Filtro por Reposição Zero
+		if (ReposicaoMenorZero) { listReposicaoComFiltro = listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); }
+		
+		#endregion
+
+
+		listReposicaoComFiltro = listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
+
+		#region Filtro por Estoque Mínimo
+		if (ativeProdutoEstoqMin)
+		{
+			listReposicaoComFiltro = await produtoEstoqueMinimoService.AddProdutosComEstoqueMin(
+				ListImportadaOriginal,
+				listReposicaoComFiltro,
+				codigoEstoqueOrigem.Value,
+				estoqueDestino);
+			await MostrarProdutosForaLista();
+		}
+
+		#endregion
+
+		#region Filtro por Reposição igual a Zero
+
+		if (ReposicaoIgualZero)
+		{
+			listReposicaoComFiltro = listReposicaoComFiltro.Where(r => r.Reposicao != 0).ToList();
+		}
+		#endregion
+
+		#region Filtro por Grupo
+
+		listReposicaoComFiltro = filtrosServices.FilterByBroup(listReposicaoComFiltro, SelectedGroups);
+		#endregion
+
+		listReposicaoComFiltro = ReordenarID(listReposicaoComFiltro);
+		if (listReposicaoComFiltro.Count() == 0)
+		{
+			alert = true;
+			filterItens = false;
+		}
+		else
+		{
+			alert = false;
+			filterItens = true;
+			ClosePanel();
+			AddEstiloPosFiltro();
+		}
+		StateHasChanged();
+	}
+
+	private List<ReposicaoEstoque> ReordenarID(List<ReposicaoEstoque> list)
+	{
+		for (int i = 0; i < list.Count; i++)
+		{
+			list[i].Id = i;
+		}
+		return list;
+	}
+
+	private async Task<List<ReposicaoEstoque>> AddGrupo(List<ReposicaoEstoque> list)
+	{
+		var grupos = await grupoService.GetAllGrupoProdutos();
+
+		if (grupos is not null)
+		{
+			foreach (var item in list)
+			{
+				var nomeGrupo = grupos.FirstOrDefault(x => x.Produto.IdMedicamento.ToString() == item.CodigoMV);
+
+				if (nomeGrupo is not null)
+				{
+					item.NomeGrupo = nomeGrupo.Grupo.GroupName;
+				}
+				else
+				{
+					item.NomeGrupo = "PRODUTOS SEM GRUPO";
+				}
+			}
+		}
+
+		return list;
+	}
+
+	private void CalcularReposicao(List<ReposicaoEstoque>
+	list)
+	{
+		foreach (var item in list)
+		{
+			item.Reposicao = ((int)item.ConsumoTotal * fatorReposicao - (int)item.EstoqueAtual);
+		}
+	}
+
+	private void GeraRelatorio()
+	{
+		if (listReposicaoComFiltro.Count == 0 || filterItens == false) return;
+		if (VerificaItemZeradoOuNegativo()) return;
+
+		Unidades = GetUnidades();
+		listSharedService.SetListReposicao(listReposicaoComFiltro);
+		GerarRelatorio = true;
+	}
+
+	private IEnumerable<string> GetUnidades()
+	{
+		return listReposicaoComFiltro.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+	}
+
+	private IEnumerable<string>
+		GetEspecies()
+	{
+		return ListImportadaOriginal.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
+	}
+
+	private IEnumerable<string>
+		GetGrupos()
+	{
+		return ListImportadaOriginal.OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
+	}
+
+	private void CancelaRelatorio()
+	{
+		GerarRelatorio = false;
+	}
+
+	private void ClosePanel()
+	{
+		js.InvokeVoidAsync("ClickElementByClass", "mud-expand-panel-header");
+	}
+	private void AddEstiloPosFiltro()
+	{
+		js.InvokeVoidAsync("AdicionarEstiloPosFiltro");
+	}
+
+	private void CriarScriptAutomacao()
+	{
+		if (listReposicaoComFiltro.Count == 0 || filterItens == false) return;
+		if (VerificaItemZeradoOuNegativo()) return;
+		if (VerificaItensDuplicados()) return;
+		listSharedService.SetListReposicao(listReposicaoComFiltro);
+		listSharedService.Farmacia = farmacia;
+		listSharedService.CodigoEstoque = estoqueDestino;
+		NavigateToNewTab();
+	}
+
+	private bool VerificaItemZeradoOuNegativo()
+	{
+		var itensZerados = listReposicaoComFiltro.Where(x => x.Reposicao <= 0).ToList();
+		if (itensZerados.Count > 0)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine("Há itens zerados ou negativos na lista de reposição: ");
+			foreach (var item in itensZerados)
+			{
+				sb.AppendLine("Cód." + item.CodigoMV + " " + item.Medicamento);
+			}
+			var aviso = sb.ToString();
+			ShowMsgBox("Aviso", aviso);
+			return true;
+		}
+		else
+		{
+			alert = false;
+			return false;
+		}
+	}
+
+	private bool VerificaItensDuplicados()
+	{
+		var itensDuplicados = listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
+
+		if (itensDuplicados.Count() > 0)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine("Há itens duplicados na lista de reposição: ");
+			foreach (var item in itensDuplicados)
+			{
+				var itemDuplicado = listReposicaoComFiltro.Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
+				if (itemDuplicado is not null)
+				{
+					sb.AppendLine("Cód." + itemDuplicado.CodigoMV + " " + itemDuplicado.Medicamento);
+				}
+			}
+			var aviso = sb.ToString();
+			ShowMsgBox("Aviso", aviso);
+			return true;
+		}
+		else
+		{
+			alert = false;
+			return false;
+		}
+	}
+
+	public async Task NavigateToNewTab()
+	{
+		string url = "/Robot";
+		await js.InvokeAsync
+		<object>
+			("open", url, "_blank");
+	}
+
+	private void ShowMsgBox(string titulo, string aviso)
+	{
+		this.tituloMsgBox = titulo;
+		this.avisoMsgBox = aviso;
+		showMessageBox = true;
+	}
+
+	private void CloseMsgBox()
+	{
+		showMessageBox = false;
+	}
+	private async void OnAtiveProdutoEstoqMinChanged(bool novoValor)
+	{
+		ativeProdutoEstoqMin = novoValor;
+		StateHasChanged();
+		await Task.Yield();
+
+		if (numericField != null && ativeProdutoEstoqMin)
+		{
+			await numericField.FocusAsync();
+		}
+	}
+
+	private Task MostrarProdutosForaLista()
+	{
+		var listaProdutosForaLista = produtoEstoqueMinimoService.GetProdutosForaDasListas();
+
+		if (listaProdutosForaLista != null && listaProdutosForaLista.Any())
+		{
+			List
+			<string>
+				DialogContent = new();
+			for (int i = 0; i < listaProdutosForaLista.Count; i++)
+			{
+				DialogContent.Add("Cód. " + listaProdutosForaLista[i].Id + " - " + listaProdutosForaLista[i].NomeProduto);
+			}
+
+
+			string Title = "Estes produtos com Estoque Mínimo não consta na Importação do Excel, adicione-os manualmente.";
+			var options = new DialogOptions { CloseButton = false };
+			var parameters = new DialogParameters<ComponetMultLineiDialog>
+							{
+							{ x => x.MultiLineMessage, DialogContent},
+							};
+			return DialogService.ShowAsync<ComponetMultLineiDialog>
+				(Title, parameters, options);
+		}
+		return Task.CompletedTask;
+	}
+
+	private async Task OpenDialogAddProduto()
+	{
+		var options = new DialogOptions
+			{
+				CloseOnEscapeKey = true,
+				MaxWidth = MaxWidth.Small,
+				FullWidth = true
+			};
+
+		var dialog = await DialogService.ShowAsync<ComponentAddProduto>
+			("Adicionar Novo Produto", options);
+		var result = await dialog.Result;
+
+		if (!result.Canceled && result.Data is ComponentAddProduto.ProductModel model)
+		{
+			await VerificaItemExistente(model);
+		}
+	}
+
+	private async Task VerificaItemExistente(ComponentAddProduto.ProductModel model)
+	{
+		var item = listReposicaoComFiltro.FirstOrDefault(x => x.CodigoMV == model.IdMedicamento.ToString());
+		if (item != null)
+		{
+			MessageItemExist();
+		}
+		else
+		{
+			var grupos = await grupoService.GetAllGrupoProdutos();
+
+			string nomeGrupo = string.Empty;
+
+			var grupoProduto = grupos.FirstOrDefault(x => x.Produto.IdMedicamento.ToString() == model.IdMedicamento.ToString());
+
+			if (grupoProduto?.Grupo == null)
+			{
+				nomeGrupo = "PRODUTOS SEM GRUPO";
+			}
+			else
+			{
+				nomeGrupo = grupoProduto.Grupo.GroupName;
+			}
+
+			listReposicaoComFiltro.Add(new ReposicaoEstoque
+				{
+					CodigoMV = model.IdMedicamento.ToString(),
+					Reposicao = (int)model.Quantidade,
+					Medicamento = model.NomeMedicamento,
+					UltimoMovimento = DateTime.Now,
+					Unidade = model.Unidade,
+					IsAdd = true,
+					NomeGrupo = nomeGrupo
+
+				});
+			StateHasChanged();
+		}
+	}
+
+	private async void MessageItemExist()
+	{
+		bool? result = await DialogService.ShowMessageBox(
+		"Atenção",
+		"O produto já se encontra na lista!",
+		yesText: "Ok", cancelText: "");
+
+		StateHasChanged();
+	}
 }
 
