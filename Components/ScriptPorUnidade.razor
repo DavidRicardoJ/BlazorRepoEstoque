@@ -137,7 +137,7 @@ else
     {
         messageBox = true;
         titulo = "Script";
-        aviso = "O Script foi criado com sucesso.";
+        aviso = $"O Script foi criado com sucesso. (Total itens: {_dataSharedService.GetListReposicao().Count()})";
     }
 
     private bool VerificaLogin()
@@ -178,11 +178,7 @@ else
         }
     }
 
-    private async Task<List<string>> CriaListaNomeGrupos()
-    {
-        var groupNames = await grupoService.GetNomeGruposAsync();
-        return groupNames.Select(x => x.GroupName).ToList();
-    } 
+    
 
     private void CloseMsgBox()
     {

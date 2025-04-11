@@ -32,7 +32,11 @@ namespace BlazorRepoEstoque.Services
 
             foreach (var item in itensReposicaoEstoques)
             {
-                sb.AppendLine($"{item.CodigoMV}| {item.Medicamento}| {item.Reposicao}");
+                if (item.Medicamento.Contains('\n') || item.Medicamento.Contains('\r'))
+                {
+                    item.Medicamento = item.Medicamento.Replace("\n","").Replace("\r","");
+                }
+                    sb.AppendLine($"{item.CodigoMV}| {item.Medicamento}| {item.Reposicao}");
             }
             return sb.ToString();
         }
