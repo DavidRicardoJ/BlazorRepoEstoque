@@ -3,19 +3,19 @@
 @using BlazorRepoEstoque.Services.Interfaces
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IJSRuntime js
-@inject DataSharedService dataSharedService
+
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5" Style="@color">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Usuário MV</MudText>
-    <EditForm Model="@model" OnValidSubmit="OnValidGroupSubmit">
+    <EditForm Model="@LoginUser" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit">
         <DataAnnotationsValidator />
         <MudCard>
             <MudCardContent Style="width:max-content">
                 <MudItem xs="12" Style="margin-top: 30px; width: 20rem;">
-                    @if (Farmacia == null)
+                    @if (LoginUser.FarmaciaDestino == null)
                     {
                         <MudSelect T="string" Label="Farmácia de Destino" Variant="Variant.Text" OffsetY="true" Margin="Margin.Dense"
-                        Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@dataSharedService.Farmacia" FullWidth="true">
+                                   Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@LoginUser.FarmaciaDestino" FullWidth="true">
                             <MudSelectItem Value="@("FARMÁCIA DA EMERGÊNCIA")" />
                             <MudSelectItem Value="@("FARMÁCIA DO 3° ANDAR")" />
                             <MudSelectItem Value="@("FARMÁCIA DO 6° ANDAR")" />
@@ -29,21 +29,18 @@
                     }
                     else
                     {
-                        <MudTextField T="string" Label="Farmácia de Destino" Text="@Farmacia.ToUpper()" Class="mb-5" ReadOnly="true"></MudTextField>
-                        dataSharedService.Farmacia = Farmacia;
-                        dataSharedService.CodigoEstoque = CodigoEstoque;
-                        model.EstoqueDestino = CodigoEstoque;
+                        <MudTextField T="string" Label="Farmácia de Destino" Text="@LoginUser.FarmaciaDestino.ToUpper()" Class="mb-5" ReadOnly="true"></MudTextField>
                     }
 
                 </MudItem>
                 <MudTextField Label="Usuário MV"
-                              @bind-Value="model.UsuarioMV" For="@(() => model.UsuarioMV)" />
+                              @bind-Value="LoginUser.UsuarioMV" For="@(() => LoginUser.UsuarioMV)" />
                 <MudTextField Label="Senha" Class="mt-8"
-                              @bind-Value="model.Senha" For="@(() => model.Senha)" InputType="InputType.Password" />
+                              @bind-Value="LoginUser.Senha" For="@(() => LoginUser.Senha)" InputType="InputType.Password" />
                 <MudTextField Label="Estoque de Origem" Class="mt-8"
-                              @bind-Value="model.EstoqueOrigem" For="@(() => model.EstoqueOrigem)" InputType="InputType.Number" />
+                              @bind-Value="LoginUser.EstoqueOrigem" For="@(() => LoginUser.EstoqueOrigem)" InputType="InputType.Number" />
                 <MudTextField id="inputEstoqueDestino" Label="Estoque de Destino" Class="mt-8" @onfocus="SelecionarValorInputNumber"
-                              @bind-Value="model.EstoqueDestino" For="@(() => model.EstoqueDestino)" InputType="InputType.Number" />
+                              @bind-Value="LoginUser.EstoqueDestino" For="@(() => LoginUser.EstoqueDestino)" InputType="InputType.Number" />
 
             </MudCardContent>
             <MudCardActions>
@@ -56,12 +53,13 @@
 
 @code {
 
-    LoginUsuarioMV model = new();
+
     bool disable = false;
     string color;
     string user = null;
-    [Parameter] public string Farmacia { get; set; }
-    [Parameter] public int CodigoEstoque { get; set; }
+    [Parameter] public LoginUsuarioMV LoginUser { get; set; }
+
+    [Parameter] public EventCallback<bool> IsValidLogin { get; set; }
 
 
 
@@ -70,24 +68,33 @@
         if (firstRender)
         {
             var user = await localStorage.GetItemAsync<string>("user");
-            if (user is not null) model.UsuarioMV = user.ToUpper(); StateHasChanged();
+            if (user is not null) LoginUser.UsuarioMV = user.ToUpper(); StateHasChanged();
         }
     }
 
-    private void OnValidGroupSubmit()
+    private async Task OnValidSubmit()
     {
-        dataSharedService.InputLoginMV(model);
-        dataSharedService.SetObs($"Reposição de Estoque >> {dataSharedService.Farmacia}");
-        //disable = true;
         color = "background-color: rgba(123, 237, 159,0.3)";
         UserLocalStorage();
+
+        if (IsValidLogin.HasDelegate)
+        {
+            await IsValidLogin.InvokeAsync(true);
+        }
+    }
+    private async Task OnInvalidSubmit()
+    {
+        if (IsValidLogin.HasDelegate)
+        {
+            await IsValidLogin.InvokeAsync(false);
+        }
     }
 
     private async void UserLocalStorage()
     {
-        if (user is null || !user.Equals(model.UsuarioMV.ToUpper()))
+        if (user is null || !user.Equals(LoginUser.UsuarioMV.ToUpper()))
         {
-            await localStorage.SetItemAsStringAsync("user", model.UsuarioMV.ToUpper());
+            await localStorage.SetItemAsStringAsync("user", LoginUser.UsuarioMV.ToUpper());
         }
     }
 

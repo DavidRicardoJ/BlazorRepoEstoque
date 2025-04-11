@@ -1,4 +1,5 @@
-﻿@inject IJSRuntime js
+﻿@using BlazorRepoEstoque.SharedServices
+@inject IJSRuntime js
 @inject IEncryptString encrypt
 @inject DataSharedService dataSharedService
 
@@ -59,7 +60,7 @@
                 Unidade = x.Unidade
             }).ToList();
 
-        Unidades = dataSharedService.GetUnidades();
+        Unidades = ListReposicao.Select(x=> x.Unidade).Distinct().ToList(); 
     }
 
 
@@ -82,7 +83,7 @@
 
     private bool VerificaLogin()
     {
-        if (dataSharedService.GetDadosLoginScript() == null)
+        if (dataSharedService.GetDadosLogin() == null)
         {
             messageBox = true;
             titulo = "Login";
@@ -97,7 +98,7 @@
     {
         if (ListReposicao.Any())
         {
-            dataSharedService.SetListReposicao(ListReposicao.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
+            dataSharedService.SetListReposicao(ListReposicao.OrderBy(x => x.Medicamento).ToList(), dataSharedService.GetDadosLogin().FarmaciaDestino);
             return true;
         }
         else

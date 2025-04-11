@@ -1,7 +1,9 @@
 using Blazored.LocalStorage;
 using BlazorRepoEstoque.Data;
+using BlazorRepoEstoque.ManagerState;
 using BlazorRepoEstoque.Services;
 using BlazorRepoEstoque.Services.Interfaces;
+using BlazorRepoEstoque.SharedServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -36,8 +38,9 @@ namespace BlazorRepoEstoque
             services.AddScoped<IProdutoEstoqueMinimoService, ProdutoEstoqueMinimoService>();
             services.AddScoped<IMedicamentoService, MedicamentoService>();
             services.AddScoped<IGroupService, NomeGrupoService>();
-
-            services.AddSingleton<ListSharedService>();
+            services.AddScoped<ImportExcelService>();
+            services.AddScoped<ReposicaoEstoqueState>();
+            services.AddSingleton<ListSharedService>();          
             services.AddBlazoredLocalStorage();
 
 

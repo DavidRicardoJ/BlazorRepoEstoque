@@ -1,6 +1,7 @@
-﻿@using System.Text
-@using System.ComponentModel.DataAnnotations
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Text
 @using BlazorRepoEstoque.Services.Interfaces
+@using BlazorRepoEstoque.SharedServices
 @inject IJSRuntime js
 
 @inject IEncryptString encrypt
@@ -105,14 +106,14 @@ else
                 if (grupo != "PRODUTOS SEM GRUPO")
                 {
                     var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == grupo).ToList();
-                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
+                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.GetDadosLogin().FarmaciaDestino);
 
                     DownloadFile(fileName + $" - {grupo}.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
                 }
                 else if(grupo == "PRODUTOS SEM GRUPO")
                 {
                     var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == "PRODUTOS SEM GRUPO").ToList();
-                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
+                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.GetDadosLogin().FarmaciaDestino);
 
                     DownloadFile(fileName + $" - Produtos Sem Grupo.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
                 }
@@ -131,7 +132,7 @@ else
 
     private bool VerificaLogin()
     {
-        if (dataSharedService.GetDadosLoginScript() == null)
+        if (dataSharedService.GetDadosLogin() == null)
         {
             messageBox = true;
             titulo = "Login";

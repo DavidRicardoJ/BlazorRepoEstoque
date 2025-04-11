@@ -1,4 +1,5 @@
 ﻿using BlazorRepoEstoque.Models;
+using BlazorRepoEstoque.SharedServices;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,7 +16,7 @@ namespace BlazorRepoEstoque.Services
         }
         public string GetScriptRobot()
         {
-            return ScriptRobot(_sharedService.GetListReposicao(), _sharedService.GetDadosLoginScript(), _sharedService.GetObservacao());
+            return ScriptRobot(_sharedService.GetListReposicao(), _sharedService.GetDadosLogin(), _sharedService.Observacao);
         }
 
         private string ScriptRobot(List<ReposicaoEstoque> itensReposicaoEstoques, LoginUsuarioMV loginUsuarioMV, string Observação)

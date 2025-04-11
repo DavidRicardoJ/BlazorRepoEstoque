@@ -20,6 +20,9 @@ namespace BlazorRepoEstoque.Models
         [Min(1, ErrorMessage = "Código não pode ser menor ou igual zero.")]
         public int EstoqueDestino { get; set; }
 
+        [Required(ErrorMessage = "Campo obrigátorio.")]
+        public string FarmaciaDestino { get; set; }
+
 
     }
 }

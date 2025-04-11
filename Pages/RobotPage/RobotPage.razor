@@ -1,7 +1,8 @@
 ﻿@page "/robot"
+@using BlazorRepoEstoque.SharedServices
 @inject DataSharedService dataSharedService
 @inject ListSharedService listSharedService
-@implements IDisposable
+
 
 <MudGrid>
 
@@ -12,22 +13,22 @@
     </MudItem>
 
     <MudItem xs="4">
-        <Login Farmacia="@listSharedService.Farmacia" CodigoEstoque="listSharedService.CodigoEstoque"></Login>
+        <Login LoginUser="@LoginUser" IsValidLogin="@HandleLogin" />
     </MudItem>
 
-    <MudItem xs="4">
+   @*  <MudItem xs="4">
         <ScriptPorUnidade></ScriptPorUnidade>
-    </MudItem> 
+    </MudItem>  *@
 
-    <MudItem xs="4">
+   @*  <MudItem xs="4">
         <ScriptPorGrupo></ScriptPorGrupo>
-    </MudItem>
+    </MudItem> *@
 
     <MudItem xs="12">
         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
             <MudTextField @ref="multilineReference" T="string" Label="Observação" Lines="3" Variant="Variant.Outlined"
-                          Text="@dataSharedService.GetObservacao()" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
-                          OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="dataSharedService.Observacao"/>
+            Text="@Observacao" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
+            OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="dataSharedService.Observacao"/>
         </MudPaper>
     </MudItem>
 
@@ -36,13 +37,29 @@
 @code {
     private MudTextField<string> multilineReference;
 
+    public string Observacao { get; set; } = string.Empty;
+    [Parameter] 
+    public LoginUsuarioMV LoginUser { get; set; }
+
+    private LoginUsuarioMV LoginUserDados { get; set; }
+
+
     protected override void OnInitialized()
-    {
-        dataSharedService.OnChange += StateHasChanged;
+    {        
+        if (dataSharedService.GetDadosLogin != null)
+        {
+            LoginUser = dataSharedService.GetDadosLogin();
+        }
     }
 
-    public void Dispose()
+    private void HandleLogin(bool isValidLgin)
     {
-        dataSharedService.OnChange -= StateHasChanged;
+       if (isValidLgin)
+        {
+            Observacao = $"Reposição de Estoque >> {dataSharedService.GetDadosLogin().EstoqueDestino}";
+            dataSharedService.Observacao = Observacao;
+        }
     }
+
+   
 }
