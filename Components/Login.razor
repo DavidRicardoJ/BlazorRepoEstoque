@@ -1,21 +1,24 @@
 ﻿@using System.Text
 @using System.ComponentModel.DataAnnotations
 @using BlazorRepoEstoque.Services.Interfaces
+@using BlazorRepoEstoque.Shared.SharedState
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IJSRuntime js
-@inject DataSharedService dataSharedService
+@inject ManagerStateAppService _managerStateAppService
+@implements IDisposable
+
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5" Style="@color">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Usuário MV</MudText>
-    <EditForm Model="@model" OnValidSubmit="OnValidGroupSubmit">
+    <EditForm Model="@model" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit">
         <DataAnnotationsValidator />
         <MudCard>
             <MudCardContent Style="width:max-content">
                 <MudItem xs="12" Style="margin-top: 30px; width: 20rem;">
-                    @if (Farmacia == null)
+                    @if (model.FarmaciaDestino == null)
                     {
                         <MudSelect T="string" Label="Farmácia de Destino" Variant="Variant.Text" OffsetY="true" Margin="Margin.Dense"
-                        Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@dataSharedService.Farmacia" FullWidth="true">
+                        Dense="true" AnchorOrigin="Origin.BottomCenter" @bind-Value="@model.FarmaciaDestino" FullWidth="true">
                             <MudSelectItem Value="@("FARMÁCIA DA EMERGÊNCIA")" />
                             <MudSelectItem Value="@("FARMÁCIA DO 3° ANDAR")" />
                             <MudSelectItem Value="@("FARMÁCIA DO 6° ANDAR")" />
@@ -29,21 +32,21 @@
                     }
                     else
                     {
-                        <MudTextField T="string" Label="Farmácia de Destino" Text="@Farmacia.ToUpper()" Class="mb-5" ReadOnly="true"></MudTextField>
-                        dataSharedService.Farmacia = Farmacia;
-                        dataSharedService.CodigoEstoque = CodigoEstoque;
-                        model.EstoqueDestino = CodigoEstoque;
+                        <MudTextField T="string" Label="Farmácia de Destino" Text="@model.FarmaciaDestino.ToUpper()" Class="mb-5" ReadOnly="true"></MudTextField>
                     }
 
                 </MudItem>
                 <MudTextField Label="Usuário MV"
-                              @bind-Value="model.UsuarioMV" For="@(() => model.UsuarioMV)" />
+                @bind-Value="model.UsuarioMV" For="@(() => model.UsuarioMV)" ReadOnly="disable" />
+
                 <MudTextField Label="Senha" Class="mt-8"
-                              @bind-Value="model.Senha" For="@(() => model.Senha)" InputType="InputType.Password" />
+                              @bind-Value="model.Senha" For="@(() => model.Senha)" InputType="InputType.Password" ReadOnly="disable" />
+
                 <MudTextField Label="Estoque de Origem" Class="mt-8"
-                              @bind-Value="model.EstoqueOrigem" For="@(() => model.EstoqueOrigem)" InputType="InputType.Number" />
+                              @bind-Value="model.EstoqueOrigem" For="@(() => model.EstoqueOrigem)" InputType="InputType.Number" ReadOnly="disable" />
+
                 <MudTextField id="inputEstoqueDestino" Label="Estoque de Destino" Class="mt-8" @onfocus="SelecionarValorInputNumber"
-                              @bind-Value="model.EstoqueDestino" For="@(() => model.EstoqueDestino)" InputType="InputType.Number" />
+                              @bind-Value="model.EstoqueDestino" For="@(() => model.EstoqueDestino)" InputType="InputType.Number" ReadOnly="disable" />
 
             </MudCardContent>
             <MudCardActions>
@@ -55,13 +58,27 @@
 </MudPaper>
 
 @code {
-
     LoginUsuarioMV model = new();
+
     bool disable = false;
     string color;
     string user = null;
-    [Parameter] public string Farmacia { get; set; }
-    [Parameter] public int CodigoEstoque { get; set; }
+
+    protected override void OnInitialized()
+    {
+        model = _managerStateAppService.loginUsuarioMV;
+        _managerStateAppService.loginUsuarioMV.IsValidLogin = false;
+        model.EstoqueOrigem = _managerStateAppService.GrupoEstoque.EstoqueOrigem;
+        model.EstoqueDestino = _managerStateAppService.GrupoEstoque.EstoqueDestino;   
+        model.FarmaciaDestino = _managerStateAppService.GrupoEstoque.FarmaciaDestino;
+
+        _managerStateAppService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        _managerStateAppService.OnChange -= StateHasChanged;
+    }
 
 
 
@@ -74,13 +91,24 @@
         }
     }
 
-    private void OnValidGroupSubmit()
+    private void OnValidSubmit()
     {
-        dataSharedService.InputLoginMV(model);
-        dataSharedService.SetObs($"Reposição de Estoque >> {dataSharedService.Farmacia}");
-        //disable = true;
+        _managerStateAppService.loginUsuarioMV.IsValidLogin = true;
+        _managerStateAppService.Observacao = $"Reposição de Estoque >> {model.FarmaciaDestino}";
+
+        _managerStateAppService.NotifyChanged();
+
         color = "background-color: rgba(123, 237, 159,0.3)";
+        disable = true;
         UserLocalStorage();
+    }
+
+    private void OnInvalidSubmit()
+    {
+        _managerStateAppService.loginUsuarioMV.IsValidLogin = false;
+        color = "background-color: rgba(255, 0, 0,0.3)";
+        disable = false;
+        StateHasChanged();
     }
 
     private async void UserLocalStorage()

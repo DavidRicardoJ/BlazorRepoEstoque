@@ -1,6 +1,7 @@
-﻿@inject IJSRuntime js
+﻿@using BlazorRepoEstoque.Shared.SharedState
+@inject IJSRuntime js
 @inject IEncryptString encrypt
-@inject DataSharedService dataSharedService
+@inject ManagerStateAppService _managerStateAppService
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script - Todos os Itens</MudText>
@@ -39,27 +40,12 @@
 
     string message;
     private bool alert = false;
-
-    private List<Grupo> ListGrupos { get; set; }
-    private IEnumerable<string> Unidades { get; set; }
-    private List<ReposicaoEstoque> ListReposicao { get; set; }
+   
+    private IReadOnlyList<ReposicaoEstoque> ListReposicao { get; set; } = new List<ReposicaoEstoque>();
 
     protected override void OnInitialized()
     {
-        ListReposicao = dataSharedService.GetListReposicao().Select(x => new ReposicaoEstoque
-            {
-                CodigoMV = x.CodigoMV,
-                ConsumoTotal = x.ConsumoTotal,
-                DiasDeEstoque = x.DiasDeEstoque,
-                EstoqueAtual = x.EstoqueAtual,
-                Medicamento = x.Medicamento,
-                Id = x.Id,
-                Reposicao = x.Reposicao,
-                UltimoMovimento = x.UltimoMovimento,
-                Unidade = x.Unidade
-            }).ToList();
-
-        Unidades = dataSharedService.GetUnidades();
+        ListReposicao = _managerStateAppService.GetListReposicaoComFiltro();
     }
 
 
@@ -67,8 +53,11 @@
     {
         if (VerificaLogin() is false) return;
 
-        CreateScripRobot robot = new(dataSharedService);
-        DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+        _managerStateAppService.SetListReposicaoFinal(_managerStateAppService.GetListReposicaoComFiltro());
+
+        var script = _managerStateAppService.GetScriptRobot();
+
+        DownloadFile(fileName, encrypt.CriptografarTextoAES(script));
         MessageSucess();
         StateHasChanged();
     }
@@ -82,7 +71,7 @@
 
     private bool VerificaLogin()
     {
-        if (dataSharedService.GetDadosLoginScript() == null)
+        if (_managerStateAppService.loginUsuarioMV.IsValidLogin is false)
         {
             messageBox = true;
             titulo = "Login";
@@ -90,22 +79,6 @@
             return false;
         }
         return true;
-    }
-
-
-    private bool GerarListaReposicaoUnidade(List<ReposicaoEstoque> reposicaoEstoques)
-    {
-        if (ListReposicao.Any())
-        {
-            dataSharedService.SetListReposicao(ListReposicao.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
-            return true;
-        }
-        else
-        {
-            message = "A lista de itens está vazia.";
-            alert = true;
-            return false;
-        }
     }
 
     private void CloseMsgBox()

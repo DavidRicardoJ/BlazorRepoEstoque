@@ -1,12 +1,12 @@
 ﻿@using System.Text
 @using System.ComponentModel.DataAnnotations
 @using BlazorRepoEstoque.Services.Interfaces
+@using BlazorRepoEstoque.Shared.SharedState
 @inject IJSRuntime js
-
 @inject IEncryptString encrypt
 @inject IDialogService DialogService
-@inject ListSharedService listSharedService
-@inject DataSharedService dataSharedService
+@inject ManagerStateAppService _managerStateAppService
+
 
 @if (!NomesGrupos.Any())
 {
@@ -63,10 +63,7 @@ else
     private bool alert = false;
     string fileName = "scriptRobot";
     private string grupoSelecionado { get; set; }    
-    private List<string> NomesGrupos { get; set; } = new List<string>();
-
-
-    private List<ReposicaoEstoque> ListReposicao { get; set; }
+    private IReadOnlyList<string> NomesGrupos { get; set; } = new List<string>();    
 
     string message;
 
@@ -75,46 +72,29 @@ else
     string aviso;
 
     protected override void OnInitialized()
-    {       
-        ListReposicao = listSharedService.GetListReposicao().Select(x => new ReposicaoEstoque
-            {
-                CodigoMV = x.CodigoMV,
-                ConsumoTotal = x.ConsumoTotal,
-                DiasDeEstoque = x.DiasDeEstoque,
-                EstoqueAtual = x.EstoqueAtual,
-                Medicamento = x.Medicamento,
-                Id = x.Id,
-                Reposicao = x.Reposicao,
-                UltimoMovimento = x.UltimoMovimento,
-                Unidade = x.Unidade,
-                NomeGrupo = x.NomeGrupo
-            }).ToList();
-       
-        NomesGrupos = ListReposicao.Select(x => x.NomeGrupo).Distinct().OrderBy(x => x).ToList();
+    { 
+        NomesGrupos = _managerStateAppService.GetListReposicaoComFiltro().Select(x => x.NomeGrupo).Distinct().OrderBy(x => x).ToList();
     }
 
     private void GeraScript()
     {
         if (VerificaLogin() && VerificaSeHáGrupos())
-        {
-           
-            CreateScripRobot robot = new(dataSharedService);
-
+        {          
             foreach (var grupo in NomesGrupos)
             {
                 if (grupo != "PRODUTOS SEM GRUPO")
                 {
-                    var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == grupo).ToList();
-                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
+                    var listaDoGrupo = _managerStateAppService.GetListReposicaoComFiltro().Where(x => x.NomeGrupo == grupo).ToList();
+                    _managerStateAppService.SetListReposicaoFinal(listaDoGrupo.OrderBy(x => x.Medicamento).ToList());
 
-                    DownloadFile(fileName + $" - {grupo}.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+                    DownloadFile(fileName + $" - {grupo}.txt", encrypt.CriptografarTextoAES(_managerStateAppService.GetScriptRobot()));
                 }
                 else if(grupo == "PRODUTOS SEM GRUPO")
                 {
-                    var listaDoGrupo = ListReposicao.Where(x => x.NomeGrupo == "PRODUTOS SEM GRUPO").ToList();
-                    dataSharedService.SetListReposicao(listaDoGrupo.OrderBy(x => x.Medicamento).ToList(), dataSharedService.Farmacia);
+                    var listaDoGrupo = _managerStateAppService.GetListReposicaoComFiltro().Where(x => x.NomeGrupo == "PRODUTOS SEM GRUPO").ToList();
+                    _managerStateAppService.SetListReposicaoFinal(listaDoGrupo.OrderBy(x => x.Medicamento).ToList());
 
-                    DownloadFile(fileName + $" - Produtos Sem Grupo.txt", encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+                    DownloadFile(fileName + $" - Produtos Sem Grupo.txt", encrypt.CriptografarTextoAES(_managerStateAppService.GetScriptRobot()));
                 }
             }
             StateHasChanged();
@@ -131,7 +111,7 @@ else
 
     private bool VerificaLogin()
     {
-        if (dataSharedService.GetDadosLoginScript() == null)
+        if (_managerStateAppService.loginUsuarioMV.IsValidLogin == false)
         {
             messageBox = true;
             titulo = "Login";
@@ -143,7 +123,7 @@ else
 
     private bool VerificaSeHáGrupos()
     {
-        return ListReposicao.Any(x => x.NomeGrupo is not null);
+        return _managerStateAppService.GetListReposicaoComFiltro().Any(x => x.NomeGrupo is not null);
     }
 
     public async void DownloadFile(string fileName, string Content)
@@ -159,13 +139,13 @@ else
 
     private void OpenDialog()
     {
-        GruposProdutosDto.ListaProdutosSemGrupoDTO = new List<ReposicaoEstoque>(ListReposicao.Where(x => x.NomeGrupo == "PRODUTOS SEM GRUPO"));
+        GruposProdutosDto.ListaProdutosSemGrupoDTO = new List<ReposicaoEstoque>(_managerStateAppService.GetListReposicaoComFiltro().Where(x => x.NomeGrupo == "PRODUTOS SEM GRUPO"));
         DialogService.ShowAsync<ComponentDialog>($"{GruposProdutosDto.ListaProdutosSemGrupoDTO.Count()} Produtos sem grupo cadastrado");
     }
 
     private void OpenDialog(string grupoName)
     {
-        GruposProdutosDto.ListaProdutosComGrupoDTO = new List<ReposicaoEstoque>(ListReposicao.Where(x => x.NomeGrupo == grupoName));
+        GruposProdutosDto.ListaProdutosComGrupoDTO = new List<ReposicaoEstoque>(_managerStateAppService.GetListReposicaoComFiltro().Where(x => x.NomeGrupo == grupoName));
         DialogService.ShowAsync<ComponentDialogGroup>($"{GruposProdutosDto.ListaProdutosComGrupoDTO.Count()} Produtos --- {grupoName} ---");
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BlazorRepoEstoque.Models;
+using BlazorRepoEstoque.Shared.SharedState;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,15 +8,15 @@ namespace BlazorRepoEstoque.Services
 {
     public class CreateScripRobot
     {
-        private readonly DataSharedService _sharedService;
+        private readonly ManagerStateAppService _managerStateAppService;
 
-        public CreateScripRobot(DataSharedService sharedService)
+        public CreateScripRobot(ManagerStateAppService managerStateAppService)
         {
-            _sharedService = sharedService;
+            _managerStateAppService = managerStateAppService;
         }
         public string GetScriptRobot()
         {
-            return ScriptRobot(_sharedService.GetListReposicao(), _sharedService.GetDadosLoginScript(), _sharedService.GetObservacao());
+            return ScriptRobot(_managerStateAppService.GetListReposicaoFinal(), _managerStateAppService.loginUsuarioMV, _managerStateAppService.Observacao);
         }
 
         private string ScriptRobot(List<ReposicaoEstoque> itensReposicaoEstoques, LoginUsuarioMV loginUsuarioMV, string Observação)

@@ -70,7 +70,7 @@
     public ProductModel model { get; set; } = new();
 
     [Parameter]
-    public List<ReposicaoEstoque> ListReposicaoEstoque { get; set; }
+    public IReadOnlyList<ReposicaoEstoque> ListReposicaoEstoque { get; set; }
 
     private async Task SearchProduct()
     {

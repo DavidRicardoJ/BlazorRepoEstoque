@@ -29,9 +29,6 @@ namespace BlazorRepoEstoque.Services
         }
         public List<ReposicaoEstoque> FilterByBroup(List<ReposicaoEstoque> listReposição, IEnumerable<string> SelectedGroups)
         {
-
-            //if (SelectedGroups.Contains("Selecionar Grupos")) { SelectedGroups.Remove("Selecionar Grupos"); }
-
             if (SelectedGroups.Any() is false || listReposição.Any() is false) return new List<ReposicaoEstoque>();
 
             List<ReposicaoEstoque> listaFiltradaPorGrupo = new();
@@ -49,9 +46,6 @@ namespace BlazorRepoEstoque.Services
 
         public List<ReposicaoEstoque> FilterByEspecie(List<ReposicaoEstoque> listReposição, IEnumerable<string> SelectedEspecies)
         {
-
-            //if (SelectedEspecies.Contains("Selecionar Espécies")) { SelectedEspecies.Remove("Selecionar Espécies"); }
-
             if (SelectedEspecies.Any() is false || listReposição.Any() is false) return new List<ReposicaoEstoque>();
 
             List<ReposicaoEstoque> listaFiltradaPorEspecie = new();
@@ -64,64 +58,73 @@ namespace BlazorRepoEstoque.Services
                     listaFiltradaPorEspecie.AddRange(produto);
                 }
             }
+            if (SelectedEspecies.Contains("MEDICAMENTOS") || SelectedEspecies.Contains("MEDICAMENTOS CONTROLADOS"))
+            {
+                _managerStateAppService.GrupoEstoque.EstoqueOrigem = 2;
+            }
+            else
+            {
+                _managerStateAppService.GrupoEstoque.EstoqueOrigem = 1;
+            }
             return listaFiltradaPorEspecie;
         }
 
         public async Task AplicarFiltrosEConfiguracoes()
         {
-            if (_managerStateAppService.ativeProdutoEstoqMin && _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueOrigem == null) return;
-            if (_managerStateAppService.ListImportadaOriginal.Any() is false && _managerStateAppService.listReposicaoComFiltro.Any() is false) return;
-            _managerStateAppService.listReposicaoComFiltro.Clear();
-            _managerStateAppService.listReposicaoComFiltro = CloneListaImportada();
+            if (_managerStateAppService.ativeProdutoEstoqMin && _managerStateAppService.GrupoEstoque.EstoqueOrigem == null) return;
+            if (_managerStateAppService.GetListImportadaOriginal().Any() is false && _managerStateAppService.GetListReposicaoComFiltro().Any() is false) return;
+            _managerStateAppService.GetListReposicaoComFiltro().Clear();
+            _managerStateAppService.SetListReposicaoComFiltro(CloneListaImportada());
 
             #region Excluir Itens Duplicados
 
             if (_managerStateAppService.ExcluirItensDuplicados)
             {
-                _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Select(g => g.First()).ToList();
+                _managerStateAppService.SetListReposicaoComFiltro(_managerStateAppService.GetListReposicaoComFiltro().GroupBy(g => g.CodigoMV).Select(g => g.First()).ToList());
             }
             #endregion
 
             #region Filtrar por Espécie
 
-            _managerStateAppService.listReposicaoComFiltro = FilterByEspecie(_managerStateAppService.listReposicaoComFiltro, _managerStateAppService.SelectedEspecies);
+            _managerStateAppService.SetListReposicaoComFiltro(FilterByEspecie(_managerStateAppService.GetListReposicaoComFiltro(), _managerStateAppService.SelectedEspecies));
             #endregion
 
 
 
             #region Filtro por Dias de Estoque
 
-            _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= _managerStateAppService.diasDeEstoque).ToList();
+            _managerStateAppService.SetListReposicaoComFiltro (_managerStateAppService.GetListReposicaoComFiltro().Where(d => d.DiasDeEstoque >= 0 && d.DiasDeEstoque <= _managerStateAppService.diasDeEstoque).ToList());
             #endregion
 
             #region Filtro por Ultimo Movimento
-            _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.Where(u => u.UltimoMovimento >= _managerStateAppService._dateRange.Start && u.UltimoMovimento <= _managerStateAppService._dateRange.End).ToList();
+            _managerStateAppService.SetListReposicaoComFiltro (_managerStateAppService.GetListReposicaoComFiltro().Where(u => u.UltimoMovimento >= _managerStateAppService._dateRange.Start && u.UltimoMovimento <= _managerStateAppService._dateRange.End).ToList());
             #endregion
 
 
-            CalcularReposicao(_managerStateAppService.listReposicaoComFiltro);
+            CalcularReposicao(_managerStateAppService.GetListReposicaoComFiltro());
 
             #region Filtro por Consumo Zero
-            if (_managerStateAppService.ConsumoZero) { _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.Where(x => x.ConsumoTotal > 0.0f).ToList(); }
+            if (_managerStateAppService.ConsumoZero) { _managerStateAppService.SetListReposicaoComFiltro(_managerStateAppService.GetListReposicaoComFiltro().Where(x => x.ConsumoTotal > 0.0f).ToList()); }
             #endregion
 
 
             #region Filtro por Reposição Zero
-            if (_managerStateAppService.ReposicaoMenorZero) { _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.Where(x => x.Reposicao >= 0).ToList(); }
+            if (_managerStateAppService.ReposicaoMenorZero) { _managerStateAppService.SetListReposicaoComFiltro(_managerStateAppService.GetListReposicaoComFiltro().Where(x => x.Reposicao >= 0).ToList());}
 
             #endregion
 
 
-            _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.OrderBy(x => x.Medicamento).ToList();
+            _managerStateAppService.SetListReposicaoComFiltro(_managerStateAppService.GetListReposicaoComFiltro().OrderBy(x => x.Medicamento).ToList());
 
             #region Filtro por Estoque Mínimo
             if (_managerStateAppService.ativeProdutoEstoqMin)
             {
-                _managerStateAppService.listReposicaoComFiltro = await _produtoEstoqueMinimoService.AddProdutosComEstoqueMin(
-                    _managerStateAppService.ListImportadaOriginal,
-                _managerStateAppService.listReposicaoComFiltro,
-                    _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueOrigem.Value,
-                    _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueDestino);
+                _managerStateAppService.SetListReposicaoComFiltro(await _produtoEstoqueMinimoService.AddProdutosComEstoqueMin(
+                    _managerStateAppService.GetListImportadaOriginal(),
+                _managerStateAppService.GetListReposicaoComFiltro(),
+                    _managerStateAppService.GrupoEstoque.EstoqueOrigem.Value,
+                    _managerStateAppService.GrupoEstoque.EstoqueDestino));
+
                 await MostrarProdutosForaLista();
             }
 
@@ -131,17 +134,17 @@ namespace BlazorRepoEstoque.Services
 
             if (_managerStateAppService.ReposicaoIgualZero)
             {
-                _managerStateAppService.listReposicaoComFiltro = _managerStateAppService.listReposicaoComFiltro.Where(r => r.Reposicao != 0).ToList();
+                _managerStateAppService.SetListReposicaoComFiltro(_managerStateAppService.GetListReposicaoComFiltro().Where(r => r.Reposicao != 0).ToList());
             }
             #endregion
 
             #region Filtro por Grupo
 
-            _managerStateAppService.listReposicaoComFiltro = FilterByBroup(_managerStateAppService.listReposicaoComFiltro, _managerStateAppService.SelectedGroups);
+            _managerStateAppService.SetListReposicaoComFiltro( FilterByBroup(_managerStateAppService.GetListReposicaoComFiltro(), _managerStateAppService.SelectedGroups));
             #endregion
 
-            _managerStateAppService.listReposicaoComFiltro = ReordenarID(_managerStateAppService.listReposicaoComFiltro);
-            if (_managerStateAppService.listReposicaoComFiltro.Count() == 0)
+            _managerStateAppService.SetListReposicaoComFiltro( ReordenarID(_managerStateAppService.GetListReposicaoComFiltro()));
+            if (_managerStateAppService.GetListReposicaoComFiltro().Count() == 0)
             {
                 _managerStateAppService.alert = true;
                 _managerStateAppService.filterItens = false;
@@ -152,16 +155,16 @@ namespace BlazorRepoEstoque.Services
                 _managerStateAppService.filterItens = true;
                 ClosePanel();
                 AddEstiloPosFiltro();
-            }           
+            }
         }
 
         public List<ReposicaoEstoque> CloneListaImportada()
         {
-            IList<ReposicaoEstoque> ListaClonada = _managerStateAppService.ListImportadaOriginal.Clone();
-            return ListaClonada.ToList();
+            IList<ReposicaoEstoque> ListaClonada = _managerStateAppService.GetListImportadaOriginal().Clone();            
+            return ListaClonada.ToList();            
         }
 
-        private void CalcularReposicao(List<ReposicaoEstoque>list)
+        private void CalcularReposicao(List<ReposicaoEstoque> list)
         {
             foreach (var item in list)
             {

@@ -1,11 +1,11 @@
 ﻿@using System.Text
 @using System.ComponentModel.DataAnnotations
 @using BlazorRepoEstoque.Services.Interfaces
+@using BlazorRepoEstoque.Shared.SharedState
 @inject IJSRuntime js
 @inject IGroupService grupoService
 @inject IEncryptString encrypt
-@inject DataSharedService _dataSharedService
-@inject ListSharedService listSharedService
+@inject ManagerStateAppService _managerStateAppService
 
 @if (Unidades == null)
 {
@@ -16,8 +16,6 @@ else
     <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
         <MudCard>
             <MudCardContent>
-
-
 
                 <MudGrid>
                     <MudItem xs="12" sm="12">
@@ -34,8 +32,8 @@ else
                             <MudCardContent>
 
                                 <MudTreeView CheckBoxColor="Color.Tertiary"
-                                             SelectionMode="SelectionMode.MultiSelection"
-                                             @bind-SelectedValues="SelectedValuesUnidades">
+                                SelectionMode="SelectionMode.MultiSelection"
+                                @bind-SelectedValues="SelectedValuesUnidades">
                                     <MudTreeViewItem Text="SELECIONAR UNIDADES">
                                         @foreach (var unidade in Unidades)
                                         {
@@ -78,71 +76,44 @@ else
     string message;
     private bool alert = false;
 
-    private List<Grupo> ListGrupos { get; set; }
-    private IReadOnlyCollection<string> Unidades { get; set; }
-    private List<ReposicaoEstoque> GetList { get; set; } = new();
+   
+    private IReadOnlyCollection<string> Unidades { get; set; }    
     private List<ReposicaoEstoque> ListReposicao { get; set; }
+
 
     protected override void OnInitialized()
     {
-        GetData();
-        PostData();
-    }
-
-    private void GetData()
-    {
-        GetList.AddRange(listSharedService.GetListReposicao());
-
-        ListReposicao = GetList.Select(x => new ReposicaoEstoque
-            {
-                CodigoMV = x.CodigoMV,
-                ConsumoTotal = x.ConsumoTotal,
-                DiasDeEstoque = x.DiasDeEstoque,
-                EstoqueAtual = x.EstoqueAtual,
-                Medicamento = x.Medicamento,
-                Id = x.Id,
-                Reposicao = x.Reposicao,
-                UltimoMovimento = x.UltimoMovimento,
-                Unidade = x.Unidade
-            }).ToList();
-
         Unidades = GetUnidades();
-    }
-
-    private void PostData()
-    {
-        _dataSharedService.SetListReposicao(ListReposicao, null);
-        _dataSharedService.InputUnidades(Unidades);
     }
 
     private void OnValidSubmit()
     {
-        if (VerificaLogin() is false) return;
+        if (_managerStateAppService.loginUsuarioMV.IsValidLogin) return;
 
 
-        if (GerarListaReposicaoUnidade(ListReposicao) == false) return;
+        if (GerarListaReposicaoUnidade() == false) return;
 
-        CreateScripRobot robot = new(_dataSharedService);
-        DownloadFile(fileName, encrypt.CriptografarTextoAES(robot.GetScriptRobot()));
+      
+        DownloadFile(fileName, encrypt.CriptografarTextoAES(_managerStateAppService.GetScriptRobot()));
         MessageSucess();
         StateHasChanged();
     }
 
     private List<string> GetUnidades()
     {
-        return ListReposicao.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+        return _managerStateAppService.GetListReposicaoComFiltro().OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
     }
 
     private void MessageSucess()
     {
         messageBox = true;
         titulo = "Script";
-        aviso = $"O Script foi criado com sucesso. (Total itens: {_dataSharedService.GetListReposicao().Count()})";
+        aviso = $"O Script foi criado com sucesso. (Total itens: {_managerStateAppService.GetListReposicaoFinal().Count()})";
     }
 
     private bool VerificaLogin()
     {
-        if (_dataSharedService.GetDadosLoginScript() == null)
+        if (_managerStateAppService.loginUsuarioMV.IsValidLogin == false)
         {
             messageBox = true;
             titulo = "Login";
@@ -153,7 +124,7 @@ else
     }
 
 
-    private bool GerarListaReposicaoUnidade(List<ReposicaoEstoque> reposicaoEstoques)
+    private bool GerarListaReposicaoUnidade()
     {
         if (SelectedValuesUnidades.Any())
         {
@@ -161,13 +132,14 @@ else
             List<ReposicaoEstoque> list = new();
             foreach (var unidade in SelectedValuesUnidades)
             {
-                var medicamento = reposicaoEstoques.Where(m => m.Unidade == unidade).ToList();
+                var medicamento = _managerStateAppService.GetListReposicaoComFiltro().Where(m => m.Unidade == unidade).ToList();
                 if (medicamento != null)
                 {
                     list.AddRange(medicamento);
                 }
             }
-            _dataSharedService.SetListReposicao(list.OrderBy(x => x.Medicamento).ToList(), _dataSharedService.Farmacia);
+            _managerStateAppService.SetListReposicaoFinal(list.OrderBy(x => x.Medicamento).ToList());
+
             return true;
         }
         else

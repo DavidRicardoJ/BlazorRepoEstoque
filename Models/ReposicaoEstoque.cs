@@ -14,12 +14,10 @@ namespace BlazorRepoEstoque.Models
         public int DiasDeEstoque { get; set; }
         public int Reposicao { get; set; }
         public string NomeGrupo { get; set; }
-        public string Especie { get; set; }
-        public int CodigoEstoque { get; set; }
-        public string Farmacia { get; set; }
+        public string Especie { get; set; }  
         public bool IsEstoqMin { get; set; }
         public bool IsAdd { get; set; }
-        public string PeriodoImportacaoExcel { get; set; }
+       
 
         public object Clone()
         {

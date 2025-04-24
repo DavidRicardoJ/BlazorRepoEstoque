@@ -4,14 +4,15 @@
 @using BlazorRepoEstoque.Shared.SharedState
 
 @inject HttpClient httpClient;
-@inject NavigationManager nav;
+@inject NavigationManager _navigationManager;
 @inject IJSRuntime js
 @inject IDialogService DialogService
 @inject IGroupService grupoService
 @inject IFiltrosServices _filtrosServices
-@inject ListSharedService listSharedService
 @inject IProdutoEstoqueMinimoService _produtoEstoqueMinimoService
 @inject ManagerStateAppService _managerStateAppService
+@inject ImportExcelService _importExcelService
+@implements IDisposable
 
 
 
@@ -29,10 +30,10 @@
             <InputFile id="fileInput" OnChange="GetFile" hidden single accept=".xlsx" />
 
             <MudButton HtmlTag="label"
-                       Variant="Variant.Filled"
-                       Color="Color.Secondary"
-                       StartIcon="@Icons.Material.Filled.CloudUpload"
-                       for="fileInput">
+            Variant="Variant.Filled"
+            Color="Color.Secondary"
+            StartIcon="@Icons.Material.Filled.CloudUpload"
+            for="fileInput">
                 Buscar Arquivo Excel
             </MudButton>
         </MudPaper>
@@ -40,17 +41,17 @@
         <MudItem xs="12">
             <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Elevation="3" Style="margin-top: 3px;">
                 <MudButton HtmlTag="btn"
-                           OnClick="GeraRelatorio"
-                           Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Custom.FileFormats.FilePdf">
+                OnClick="GeraRelatorio"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Custom.FileFormats.FilePdf">
                     Relatório
                 </MudButton>
                 <MudButton HtmlTag="btn" Style="margin-left: 25px;"
-                           @onclick="CriarScriptAutomacao"
-                           Variant="Variant.Filled"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.Speed">
+                @onclick="CriarScriptAutomacao"
+                Variant="Variant.Filled"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Material.Filled.Speed">
                     Criar Script de Automação
                 </MudButton>
             </MudPaper>
@@ -65,20 +66,20 @@
                     <MudItem xs="12" sm="8">
                         <MudText Typo="Typo.h6" Color="Color.Primary" Align="Align.Center">Configurações da Lista</MudText>
                         <MudCheckBox @bind-Value="@_managerStateAppService.ConsumoZero" T="bool" Label="Não considera Consumo Total igual a zero."
-                                     Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
                         <MudCheckBox @bind-Value="@_managerStateAppService.ReposicaoMenorZero" T="bool" Label="Não considera Reposição menor que zero."
-                                     Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
                         <MudCheckBox @bind-Value="@_managerStateAppService.ReposicaoIgualZero" T="bool" Label="Não considera Reposição igual a zero."
-                                     Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
                         <MudCheckBox @bind-Value="@_managerStateAppService.ExcluirItensDuplicados" T="bool" Label="Excluir itens duplicados."
-                                     Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
+                        Color="Color.Secondary" Style="margin-bottom: 10px;"></MudCheckBox>
 
                         <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-5">
                             <MudNumericField T="int" @bind-Value="_managerStateAppService.fatorReposicao" Label="Fator de Reposição" Variant="Variant.Outlined"
-                                             Min="1" Max="31" Step="1" Style="max-width: contain; margin-bottom: 20px;" />
+                            Min="1" Max="31" Step="1" Style="max-width: contain; margin-bottom: 20px;" />
                         </MudContainer>
                     </MudItem>
                 </MudPaper>
@@ -111,7 +112,7 @@
                 @*  filtro por espécie *@
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="width: contain">
                     <MudSelect T="string" Label="Selecionar Espécies" MultiSelection="true" Clearable
-                               @bind-SelectedValues="_managerStateAppService.SelectedEspecies" SelectAll="false">
+                    @bind-SelectedValues="_managerStateAppService.SelectedEspecies" SelectAll="false">
                         @foreach (var especie in GetEspecies())
                         {
                             <MudSelectItem T="string" Value="@especie" />
@@ -123,7 +124,7 @@
                 <MudDivider />
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-5" Style="width: contain">
                     <MudSelect T="string" Label="Selecionar Grupo" MultiSelection="true" Clearable
-                               @bind-SelectedValues="_managerStateAppService.SelectedGroups" SelectAll="false">
+                    @bind-SelectedValues="_managerStateAppService.SelectedGroups" SelectAll="false">
                         @foreach (var grupo in GetGrupos())
                         {
                             <MudSelectItem T="string" Value="@grupo" />
@@ -134,7 +135,7 @@
                 <MudPaper Class="d-flex align-center justify-center mud-width-full py-5 flex-column">
 
                     <MudSwitch T="bool" @bind-Value="_managerStateAppService.ativeProdutoEstoqMin"
-                               CheckedChanged="OnAtiveProdutoEstoqMinChanged" Color="Color.Error">
+                    CheckedChanged="OnAtiveProdutoEstoqMinChanged" Color="Color.Error">
                         Considerar Lista de Produtos com Estoque Minímo
                     </MudSwitch>
 
@@ -142,16 +143,16 @@
                     {
                         if (_managerStateAppService.SelectedEspecies.Contains("MEDICAMENTOS") || _managerStateAppService.SelectedEspecies.Contains("MEDICAMENTOS CONTROLADOS"))
                         {
-                            _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueOrigem = 2;
+                            _managerStateAppService.GrupoEstoque.EstoqueOrigem = 2;
                         }
                         else
                         {
-                            _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueOrigem = 1;
+                            _managerStateAppService.GrupoEstoque.EstoqueOrigem = 1;
                         }
                         <MudContainer MaxWidth="MaxWidth.ExtraSmall">
-                            <MudNumericField @bind-value="_managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueOrigem" @ref="_managerStateAppService.numericField" Required="true"
-                                             RequiredError="Código obrigatório." Error="_managerStateAppService.numericFieldErro"
-                                             Label="Código do Estoque do Almoxarifado" Variant="Variant.Outlined" />
+                            <MudNumericField @bind-value="_managerStateAppService.GrupoEstoque.EstoqueOrigem" @ref="_managerStateAppService.numericField" Required="true"
+                            RequiredError="Código obrigatório." Error="_managerStateAppService.numericFieldErro"
+                            Label="Código do Estoque do Almoxarifado" Variant="Variant.Outlined" />
                         </MudContainer>
                     }
 
@@ -162,11 +163,11 @@
                 <MudPaper Class="d-flex align-center justify-center " Elevation="4" Style="margin-top: 7px; width: 100%;">
                     <MudItem xs="12" sm="6">
                         <MudButton HtmlTag="btn"
-                                   Style="width: max-content; margin: 20px;"
-                                   OnClick="_filtrosServices.AplicarFiltrosEConfiguracoes"
-                                   Variant="Variant.Filled"
-                                   Color="Color.Secondary"
-                                   StartIcon="@Icons.Material.Sharp.FilterAlt">
+                        Style="width: max-content; margin: 20px;"
+                        OnClick="_filtrosServices.AplicarFiltrosEConfiguracoes"
+                        Variant="Variant.Filled"
+                        Color="Color.Secondary"
+                        StartIcon="@Icons.Material.Sharp.FilterAlt">
                             Aplicar Filtros e Configurações
                         </MudButton>
                     </MudItem>
@@ -177,15 +178,15 @@
 
         <MudItem xs="12" Style="margin-bottom: 5px">
 
-            @if (_managerStateAppService.FarmaciaDestino is not null)
+            @if (_managerStateAppService.GrupoEstoque.FarmaciaDestino is not null)
             {
                 <MudPaper Class="d-flex align-center justify-center" Elevation="4" Style=" width: 100%; padding: 5px;">
                     <MudStack>
-                        <MudText Color="Color.Info" Typo="Typo.h6">@_managerStateAppService.FarmaciaDestino, ESTOQUE: @_managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueDestino</MudText>
+                        <MudText Color="Color.Info" Typo="Typo.h6">@_managerStateAppService.GrupoEstoque.FarmaciaDestino, ESTOQUE: @_managerStateAppService.GrupoEstoque.EstoqueDestino</MudText>
                         <MudText Color="Color.Dark">Período: @_managerStateAppService.periodoImportacaoExcel</MudText>
                     </MudStack>
                     <MudFab IconColor="Color.Warning" StartIcon="@Icons.Material.Filled.Add" Class="ml-6 pl-2" Disabled="!_managerStateAppService.filterItens"
-                            Label="Novo Item" Color="Color.Primary" Size="Size.Medium" OnClick="OpenDialogAddProduto" />
+                    Label="Novo Item" Color="Color.Primary" Size="Size.Medium" OnClick="OpenDialogAddProduto" />
                 </MudPaper>
             }
 
@@ -195,11 +196,11 @@
 
 
 
-<a href="@nav.BaseUri.Remove(nav.BaseUri.Length -1, 1)/Robot/GetScriptRobot" target="_blank"></a>
+
 
 @if (_managerStateAppService.GerarRelatorio)
 {
-    <SelectUnits Unidades="@_managerStateAppService.Unidades" Cancelar="CancelaRelatorio" ListReposicao="@_managerStateAppService.listReposicaoComFiltro"></SelectUnits>
+    <SelectUnits Cancelar="CancelaRelatorio"></SelectUnits>
 }
 @if (_managerStateAppService.showMessageBox)
 {
@@ -222,15 +223,15 @@
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 
 }
-@if (_managerStateAppService.ListImportadaOriginal != null &&_managerStateAppService.ListImportadaOriginal.Count() > 0)
+@if (_managerStateAppService.GetListImportadaOriginal() != null &&_managerStateAppService.GetListImportadaOriginal().Count() > 0)
 {
     _managerStateAppService.erroImport = false;
     <MudPaper Class="pa-5 mx-auto" Style="min-width: min-content;" Elevation="15">
         <MudPaper>
-            <TabPage repoList="@_managerStateAppService.listReposicaoComFiltro" RowsPerPage="_managerStateAppService.listReposicaoComFiltro.Count"></TabPage>
+            <TabPage repoList="_managerStateAppService.GetListReposicaoComFiltro()"/>
         </MudPaper>
     </MudPaper>
-    <ComponentAddProduto ListReposicaoEstoque="@_managerStateAppService.listReposicaoComFiltro" />
+    <ComponentAddProduto ListReposicaoEstoque="@_managerStateAppService.GetListReposicaoComFiltro()" />
 }
 
 
@@ -239,49 +240,23 @@
 
     protected override void OnInitialized()
     {
-        _managerStateAppService.ListImportadaOriginal = new();
-        _managerStateAppService.listReposicaoComFiltro = new();
-        listSharedService.OnChange += StateHasChanged;
-        _managerStateAppService.ReposicaoMenorZero = true;
-        _managerStateAppService.ConsumoZero = true;
+        _managerStateAppService.OnChange += StateHasChanged;
     }
+
 
     public void Progress()
     {
         _managerStateAppService.progress = !_managerStateAppService.progress;
     }
 
-    public async Task GetFile(InputFileChangeEventArgs e) //get excel file
+    private async Task GetFile(InputFileChangeEventArgs e)
     {
-        ImportExcelService excelService = new();
-        //https://docs.microsoft.com/en-us/aspnet/core/blazor/file-uploads?view=aspnetcore-5.0&pivots=webassembly
-        //prepare filestream from uploaded file
-        var stream1 = e.File.OpenReadStream();
-        _managerStateAppService.stream2 = new MemoryStream();
-        await stream1.CopyToAsync(_managerStateAppService.stream2);
-        stream1.Close();
-
-        _managerStateAppService.ListImportadaOriginal = await excelService.ReadExcel(_managerStateAppService.stream2);
-        if (_managerStateAppService.ListImportadaOriginal == null)
-        {
-            _managerStateAppService.erroImport = true;
-            return;
-        }
-        _managerStateAppService.erroImport = false;
-
-
-        _managerStateAppService.ListImportadaOriginal = _filtrosServices.ReordenarID(_managerStateAppService.ListImportadaOriginal);
-        _managerStateAppService.ListImportadaOriginal = _managerStateAppService.ListImportadaOriginal.OrderBy(x => x.Medicamento).ToList();
-        _managerStateAppService.ListImportadaOriginal = await AddGrupo(_managerStateAppService.ListImportadaOriginal);
-
-        _managerStateAppService.listReposicaoComFiltro = _filtrosServices.CloneListaImportada();
+        await _importExcelService.GetFile(e);
         LoadGrupos();
         LoadEspecies();
-
-        _managerStateAppService.FarmaciaDestino = _managerStateAppService.ListImportadaOriginal[0].Farmacia;
-        _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueDestino = _managerStateAppService.ListImportadaOriginal[0].CodigoEstoque;
-        _managerStateAppService.periodoImportacaoExcel = _managerStateAppService.ListImportadaOriginal[0].PeriodoImportacaoExcel;
+        _managerStateAppService.NotifyChanged();
     }
+
 
    
 
@@ -294,57 +269,28 @@
         _managerStateAppService.SelectedEspecies = GetEspecies().ToHashSet();
     }
 
-    private async Task<List<ReposicaoEstoque>> AddGrupo(List<ReposicaoEstoque> list)
-    {
-        var grupos = await grupoService.GetAllGrupoProdutos();
-
-        if (grupos is not null)
-        {
-            foreach (var item in list)
-            {
-                var nomeGrupo = grupos.FirstOrDefault(x => x.Produto.IdMedicamento.ToString() == item.CodigoMV);
-
-                if (nomeGrupo is not null)
-                {
-                    item.NomeGrupo = nomeGrupo.Grupo.GroupName;
-                }
-                else
-                {
-                    item.NomeGrupo = "PRODUTOS SEM GRUPO";
-                }
-            }
-        }
-
-        return list;
-    }
+   
 
    
 
     private void GeraRelatorio()
     {
-        if (_managerStateAppService.listReposicaoComFiltro.Count == 0 || _managerStateAppService.filterItens == false) return;
+        if (_managerStateAppService.GetListReposicaoComFiltro().Count == 0 || _managerStateAppService.filterItens == false) return;
         if (VerificaItemZeradoOuNegativo()) return;
-
-        _managerStateAppService.Unidades = GetUnidades();
-        listSharedService.SetListReposicao(_managerStateAppService.listReposicaoComFiltro);
+        _managerStateAppService.SetListReposicaoFinal(_managerStateAppService.GetListReposicaoComFiltro());
         _managerStateAppService.GerarRelatorio = true;
     }
 
-    private IEnumerable<string> GetUnidades()
+   
+
+    private IEnumerable<string> GetEspecies()
     {
-        return _managerStateAppService.listReposicaoComFiltro.OrderBy(x => x.Unidade).Select(x => x.Unidade).Distinct().ToList();
+        return _managerStateAppService.GetListImportadaOriginal().OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
     }
 
-    private IEnumerable<string>
-        GetEspecies()
+    private IEnumerable<string> GetGrupos()
     {
-        return _managerStateAppService.ListImportadaOriginal.OrderBy(x => x.Especie).Select(x => x.Especie).Distinct().ToList();
-    }
-
-    private IEnumerable<string>
-        GetGrupos()
-    {
-        return _managerStateAppService.ListImportadaOriginal.OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
+        return _managerStateAppService.GetListImportadaOriginal().OrderBy(x => x.NomeGrupo).Select(x => x.NomeGrupo).Distinct().ToList();
     }
 
     private void CancelaRelatorio()
@@ -355,18 +301,16 @@
 
     private void CriarScriptAutomacao()
     {
-        if (_managerStateAppService.listReposicaoComFiltro.Count == 0 || _managerStateAppService.filterItens == false) return;
+        if (_managerStateAppService.GetListReposicaoComFiltro().Count == 0 || _managerStateAppService.filterItens == false) return;
         if (VerificaItemZeradoOuNegativo()) return;
         if (VerificaItensDuplicados()) return;
-        listSharedService.SetListReposicao(_managerStateAppService.listReposicaoComFiltro);
-        listSharedService.Farmacia = _managerStateAppService.FarmaciaDestino;
-        listSharedService.CodigoEstoque = _managerStateAppService.EstoqueOrigemEstoqueDestino.EstoqueDestino;
-        NavigateToNewTab();
+       
+        _navigationManager.NavigateTo("/Robot");
     }
 
     private bool VerificaItemZeradoOuNegativo()
     {
-        var itensZerados = _managerStateAppService.listReposicaoComFiltro.Where(x => x.Reposicao <= 0).ToList();
+        var itensZerados = _managerStateAppService.GetListReposicaoComFiltro().Where(x => x.Reposicao <= 0).ToList();
         if (itensZerados.Count > 0)
         {
             StringBuilder sb = new StringBuilder();
@@ -388,7 +332,7 @@
 
     private bool VerificaItensDuplicados()
     {
-        var itensDuplicados = _managerStateAppService.listReposicaoComFiltro.GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
+        var itensDuplicados = _managerStateAppService.GetListReposicaoComFiltro().GroupBy(g => g.CodigoMV).Where(c => c.Count() > 1).Select(s => s.Key).ToList();
 
         if (itensDuplicados.Count() > 0)
         {
@@ -396,7 +340,7 @@
             sb.AppendLine("Há itens duplicados na lista de reposição: ");
             foreach (var item in itensDuplicados)
             {
-                var itemDuplicado = _managerStateAppService.listReposicaoComFiltro.Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
+                var itemDuplicado = _managerStateAppService.GetListReposicaoComFiltro().Where(x => x.CodigoMV.Equals(item)).FirstOrDefault();
                 if (itemDuplicado is not null)
                 {
                     sb.AppendLine("Cód." + itemDuplicado.CodigoMV + " " + itemDuplicado.Medicamento);
@@ -411,14 +355,6 @@
             _managerStateAppService.alert = false;
             return false;
         }
-    }
-
-    public async Task NavigateToNewTab()
-    {
-        string url = "/Robot";
-        await js.InvokeAsync
-        <object>
-            ("open", url, "_blank");
     }
 
     private void ShowMsgBox(string titulo, string aviso)
@@ -467,7 +403,7 @@
 
     private async Task VerificaItemExistente(ComponentAddProduto.ProductModel model)
     {
-        var item = _managerStateAppService.listReposicaoComFiltro.FirstOrDefault(x => x.CodigoMV == model.IdMedicamento.ToString());
+        var item = _managerStateAppService.GetListReposicaoComFiltro().FirstOrDefault(x => x.CodigoMV == model.IdMedicamento.ToString());
         if (item != null)
         {
             MessageItemExist();
@@ -489,7 +425,8 @@
                 nomeGrupo = grupoProduto.Grupo.GroupName;
             }
 
-            _managerStateAppService.listReposicaoComFiltro.Add(new ReposicaoEstoque
+            var list = _managerStateAppService.GetListReposicaoComFiltro();
+            list.Add(new ReposicaoEstoque
                 {
                     CodigoMV = model.IdMedicamento.ToString(),
                     Reposicao = (int)model.Quantidade,
@@ -500,6 +437,7 @@
                     NomeGrupo = nomeGrupo
 
                 });
+            _managerStateAppService.SetListReposicaoComFiltro(list);
             StateHasChanged();
         }
     }
@@ -513,5 +451,11 @@
 
         StateHasChanged();
     }
+
+    public void Dispose()
+    {
+        _managerStateAppService.OnChange -= StateHasChanged;
+    }
+
 }
 

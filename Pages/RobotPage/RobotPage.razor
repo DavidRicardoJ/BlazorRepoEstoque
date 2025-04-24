@@ -1,48 +1,48 @@
 ﻿@page "/robot"
-@inject DataSharedService dataSharedService
-@inject ListSharedService listSharedService
+@using BlazorRepoEstoque.Shared.SharedState
+@inject ManagerStateAppService _managerStateAppService
 @implements IDisposable
 
 <MudGrid>
 
     <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-4">
             <MudText Class="pa-2" Style="text-align: center;" Typo="Typo.h4">Criar Script de Automação</MudText>
         </MudPaper>
     </MudItem>
 
     <MudItem xs="4">
-        <Login Farmacia="@listSharedService.Farmacia" CodigoEstoque="listSharedService.CodigoEstoque"></Login>
+        <Login/>
     </MudItem>
 
     <MudItem xs="4">
-        <ScriptPorUnidade></ScriptPorUnidade>
+        <ScriptPorUnidade/>
     </MudItem> 
-
+ 
     <MudItem xs="4">
         <ScriptPorGrupo></ScriptPorGrupo>
-    </MudItem>
+    </MudItem> 
 
     <MudItem xs="12">
         <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
             <MudTextField @ref="multilineReference" T="string" Label="Observação" Lines="3" Variant="Variant.Outlined"
-                          Text="@dataSharedService.GetObservacao()" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
-                          OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="dataSharedService.Observacao"/>
+                          Text="@_managerStateAppService.Observacao" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
+                          OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="_managerStateAppService.Observacao" />
         </MudPaper>
     </MudItem>
 
 </MudGrid>
 
 @code {
-    private MudTextField<string> multilineReference;
+     private MudTextField<string> multilineReference;
 
     protected override void OnInitialized()
     {
-        dataSharedService.OnChange += StateHasChanged;
+        _managerStateAppService.OnChange += StateHasChanged;
     }
 
     public void Dispose()
     {
-        dataSharedService.OnChange -= StateHasChanged;
+        _managerStateAppService.OnChange -= StateHasChanged;
     }
 }

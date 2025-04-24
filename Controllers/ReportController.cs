@@ -1,6 +1,7 @@
 ﻿using AspNetCore.Reporting;
+using BlazorRepoEstoque.Data;
 using BlazorRepoEstoque.Models;
-using BlazorRepoEstoque.Services;
+using BlazorRepoEstoque.Shared.SharedState;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -16,30 +17,29 @@ namespace BlazorRepoEstoque.Controllers
     public class ReportController : ControllerBase
     {
         private readonly IWebHostEnvironment webHostEnvironment;
-        private readonly ListSharedService listSharedService;
+        private readonly ManagerStateAppService _managerStateAppService;
 
-        public ReportController(IWebHostEnvironment webHostEnvironment, ListSharedService listSharedService)
+        public ReportController(IWebHostEnvironment webHostEnvironment, ManagerStateAppService managerStateAppService)
         {
             this.webHostEnvironment = webHostEnvironment;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            this.listSharedService = listSharedService;
+            _managerStateAppService = managerStateAppService;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("PrintReport")]
-        public IActionResult PrintReport()
+        public IActionResult PrintReport([FromBody] ReportDataRequestModel dadosRelatorio) // Receba os dados no corpo
         {
-            ReportData reportData = new();
-
+            // Agora use os dados recebidos no parametro dadosRelatorio
             var dt = new DataTable();
-            dt = ObjForDataTable(listSharedService.GetListReposicao());
+            dt = ObjForDataTable(dadosRelatorio.ListaReposicao); // Use a lista do parametro
 
             string mimetype = "";
             int extension = 1;
             var path = $"{webHostEnvironment.WebRootPath}\\report\\ReportReposicaoEstoque.rdlc";
 
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            parameters.Add("Farmacia", listSharedService.Farmacia);
+            parameters.Add("Farmacia", dadosRelatorio.FarmaciaDestino); // Use a farmacia do parametro
 
             LocalReport localReport = new LocalReport(path);
             localReport.AddDataSource("DataSetReposicaoEstoque", dt);
@@ -47,6 +47,7 @@ namespace BlazorRepoEstoque.Controllers
 
             return File(report.MainStream, "Application/pdf");
         }
+
         private DataTable ObjForDataTable(List<ReposicaoEstoque> list)
         {
             var dt = new DataTable();

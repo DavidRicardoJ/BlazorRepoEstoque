@@ -32,13 +32,12 @@ namespace BlazorRepoEstoque
             services.AddMudServices();
             services.AddScoped<HttpClient>();                       
             services.AddScoped<IFiltrosServices, FiltrosServices>();
-            services.AddScoped<IEncryptString, EncryptString>();
-            services.AddScoped<DataSharedService>();
+            services.AddScoped<IEncryptString, EncryptString>();            
             services.AddScoped<IProdutoEstoqueMinimoService, ProdutoEstoqueMinimoService>();
             services.AddScoped<IMedicamentoService, MedicamentoService>();
             services.AddScoped<IGroupService, NomeGrupoService>();
-            services.AddScoped<ManagerStateAppService>();
-            services.AddSingleton<ListSharedService>();
+            services.AddScoped<ManagerStateAppService>();           
+            services.AddScoped<ImportExcelService>();
             services.AddBlazoredLocalStorage();
 
 
