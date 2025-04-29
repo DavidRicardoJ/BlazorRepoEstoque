@@ -6,6 +6,8 @@
 @inject IEncryptString encrypt
 @inject IDialogService DialogService
 @inject ManagerStateAppService _managerStateAppService
+@inject NavigationManager _navigationManager
+@inject ISnackbar _snackbar
 
 
 @if (!NomesGrupos.Any())
@@ -14,46 +16,57 @@
 }
 else
 {
-    <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
-        <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Grupo</MudText>
-        @if (alert)
-        {
-            <MudPaper Elevation="15" Class="d-flex align-center">
-                <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
-            </MudPaper>
-        }
-        <MudCard Style="margin-top: 30px;">
-            <MudCardContent Style="width:100%">
-                <MudPaper Width="300px">
-                    <MudList T="string" Clickable="true">
-                        @foreach (var item in NomesGrupos)
-                        {
-                            @if (item == "PRODUTOS SEM GRUPO")
-                            {
-                                <MudItem>
-                                    <MudAlert Severity="Severity.Error" Dense="true" OnClick="OpenDialog" Class="my-2">Há produtos sem grupo cadastrado!</MudAlert>
-                                </MudItem>
-                            }
-                            else
-                            {
-                                <MudListItem Text="@item" Icon="@Icons.Material.Filled.Send" OnClick="() => OpenDialog(item)" />
-                                <MudDivider />
-                            }
-                        }
-                    </MudList>
-                </MudPaper>
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton @onclick="GeraScript" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Gerar Script</MudButton>
-            </MudCardActions>
-        </MudCard>
-        @if (messageBox)
-        {
-            <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
-        }
-    </MudPaper>
+    <MudStack Spacing="2">
 
-   
+        <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5 d-flex align-content-center flex-column">
+            <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Criar Script Utilizando Grupo</MudText>
+            @if (alert)
+            {
+                <MudPaper Elevation="15" Class="d-flex align-center">
+                    <MudAlert Severity="Severity.Warning" Elevation="10">@message</MudAlert>
+                </MudPaper>
+            }
+            <MudCard Style="margin-top: 30px;">
+                <MudCardContent Style="width:100%">
+                    <MudPaper Width="300px">
+                        <MudList T="string" Clickable="true">
+                            @foreach (var item in NomesGrupos)
+                            {
+                                @if (item == "PRODUTOS SEM GRUPO")
+                                {
+                                    <MudItem>
+                                        <MudAlert Severity="Severity.Error" Dense="true" OnClick="OpenDialog" Class="my-2">Há produtos sem grupo cadastrado!</MudAlert>
+                                    </MudItem>
+                                }
+                                else
+                                {
+                                    <MudListItem Text="@item" Icon="@Icons.Material.Filled.Send" OnClick="() => OpenDialog(item)" />
+                                    <MudDivider />
+                                }
+                            }
+                        </MudList>
+                    </MudPaper>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton @onclick="GeraScript" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Gerar Script</MudButton>
+                </MudCardActions>
+            </MudCard>
+            @if (messageBox)
+            {
+                <MessageBox Aviso="@aviso" Titulo="@titulo" okButton="CloseMsgBox"></MessageBox>
+            }
+        </MudPaper>
+        <MudDivider></MudDivider>
+        <MudPaper Style="height: 300px" Class="d-flex justify-center align-center" Elevation="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="ReturnPageHome"
+                    Class="ml-auto" StartIcon="@Icons.Material.Rounded.ArrowBack">Voltar para a página inicial</MudButton>
+                </MudCardContent>
+            </MudCard>          
+        </MudPaper>
+
+    </MudStack>
 }
 
 
@@ -147,5 +160,14 @@ else
     {
         GruposProdutosDto.ListaProdutosComGrupoDTO = new List<ReposicaoEstoque>(_managerStateAppService.GetListReposicaoComFiltro().Where(x => x.NomeGrupo == grupoName));
         DialogService.ShowAsync<ComponentDialogGroup>($"{GruposProdutosDto.ListaProdutosComGrupoDTO.Count()} Produtos --- {grupoName} ---");
+    }
+
+    private void ReturnPageHome()
+    {
+        _navigationManager.NavigateTo("/");
+        _snackbar.Clear();
+        _snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+        _snackbar.Configuration.HideTransitionDuration = 4000;
+        _snackbar.Add("Para iniciar a reposição de uma nova farmácia, atualize a página no navegador. (F5)", Severity.Info);
     }
 }

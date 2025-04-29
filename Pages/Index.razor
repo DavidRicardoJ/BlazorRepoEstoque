@@ -13,7 +13,7 @@
 @inject ManagerStateAppService _managerStateAppService
 @inject ImportExcelService _importExcelService
 @implements IDisposable
-
+@inject ISnackbar Snackbar
 
 
 <title value="Home"></title>
@@ -80,6 +80,13 @@
                         <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-5">
                             <MudNumericField T="int" @bind-Value="_managerStateAppService.fatorReposicao" Label="Fator de Reposição" Variant="Variant.Outlined"
                             Min="1" Max="31" Step="1" Style="max-width: contain; margin-bottom: 20px;" />
+                            @if (_managerStateAppService.fatorReposicao > 5)
+                            {
+                                Snackbar.Clear();
+                                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomCenter;
+                                Snackbar.Configuration.VisibleStateDuration = 6000;
+                                Snackbar.Add("Para um fator de reposição maior que 5 dias, considere aumentar o periodo (Último movimento, Dias de Estoque)", Severity.Warning);
+                            }
                         </MudContainer>
                     </MudItem>
                 </MudPaper>
@@ -185,7 +192,8 @@
                         <MudText Color="Color.Info" Typo="Typo.h6">@_managerStateAppService.GrupoEstoque.FarmaciaDestino, ESTOQUE: @_managerStateAppService.GrupoEstoque.EstoqueDestino</MudText>
                         <MudText Color="Color.Dark">Período: @_managerStateAppService.periodoImportacaoExcel</MudText>
                     </MudStack>
-                    <MudFab IconColor="Color.Warning" StartIcon="@Icons.Material.Filled.Add" Class="ml-6 pl-2" Disabled="!_managerStateAppService.filterItens"
+                    <MudFab IconColor="Color.Warning" StartIcon="@Icons.Material.Filled.Add" Class="ml-6 pl-2"
+                            Disabled="!_managerStateAppService.filterItens" Style="width:140px; height:50px; min-width:140px;"
                     Label="Novo Item" Color="Color.Primary" Size="Size.Medium" OnClick="OpenDialogAddProduto" />
                 </MudPaper>
             }

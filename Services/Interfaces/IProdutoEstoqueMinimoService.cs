@@ -8,7 +8,7 @@ namespace BlazorRepoEstoque.Services.Interfaces
     public interface IProdutoEstoqueMinimoService
     {
         // Obtém todos os produtos
-        Task<List<ProdutoEstoqueMinimo>> GetProdutosAsync();
+        Task<List<ProdutoEstoqueMinimo>> GetProdutosEstoqMinAsync();
 
         // Obtém um produto por ID
         Task<ProdutoEstoqueMinimo> GetProdutoByIdAsync(int id, int estoque);

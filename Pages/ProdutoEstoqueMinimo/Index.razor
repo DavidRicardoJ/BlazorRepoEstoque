@@ -5,7 +5,7 @@
 @inject IDialogService DialogService
 
 <MudContainer>
-    <MudText Typo="Typo.h4" GutterBottom="true">Lista de Produtos com Estoque Mínimo</MudText>
+    <MudText Typo="Typo.h4" GutterBottom="true" id="sombra">Lista de Produtos com Estoque Mínimo</MudText>
 
     <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="AdicionarProduto" Class="mb-10">
         Adicionar Produto
@@ -14,17 +14,17 @@
     <!-- Campo de pesquisa -->
     <MudContainer MaxWidth="MaxWidth.Small" Style="float: right;">
         <MudTextField @bind-Value="searchString" Style="background:white"
-        Label="Pesquisar por Nome, Código ou Estoque Solicitante"
-        Adornment="Adornment.End"
-        AdornmentIcon="@Icons.Material.Filled.Search"
-        Variant="Variant.Outlined"  
-        Clearable = "true"
-        Margin="Margin.Normal" />
+                      Label="Pesquisar por Nome, Código ou Estoque Solicitante"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Variant="Variant.Outlined"
+                      Clearable="true"
+                      Margin="Margin.Normal" />
 
     </MudContainer>
-    
-    <MudTable Items="@produtos" Filter="FilterFunc" Hover="true" Breakpoint="Breakpoint.None" 
-    FixedHeader="true" Elevation="7" Striped="true" Class="mt-5">
+
+    <MudTable Items="@produtos" Filter="FilterFunc" Hover="true" Breakpoint="Breakpoint.None"
+              FixedHeader="true" Elevation="7" Striped="true" Class="mt-5">
         <HeaderContent>
             <MudTh>ID</MudTh>
             <MudTh>Nome do Produto</MudTh>
@@ -52,7 +52,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var produtosOriginais = await ProdutoService.GetProdutosAsync();
+        var produtosOriginais = await ProdutoService.GetProdutosEstoqMinAsync();
         produtos = produtosOriginais
             .OrderBy(x => x.NomeProduto)
             .GroupBy(x => x.EstoqueSolicitante)
@@ -78,7 +78,7 @@
         {
             await ProdutoService.DeleteProdutoAsync(id, estoqueOrigem, estoqueSolicitante);
             Snackbar.Add("Produto excluido com sucesso!", Severity.Success);
-            produtos = await ProdutoService.GetProdutosAsync();
+            produtos = await ProdutoService.GetProdutosEstoqMinAsync();
         }
 
     }
@@ -113,3 +113,11 @@
         return false;
     }
 }
+
+<style>
+    #sombra {
+        margin-top: 10px;
+        color: white;
+        text-shadow: 3px 3px 0 #000, -3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000;
+    }
+</style>

@@ -88,7 +88,7 @@ else
 
     private void OnValidSubmit()
     {
-        if (_managerStateAppService.loginUsuarioMV.IsValidLogin) return;
+        if (VerificaLogin() == false) return;
 
 
         if (GerarListaReposicaoUnidade() == false) return;

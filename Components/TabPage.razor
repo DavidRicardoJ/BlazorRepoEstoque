@@ -84,7 +84,7 @@ Virtualize="true" Filter="new Func<ReposicaoEstoque, bool>(FilterFunc1)" @bind-S
     <MudSwitch T="bool" @bind-Value="@_managerStateAppService.bordered" Color="Color.Warning">Bordered</MudSwitch>
     <MudSpacer />
     <div style="min-width:200px;">
-        <MudText Inline="true" Class="align-self-center">Selected1: @_managerStateAppService.selectedItem1?.Medicamento</MudText>
+        <MudText Inline="true" Class="align-self-center">Selecionado: @_managerStateAppService.selectedItem1?.Medicamento</MudText>
     </div>
 </div>
 @code {
@@ -96,7 +96,7 @@ Virtualize="true" Filter="new Func<ReposicaoEstoque, bool>(FilterFunc1)" @bind-S
 
     protected override Task OnParametersSetAsync()
     {
-        Elements = repoList;
+        Elements = repoList.OrderBy(o => o.Medicamento).ToList();
         _managerStateAppService.RowsPerPage = Elements.Count;       
         return base.OnParametersSetAsync();
     }

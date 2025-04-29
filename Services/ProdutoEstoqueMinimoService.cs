@@ -19,7 +19,7 @@ namespace BlazorRepoEstoque.Services
             _context = context;
         }
 
-        public async Task<List<ProdutoEstoqueMinimo>> GetProdutosAsync()
+        public async Task<List<ProdutoEstoqueMinimo>> GetProdutosEstoqMinAsync()
         {
             return await _context.ProdutoEstoqueMinimo.ToListAsync();
         }

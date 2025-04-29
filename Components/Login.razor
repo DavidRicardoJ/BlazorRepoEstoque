@@ -6,7 +6,7 @@
 @inject IJSRuntime js
 @inject ManagerStateAppService _managerStateAppService
 @implements IDisposable
-
+@inject ISnackbar Snackbar
 
 <MudPaper Width="100%" Height="100%" Elevation="5" Class="pa-5" Style="@color">
     <MudText Class="pa-3" Typo="Typo.h5" style="text-align: center;">Usuário MV</MudText>
@@ -100,6 +100,8 @@
 
         color = "background-color: rgba(123, 237, 159,0.3)";
         disable = true;
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        Snackbar.Add("Dados de Acesso ao MV inseridos.", Severity.Success);
         UserLocalStorage();
     }
 

@@ -2,6 +2,7 @@
 @using BlazorRepoEstoque.Shared.SharedState
 @inject ManagerStateAppService _managerStateAppService
 @implements IDisposable
+@inject NavigationManager _navigationManager
 
 <MudGrid>
 
@@ -18,27 +19,27 @@
     <MudItem xs="4">
         <ScriptPorUnidade/>
     </MudItem> 
- 
+
     <MudItem xs="4">
         <ScriptPorGrupo></ScriptPorGrupo>
     </MudItem> 
 
     <MudItem xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            <MudTextField @ref="multilineReference" T="string" Label="Observação" Lines="3" Variant="Variant.Outlined"
-                          Text="@_managerStateAppService.Observacao" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
-                          OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="_managerStateAppService.Observacao" />
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8" Style="background-color: transparent">
+            <MudTextField @ref="multilineReference" T="string" Label="Observação" Lines="3" Variant="Variant.Outlined" Style="background-color:white"
+            Text="@_managerStateAppService.Observacao" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api"
+            OnAdornmentClick="@(() => multilineReference.SelectAsync())" @bind-Value="_managerStateAppService.Observacao" />
         </MudPaper>
     </MudItem>
 
 </MudGrid>
 
 @code {
-     private MudTextField<string> multilineReference;
+    private MudTextField<string> multilineReference;
 
     protected override void OnInitialized()
     {
-        _managerStateAppService.OnChange += StateHasChanged;
+        _managerStateAppService.OnChange += StateHasChanged;       
     }
 
     public void Dispose()
