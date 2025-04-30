@@ -78,7 +78,6 @@ namespace BlazorRepoEstoque.Shared.SharedState
 
         public IEnumerable<string> Unidades;
 
-        //public DialogOptions disableBackdropClick = new DialogOptions() { BackdropClick = true };
         public bool GerarRelatorio;
 
         #region Configurações de filtragem
@@ -119,8 +118,7 @@ namespace BlazorRepoEstoque.Shared.SharedState
         public int[] pagesize { get; set; } = { 10, 15, 30, 100, 1000 };
         public int RowsPerPage { get; set; }
         public ReposicaoEstoque selectedItem1 { get; set; } = null;
-
-        // public HashSet<ReposicaoEstoque> selectedItems = new HashSet<ReposicaoEstoque>();
+       
         #endregion
 
         //Gerenciamento do estado do componente Login
