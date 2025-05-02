@@ -132,6 +132,7 @@ Virtualize="true" Filter="new Func<ReposicaoEstoque, bool>(FilterFunc1)" @bind-S
         Elements = ReordenarID(Elements);
         StateHasChanged();
         Snackbar.Add("Item excluído.", Severity.Error);
+        _managerStateAppService.SetListReposicaoComFiltro(Elements);
     }
 
     private List<ReposicaoEstoque> ReordenarID(List<ReposicaoEstoque> list)

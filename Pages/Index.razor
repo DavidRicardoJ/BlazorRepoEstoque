@@ -282,8 +282,9 @@
    
 
     private void GeraRelatorio()
-    {
+    {       
         if (_managerStateAppService.GetListReposicaoComFiltro().Count == 0 || _managerStateAppService.filterItens == false) return;
+
         if (VerificaItemZeradoOuNegativo()) return;
         _managerStateAppService.SetListReposicaoFinal(_managerStateAppService.GetListReposicaoComFiltro());
         _managerStateAppService.GerarRelatorio = true;
@@ -308,8 +309,11 @@
 
 
     private void CriarScriptAutomacao()
-    {
+    {       
         if (_managerStateAppService.GetListReposicaoComFiltro().Count == 0 || _managerStateAppService.filterItens == false) return;
+
+         _managerStateAppService.SetListReposicaoComFiltro(_managerStateAppService.GetListReposicaoComFiltro());
+
         if (VerificaItemZeradoOuNegativo()) return;
         if (VerificaItensDuplicados()) return;
        
