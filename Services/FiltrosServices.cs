@@ -5,6 +5,7 @@ using BlazorRepoEstoque.Services.Interfaces;
 using BlazorRepoEstoque.Shared.SharedState;
 using Microsoft.JSInterop;
 using MudBlazor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -168,7 +169,7 @@ namespace BlazorRepoEstoque.Services
         {
             foreach (var item in list)
             {
-                item.Reposicao = ((int)item.ConsumoTotal * _managerStateAppService.fatorReposicao - (int)item.EstoqueAtual);
+                item.Reposicao =(int)Math.Ceiling(item.ConsumoTotal * _managerStateAppService.fatorReposicao - item.EstoqueAtual);
             }
         }
 

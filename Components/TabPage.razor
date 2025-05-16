@@ -68,7 +68,7 @@ Virtualize="true" Filter="new Func<ReposicaoEstoque, bool>(FilterFunc1)" @bind-S
             <input id="@context.Id" @bind-value="@context.Reposicao"
             @onkeypress="(KeyboardEventArgs e) => { Enter(e, context.Id); }"
             style="width: 80px; text-align:center; color:blue; font-weight:bold; border: none;"
-            onclick="document.getElementById(@context.Id).select()">
+                   onclick="document.getElementById(@context.Id).select()" autocomplete="off">
         </MudTd>
         <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Medium" Class="ma-2" Color="Color.Error" OnClick="()=> ExcluirItem(context.Id)" /></MudTd>
     </RowTemplate>
