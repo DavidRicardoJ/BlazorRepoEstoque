@@ -19,7 +19,7 @@ namespace BlazorRepoEstoque.Data
             modelBuilder.Entity<ProdutoEstoqueMinimo>(entity =>
             {
                 entity.HasKey(e => new { e.Id, e.EstoqueSolicitante, e.EstoqueOrigem });
-                entity.Property(e => e.NomeProduto).IsRequired().HasMaxLength(60);
+                entity.Property(e => e.NomeProduto).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.QuantidadeMinima).IsRequired().HasColumnType("MEDIUMINT UNSIGNED");
                 entity.Property(e => e.EstoqueSolicitante).IsRequired().HasColumnType("SMALLINT UNSIGNED");
                 entity.Property(e => e.EstoqueOrigem).IsRequired().HasColumnType("SMALLINT UNSIGNED");
