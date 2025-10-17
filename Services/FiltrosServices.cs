@@ -169,7 +169,8 @@ namespace BlazorRepoEstoque.Services
         {
             foreach (var item in list)
             {
-                item.Reposicao =(int)Math.Ceiling(item.ConsumoTotal * _managerStateAppService.fatorReposicao - item.EstoqueAtual);
+                int consumoTotalInt = (int)Math.Ceiling(item.ConsumoTotal);
+                item.Reposicao = (int)(consumoTotalInt * _managerStateAppService.fatorReposicao - item.EstoqueAtual);
             }
         }
 
