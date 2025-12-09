@@ -74,7 +74,8 @@ namespace BlazorRepoEstoque.Services
         public async Task<List<ReposicaoEstoque>> AddProdutosComEstoqueMin(
             List<ReposicaoEstoque> listaOriginal,
             List<ReposicaoEstoque> listaFiltrada,
-            int estoqueOrigem, int estoqueSolicitante)
+            int estoqueOrigem, int estoqueSolicitante,
+            int diasDeEstoque)
         {
             ProdutosForaDasLista.Clear();
             var produtosEstoqueMinimo = await _context.ProdutoEstoqueMinimo.
@@ -89,22 +90,28 @@ namespace BlazorRepoEstoque.Services
                     if (itemListFilter is not null)
                     {
                         itemListFilter.IsEstoqMin = true;
-                        if (itemListFilter.EstoqueAtual < produto.QuantidadeMinima)
+                        if (itemListFilter.Reposicao < produto.QuantidadeMinima)
                         {
                             itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.EstoqueAtual);
                         }
-                    }                   
-                    else
+                    }
+                    else //caso o produto não esteja na lista filtrada.
                     {
                         if (ItemListOriginal != null)
                         {
-                            if (ItemListOriginal.EstoqueAtual < produto.QuantidadeMinima)
+                            var reposicaoCalculada = (ItemListOriginal.ConsumoTotal * diasDeEstoque) - ItemListOriginal.EstoqueAtual;
+                            if (reposicaoCalculada < produto.QuantidadeMinima)
                             {
-                                ItemListOriginal.Reposicao = (int)(produto.QuantidadeMinima - ItemListOriginal.EstoqueAtual);
+                                ItemListOriginal.Reposicao = (int)(produto.QuantidadeMinima - reposicaoCalculada);
                                 ItemListOriginal.IsEstoqMin = true;
                                 listaFiltrada.Add(ItemListOriginal);
                             }
-
+                            else
+                            {
+                                ItemListOriginal.Reposicao = (int)reposicaoCalculada;
+                                ItemListOriginal.IsEstoqMin = true;
+                                listaFiltrada.Add(ItemListOriginal);
+                            }
                         }
                         else
                         {

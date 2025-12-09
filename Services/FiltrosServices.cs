@@ -124,7 +124,7 @@ namespace BlazorRepoEstoque.Services
                     _managerStateAppService.GetListImportadaOriginal(),
                 _managerStateAppService.GetListReposicaoComFiltro(),
                     _managerStateAppService.GrupoEstoque.EstoqueOrigem.Value,
-                    _managerStateAppService.GrupoEstoque.EstoqueDestino));
+                    _managerStateAppService.GrupoEstoque.EstoqueDestino, _managerStateAppService.diasDeEstoque));
 
                 await MostrarProdutosForaLista();
             }

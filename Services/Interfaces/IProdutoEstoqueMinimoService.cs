@@ -27,6 +27,7 @@ namespace BlazorRepoEstoque.Services.Interfaces
         Task<List<ReposicaoEstoque>> AddProdutosComEstoqueMin(
             List<ReposicaoEstoque> listaOriginal,
             List<ReposicaoEstoque> listaFiltrada,
-            int estoqueOrigem, int estoqueSolicitante);
+            int estoqueOrigem, int estoqueSolicitante,
+            int diasDeEstoque);
     }
 }
