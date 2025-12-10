@@ -124,7 +124,7 @@ namespace BlazorRepoEstoque.Services
                     _managerStateAppService.GetListImportadaOriginal(),
                 _managerStateAppService.GetListReposicaoComFiltro(),
                     _managerStateAppService.GrupoEstoque.EstoqueOrigem.Value,
-                    _managerStateAppService.GrupoEstoque.EstoqueDestino, _managerStateAppService.diasDeEstoque));
+                    _managerStateAppService.GrupoEstoque.EstoqueDestino, _managerStateAppService.fatorReposicao));
 
                 await MostrarProdutosForaLista();
             }
@@ -168,7 +168,7 @@ namespace BlazorRepoEstoque.Services
         private void CalcularReposicao(List<ReposicaoEstoque> list)
         {
             foreach (var item in list)
-            {
+            {                
                 int consumoTotalInt = (int)Math.Ceiling(item.ConsumoTotal);
                 item.Reposicao = (int)(consumoTotalInt * _managerStateAppService.fatorReposicao - item.EstoqueAtual);
             }

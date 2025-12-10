@@ -28,6 +28,6 @@ namespace BlazorRepoEstoque.Services.Interfaces
             List<ReposicaoEstoque> listaOriginal,
             List<ReposicaoEstoque> listaFiltrada,
             int estoqueOrigem, int estoqueSolicitante,
-            int diasDeEstoque);
+            int fatorReposicao);
     }
 }

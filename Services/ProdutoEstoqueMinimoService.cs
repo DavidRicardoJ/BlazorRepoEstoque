@@ -75,7 +75,7 @@ namespace BlazorRepoEstoque.Services
             List<ReposicaoEstoque> listaOriginal,
             List<ReposicaoEstoque> listaFiltrada,
             int estoqueOrigem, int estoqueSolicitante,
-            int diasDeEstoque)
+            int fatorReposicao)
         {
             ProdutosForaDasLista.Clear();
             var produtosEstoqueMinimo = await _context.ProdutoEstoqueMinimo.
@@ -86,21 +86,37 @@ namespace BlazorRepoEstoque.Services
                 {
                     var itemListFilter = listaFiltrada.Where(p => p.CodigoMV == produto.Id.ToString()).FirstOrDefault();
                     var ItemListOriginal = listaOriginal.Where(p => p.CodigoMV == produto.Id.ToString()).FirstOrDefault();
-
+                    
                     if (itemListFilter is not null)
                     {
-                        itemListFilter.IsEstoqMin = true;
+                        var reposicaoCalculada = itemListFilter.ConsumoTotal * fatorReposicao;                       
 
-                        if (itemListFilter.Reposicao <= produto.QuantidadeMinima)
+                        switch (itemListFilter.Reposicao)
                         {
-                            itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.Reposicao);
-                        }                                             
+                            case <= 0:
+                                if (itemListFilter.EstoqueAtual < produto.QuantidadeMinima)
+                                {
+                                    itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.EstoqueAtual);
+                                }
+                                else
+                                {
+                                    itemListFilter.Reposicao = 0;
+                                }
+                                break;
+                            case > 0:
+                                if ((itemListFilter.Reposicao + itemListFilter.EstoqueAtual) < produto.QuantidadeMinima)
+                                {
+                                    itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.EstoqueAtual);
+                                }
+                                break;
+                        }
+                        itemListFilter.IsEstoqMin = true;                                                                                   
                     }
                     else //caso o produto não esteja na lista filtrada.
                     {
                         if (ItemListOriginal != null)
                         {
-                            var reposicaoCalculada = (ItemListOriginal.ConsumoTotal * diasDeEstoque) - ItemListOriginal.EstoqueAtual;
+                            var reposicaoCalculada = (ItemListOriginal.ConsumoTotal * fatorReposicao) - ItemListOriginal.EstoqueAtual;
 
                             switch (reposicaoCalculada)
                             {
