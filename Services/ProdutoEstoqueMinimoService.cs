@@ -91,10 +91,10 @@ namespace BlazorRepoEstoque.Services
                     {
                         itemListFilter.IsEstoqMin = true;
 
-                        if (itemListFilter.Reposicao < produto.QuantidadeMinima)
+                        if (itemListFilter.Reposicao <= produto.QuantidadeMinima)
                         {
-                            itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.EstoqueAtual);
-                        }                        
+                            itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.Reposicao);
+                        }                                             
                     }
                     else //caso o produto não esteja na lista filtrada.
                     {
