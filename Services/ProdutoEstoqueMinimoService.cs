@@ -90,27 +90,50 @@ namespace BlazorRepoEstoque.Services
                     if (itemListFilter is not null)
                     {
                         itemListFilter.IsEstoqMin = true;
+
                         if (itemListFilter.Reposicao < produto.QuantidadeMinima)
                         {
                             itemListFilter.Reposicao = (int)(produto.QuantidadeMinima - itemListFilter.EstoqueAtual);
-                        }
+                        }                        
                     }
                     else //caso o produto não esteja na lista filtrada.
                     {
                         if (ItemListOriginal != null)
                         {
                             var reposicaoCalculada = (ItemListOriginal.ConsumoTotal * diasDeEstoque) - ItemListOriginal.EstoqueAtual;
-                            if (reposicaoCalculada < produto.QuantidadeMinima)
+
+                            switch (reposicaoCalculada)
                             {
-                                ItemListOriginal.Reposicao = (int)(produto.QuantidadeMinima - reposicaoCalculada);
-                                ItemListOriginal.IsEstoqMin = true;
-                                listaFiltrada.Add(ItemListOriginal);
-                            }
-                            else
-                            {
-                                ItemListOriginal.Reposicao = (int)reposicaoCalculada;
-                                ItemListOriginal.IsEstoqMin = true;
-                                listaFiltrada.Add(ItemListOriginal);
+                                case <= 0: 
+                                    if (ItemListOriginal.EstoqueAtual < produto.QuantidadeMinima)
+                                    {
+                                        ItemListOriginal.Reposicao = (int)(produto.QuantidadeMinima - ItemListOriginal.EstoqueAtual);
+                                        ItemListOriginal.IsEstoqMin = true;
+                                        listaFiltrada.Add(ItemListOriginal);
+                                    }
+                                    else
+                                    {
+                                        ItemListOriginal.Reposicao = 0;
+                                        ItemListOriginal.IsEstoqMin = true;
+                                        listaFiltrada.Add(ItemListOriginal);
+                                    }
+                                    break;
+
+                                case > 0:
+                                    if (reposicaoCalculada < produto.QuantidadeMinima)
+                                    {
+                                        ItemListOriginal.Reposicao = (int)(produto.QuantidadeMinima - reposicaoCalculada);
+                                        ItemListOriginal.IsEstoqMin = true;
+                                        listaFiltrada.Add(ItemListOriginal);
+                                    }
+                                    else
+                                    {
+                                        ItemListOriginal.Reposicao = (int)reposicaoCalculada;
+                                        ItemListOriginal.IsEstoqMin = true;
+                                        listaFiltrada.Add(ItemListOriginal);
+                                    }
+                                    break;
+
                             }
                         }
                         else
