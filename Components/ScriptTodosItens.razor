@@ -31,6 +31,8 @@
 }
 
 @code {
+    [Parameter]
+	public string NomeFarmacia { get; set; } = string.Empty;
 
     bool messageBox = false;
     string titulo;
@@ -48,6 +50,11 @@
         ListReposicao = _managerStateAppService.GetListReposicaoComFiltro();
     }
 
+    protected override void OnParametersSet()
+    {
+       
+        fileName = $"script_{NomeFarmacia}_{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}.txt";
+    }
 
     private void OnValidSubmit()
     {

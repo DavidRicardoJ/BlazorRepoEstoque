@@ -13,15 +13,15 @@
     </MudItem>
 
     <MudItem xs="4">
-        <Login/>
+        <Login OnFarmaciaDestinoChanged="GetFarmaciaDestino"/>
     </MudItem>
 
     <MudItem xs="4">
-        <ScriptPorUnidade/>
+        <ScriptPorUnidade NomeFarmacia="@FarmaciaDestino" />
     </MudItem> 
 
     <MudItem xs="4">
-        <ScriptPorGrupo></ScriptPorGrupo>
+        <ScriptPorGrupo NomeFarmacia="@FarmaciaDestino"/>
     </MudItem> 
 
     <MudItem xs="12">
@@ -36,14 +36,22 @@
 
 @code {
     private MudTextField<string> multilineReference;
+    string FarmaciaDestino = string.Empty;
 
     protected override void OnInitialized()
     {
-        _managerStateAppService.OnChange += StateHasChanged;       
+        _managerStateAppService.OnChange += StateHasChanged;   
+      
     }
 
     public void Dispose()
     {
         _managerStateAppService.OnChange -= StateHasChanged;
     }
+
+    // função para retornar o nome da Farmácia de Destino selecionada no componente Login.razor
+    private void GetFarmaciaDestino(string farmacia)
+    {
+        FarmaciaDestino = farmacia;
+	}
 }

@@ -74,17 +74,26 @@ else
 
 @code {
     private bool alert = false;
-    string fileName = "scriptRobot";
-    private string grupoSelecionado { get; set; }    
-    private IReadOnlyList<string> NomesGrupos { get; set; } = new List<string>();    
 
-    string message;
+    string fileName = string.Empty;
+	private string grupoSelecionado { get; set; }    
+	private IReadOnlyList<string> NomesGrupos { get; set; } = new List<string>();    
 
-    bool messageBox = false;
-    string titulo;
-    string aviso;
+	string message;
 
-    protected override void OnInitialized()
+	bool messageBox = false;
+	string titulo;
+	string aviso;
+
+    [Parameter]
+	public string NomeFarmacia { get; set; } = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        fileName = $"script_{NomeFarmacia}_{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}.txt";
+    }
+
+        protected override void OnInitialized()
     { 
         NomesGrupos = _managerStateAppService.GetListReposicaoComFiltro().Select(x => x.NomeGrupo).Distinct().OrderBy(x => x).ToList();
     }

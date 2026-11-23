@@ -58,13 +58,16 @@
 </MudPaper>
 
 @code {
-    LoginUsuarioMV model = new();
+	LoginUsuarioMV model = new();
 
-    bool disable = false;
-    string color;
-    string user = null;
+	bool disable = false;
+	string color;
+	string user = null;
 
-    protected override void OnInitialized()
+    [Parameter]
+    public EventCallback<string> OnFarmaciaDestinoChanged { get; set; }
+
+        protected override void OnInitialized()
     {
         model = _managerStateAppService.loginUsuarioMV;
         _managerStateAppService.loginUsuarioMV.IsValidLogin = false;
@@ -91,18 +94,22 @@
         }
     }
 
-    private void OnValidSubmit()
+    private async Task OnValidSubmit()
     {
         _managerStateAppService.loginUsuarioMV.IsValidLogin = true;
         _managerStateAppService.Observacao = $"Reposição de Estoque >> {model.FarmaciaDestino}";
 
         _managerStateAppService.NotifyChanged();
 
+        // Retorna a FarmaciaDestino para o componente pai
+        await OnFarmaciaDestinoChanged.InvokeAsync(model.FarmaciaDestino);
+
         color = "background-color: rgba(123, 237, 159,0.3)";
         disable = true;
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
         Snackbar.Add("Dados de Acesso ao MV inseridos.", Severity.Success);
         UserLocalStorage();
+        
     }
 
     private void OnInvalidSubmit()

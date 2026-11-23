@@ -54,7 +54,7 @@ else
         <MudDivider></MudDivider>
         <MudCard>
             <MudCardContent>
-                <ScriptTodosItens></ScriptTodosItens>
+                <ScriptTodosItens NomeFarmacia="@FarmaciaDestino"></ScriptTodosItens>
             </MudCardContent>
         </MudCard>
     </MudPaper>
@@ -68,20 +68,29 @@ else
 
 
     bool messageBox = false;
-    string titulo;
-    string aviso;
+	string titulo;
+	string aviso;
+	string FarmaciaDestino = string.Empty;
 
-    string fileName = "scriptRobotUnidade.txt";
+	string fileName = "scriptRobotUnidade.txt";
 
-    string message;
+	string message;
     private bool alert = false;
 
-   
+
     private IReadOnlyCollection<string> Unidades { get; set; }    
     private List<ReposicaoEstoque> ListReposicao { get; set; }
 
+    [Parameter]
+    public string NomeFarmacia { get; set; }
 
-    protected override void OnInitialized()
+	protected override void OnParametersSet()
+	{
+		FarmaciaDestino = NomeFarmacia ?? string.Empty;
+		fileName = $"script_{FarmaciaDestino}_{DateTime.Now.Day}_{DateTime.Now.Month}_{DateTime.Now.Year}.txt";
+	}
+
+        protected override void OnInitialized()
     {
         Unidades = GetUnidades();
     }
@@ -93,7 +102,7 @@ else
 
         if (GerarListaReposicaoUnidade() == false) return;
 
-      
+
         DownloadFile(fileName, encrypt.CriptografarTextoAES(_managerStateAppService.GetScriptRobot()));
         MessageSucess();
         StateHasChanged();
